@@ -1,0 +1,562 @@
+{
+  "movies": [
+    {
+      "title": "The Lion King",
+      "clues": [
+        "This movie is set among the animals of the African savanna.",
+        "The main character is a lion cub who runs away after a tragedy.",
+        "His uncle wants the throne for himself and blames the cub for their father's death.",
+        "The cub grows up with a warthog and a meerkat who teach him 'no worries' as a way of life."
+      ]
+    },
+    {
+      "title": "Frozen",
+      "clues": [
+        "Two royal sisters are at the heart of this snowy story.",
+        "One sister has a magical power she struggles to control.",
+        "She accidentally plunges her kingdom into an eternal winter.",
+        "Her sister sets off with a mountain man, his reindeer, and a talking snowman to bring her home."
+      ]
+    },
+    {
+      "title": "Aladdin",
+      "clues": [
+        "This story is set in a fictional Middle Eastern city.",
+        "A street urchin finds a magical object hidden in a cave of wonders.",
+        "Inside is a being who can grant three wishes.",
+        "The hero uses a wish to disguise himself as a prince to court a princess."
+      ]
+    },
+    {
+      "title": "Beauty and the Beast",
+      "clues": [
+        "A young woman in a French village loves to read.",
+        "Her father is imprisoned in an enchanted castle.",
+        "She trades places with him and meets the castle's cursed owner.",
+        "The household staff have been turned into talking objects, including a candlestick and a teapot."
+      ]
+    },
+    {
+      "title": "The Little Mermaid",
+      "clues": [
+        "The main character lives under the sea and longs for the world above.",
+        "She makes a dangerous deal with a sea witch to become human.",
+        "She trades her voice for a pair of legs.",
+        "She has three days to get a prince to fall in love with her, or she belongs to the witch."
+      ]
+    },
+    {
+      "title": "Moana",
+      "clues": [
+        "The main character is the daughter of a chief on a Polynesian island.",
+        "She sets sail across the ocean against her father's wishes.",
+        "She's searching for a legendary demigod to help restore a stolen heart.",
+        "Her companion on the journey is a shape-shifting figure named Maui."
+      ]
+    },
+    {
+      "title": "Toy Story",
+      "clues": [
+        "This was the first entirely computer-animated feature film.",
+        "The main characters are toys that come to life when humans aren't looking.",
+        "A cowboy doll is the favorite toy of a boy named Andy.",
+        "A new spaceman action figure arrives and doesn't realize he's actually a toy."
+      ]
+    },
+    {
+      "title": "Finding Nemo",
+      "clues": [
+        "This movie takes place mostly underwater.",
+        "A young clownfish is captured by a diver and taken far from home.",
+        "His anxious father sets out across the ocean to find him.",
+        "Along the way he's helped by a friendly blue tang fish with short-term memory loss."
+      ]
+    },
+    {
+      "title": "Mulan",
+      "clues": [
+        "This story is set in ancient China during a war.",
+        "The main character disguises herself as a man to take her father's place in the army.",
+        "A small dragon named Mushu becomes her guardian and companion.",
+        "She ultimately saves the emperor and earns the respect of her whole country."
+      ]
+    },
+    {
+      "title": "Tangled",
+      "clues": [
+        "This story is loosely based on the fairy tale 'Rapunzel.'",
+        "The main character has been locked in a tower her whole life by a woman posing as her mother.",
+        "Her extraordinarily long hair has magical healing powers.",
+        "A charming thief climbs into her tower and becomes her guide to the outside world."
+      ]
+    },
+    {
+      "title": "Cinderella",
+      "clues": [
+        "The main character is forced into servitude by her stepmother and stepsisters.",
+        "A fairy godmother helps her attend a royal ball.",
+        "Her magical transportation and gown will disappear at the stroke of midnight.",
+        "She leaves behind a glass slipper that a prince uses to track her down."
+      ]
+    },
+    {
+      "title": "Snow White and the Seven Dwarfs",
+      "clues": [
+        "This was Disney's first full-length animated feature film.",
+        "A jealous queen wants the main character gone because she's 'the fairest of them all.'",
+        "The heroine finds refuge in a cottage in the woods with seven small housemates.",
+        "She falls into a deep sleep after biting a poisoned apple."
+      ]
+    },
+    {
+      "title": "Sleeping Beauty",
+      "clues": [
+        "A princess is cursed by an evil fairy at her christening.",
+        "The curse says she'll prick her finger on a spinning wheel and fall into a deep sleep.",
+        "Three good fairies raise her in secret to try to protect her.",
+        "Only true love's kiss from a prince can break the spell."
+      ]
+    },
+    {
+      "title": "The Jungle Book",
+      "clues": [
+        "This story follows a boy raised by wolves in the jungle.",
+        "A panther and a laid-back bear look out for him.",
+        "A tiger named Shere Khan wants him gone from the jungle.",
+        "The boy eventually must decide whether to stay in the jungle or join the 'man village.'"
+      ]
+    },
+    {
+      "title": "Hercules",
+      "clues": [
+        "This movie is based on Greek mythology.",
+        "The main character is the son of Zeus, stripped of his godly powers as a baby.",
+        "He trains with a satyr to become a hero and earn his place on Mount Olympus.",
+        "The villain is the ruler of the underworld, voiced with fiery flair."
+      ]
+    },
+    {
+      "title": "Pocahontas",
+      "clues": [
+        "This story is set in Virginia in the early 1600s.",
+        "The main character is the daughter of a Powhatan chief.",
+        "She befriends an English settler who arrives with a group of colonists.",
+        "A talking tree named Grandmother Willow gives her guidance."
+      ]
+    },
+    {
+      "title": "Up",
+      "clues": [
+        "The main character is an elderly widower who was once an adventurer.",
+        "He ties thousands of balloons to his house to fly it to South America.",
+        "A young wilderness scout accidentally stows away on the journey.",
+        "They meet a talking dog and a rare, giant bird along the way."
+      ]
+    },
+    {
+      "title": "Ratatouille",
+      "clues": [
+        "The main character dreams of becoming a chef in Paris.",
+        "There's just one problem: he's a rat.",
+        "He secretly controls a clumsy kitchen worker by tugging his hair to cook.",
+        "A feared food critic ultimately gives his cooking a rave review."
+      ]
+    },
+    {
+      "title": "Encanto",
+      "clues": [
+        "This story follows a large family living in a magical house in Colombia.",
+        "Every child in the family is granted a magical gift, except one.",
+        "The magic of their house begins to crack and crumble.",
+        "The gift-less family member turns out to be the key to saving the family's magic."
+      ]
+    },
+    {
+      "title": "Zootopia",
+      "clues": [
+        "This movie is set entirely in a city inhabited by anthropomorphic animals.",
+        "The main character is the city's first rabbit police officer.",
+        "She teams up with a sly fox con artist to solve a missing persons case.",
+        "Together they uncover a conspiracy involving predator animals 'going savage.'"
+      ]
+    },
+    {
+      "title": "Pinocchio",
+      "clues": [
+        "A woodcarver's newest creation is granted the gift of life by a wishing star.",
+        "A cricket is assigned to serve as the title character's conscience.",
+        "A fox and a cat lure him toward a stage show instead of school.",
+        "His nose grows whenever he tells a lie, and he's briefly transformed on an island where misbehaving boys turn into donkeys."
+      ]
+    },
+    {
+      "title": "Bambi",
+      "clues": [
+        "This film follows the changing seasons in a forest from a young animal's birth.",
+        "The main character is a prince of the forest, heir to the Great Prince.",
+        "A rabbit and a skunk are his closest childhood friends.",
+        "A gunshot during hunting season leaves him orphaned, and he later must save the woodland creatures from a raging fire."
+      ]
+    },
+    {
+      "title": "Dumbo",
+      "clues": [
+        "The main character is a circus baby delivered by a stork to the wrong mother.",
+        "He is mocked for his unusually large ears.",
+        "A group of crows and a mouse convince him he can use a 'magic feather' to fly.",
+        "His mother is chained up and locked away after trying to protect him from cruel onlookers."
+      ]
+    },
+    {
+      "title": "Alice in Wonderland",
+      "clues": [
+        "The main character follows a waistcoat-wearing creature down a hole.",
+        "She shrinks and grows repeatedly after eating and drinking strange things.",
+        "A grinning feline can vanish, leaving only its smile behind.",
+        "A tyrannical queen obsessed with playing card soldiers keeps demanding beheadings."
+      ]
+    },
+    {
+      "title": "Peter Pan",
+      "clues": [
+        "Three siblings in London are visited one night by a boy who can fly.",
+        "Fairy dust and happy thoughts let the children soar out their bedroom window.",
+        "They travel to an island where lost boys never grow up.",
+        "A hook-handed pirate captain is forever fleeing a crocodile that once ate his hand, along with his pocket watch."
+      ]
+    },
+    {
+      "title": "Lady and the Tramp",
+      "clues": [
+        "This love story unfolds between two dogs of very different backgrounds.",
+        "One is a pampered house pet; the other is a streetwise stray.",
+        "A jealous pair of Siamese cats causes chaos for the family's new baby.",
+        "The two leads share a famous spaghetti dinner behind an Italian restaurant."
+      ]
+    },
+    {
+      "title": "101 Dalmatians",
+      "clues": [
+        "Two dog owners fall in love because of their pets in London.",
+        "The pets' family soon includes a litter of spotted puppies.",
+        "A fur-obsessed fashion villainess wants the puppies for a coat.",
+        "Her bumbling henchmen fail to stop a rescue involving dozens more stolen puppies hidden on a farm."
+      ]
+    },
+    {
+      "title": "The Sword in the Stone",
+      "clues": [
+        "This story is loosely based on Arthurian legend.",
+        "An orphaned squire boy is secretly destined for greatness.",
+        "A wizard tutors him by transforming both of them into different animals.",
+        "He proves his destiny by pulling a legendary sword from an anvil in a churchyard stone."
+      ]
+    },
+    {
+      "title": "Robin Hood",
+      "clues": [
+        "This retelling of a classic English legend casts every character as an animal.",
+        "The hero is a sly fox who steals from the rich to give to the poor.",
+        "A greedy lion sits on a stolen throne while his brother, the rightful king, is away.",
+        "An archery contest turns out to be a trap set by the villain to capture the hero."
+      ]
+    },
+    {
+      "title": "The Rescuers",
+      "clues": [
+        "Two mice belong to a rescue organization based under the United Nations.",
+        "They're sent to help an orphan girl who sent a message in a bottle.",
+        "A one-eyed cat named Brutus works for the film's villain.",
+        "The villain forces the girl into tight caves to retrieve a giant diamond from a pirate's skull-shaped cave."
+      ]
+    },
+    {
+      "title": "The Fox and the Hound",
+      "clues": [
+        "Two young animals become best friends despite what they're 'supposed' to be.",
+        "One is raised as an orphaned pet; the other lives with a hunter next door.",
+        "As they grow up, their owners expect them to become natural enemies.",
+        "A hunting dog and a fox must set aside instinct to save each other from a raging bear."
+      ]
+    },
+    {
+      "title": "The Black Cauldron",
+      "clues": [
+        "This darker fantasy is based on a series of Welsh-inspired fantasy novels.",
+        "An assistant pig-keeper discovers his pig has the power to see the future.",
+        "A skeletal tyrant known as the Horned King seeks an ancient magical cauldron.",
+        "That cauldron can raise an unstoppable army of the undead if he obtains it."
+      ]
+    },
+    {
+      "title": "The Great Mouse Detective",
+      "clues": [
+        "This mystery stars a rodent detective living beneath a famous London address.",
+        "He's modeled closely on a very famous human detective who lives upstairs.",
+        "A kidnapped toymaker mouse and his daughter set the plot in motion.",
+        "The villain is a fat, sinister rat who serves as this detective's arch-nemesis."
+      ]
+    },
+    {
+      "title": "Oliver & Company",
+      "clues": [
+        "This story loosely reimagines a classic Dickens orphan tale with animals in New York City.",
+        "The main character is a kitten who falls in with a gang of streetwise dogs.",
+        "The gang's leader is a scrappy Jack Russell terrier who talks like a con artist.",
+        "A loan shark's henchdogs chase the gang through the city in a wild scooter pursuit."
+      ]
+    },
+    {
+      "title": "The Hunchback of Notre Dame",
+      "clues": [
+        "The main character has lived his whole life hidden away in a cathedral bell tower.",
+        "Three animated gargoyles are his only friends and confidants.",
+        "A powerful judge is obsessed with a Romani woman who shows the hero kindness.",
+        "A citywide 'Feast of Fools' festival leads to the hero being publicly humiliated."
+      ]
+    },
+    {
+      "title": "The Emperor's New Groove",
+      "clues": [
+        "A spoiled young emperor is turned into an animal by his own scheming advisor.",
+        "A poisoned drink was supposed to kill him but had a different side effect.",
+        "He's forced to rely on a humble llama herder he once treated terribly.",
+        "The villain's none-too-bright henchman keeps pulling the wrong lever."
+      ]
+    },
+    {
+      "title": "Atlantis: The Lost Empire",
+      "clues": [
+        "A young linguist and museum worker joins an expedition few believe is real.",
+        "The expedition is searching for a legendary sunken civilization.",
+        "The city they find is protected by glowing blue crystal technology.",
+        "The expedition's funder turns out to be after that crystal power for himself."
+      ]
+    },
+    {
+      "title": "Lilo & Stitch",
+      "clues": [
+        "A lonely Hawaiian girl adopts what she believes is an unusual dog from a shelter.",
+        "Her new pet is actually an illegal genetic experiment created for destruction.",
+        "Two bumbling aliens are sent to recapture him before he causes harm.",
+        "The girl teaches him that 'ohana' means family, and family means no one gets left behind."
+      ]
+    },
+    {
+      "title": "Treasure Planet",
+      "clues": [
+        "This sci-fi retelling reimagines a classic pirate adventure novel in outer space.",
+        "A teenage boy discovers a map leading to a legendary treasure among the stars.",
+        "He sets sail on a solar-powered galleon crewed by a mix of aliens.",
+        "The ship's cook turns out to be a cyborg pirate secretly plotting a mutiny."
+      ]
+    },
+    {
+      "title": "Brother Bear",
+      "clues": [
+        "An Inuit-inspired young hunter seeks revenge against a bear for his brother's death.",
+        "Spirits transform him into the very animal he was hunting as punishment.",
+        "He must travel to a mountain where lights touch the earth to become human again.",
+        "Along the way an orphaned bear cub mistakes him for family and won't leave his side."
+      ]
+    },
+    {
+      "title": "Home on the Range",
+      "clues": [
+        "Three dairy cows on a Western farm learn their home is about to be foreclosed.",
+        "They set off to catch a notorious cattle rustler for the reward money.",
+        "The wanted outlaw can hypnotize animals into joining his herd of stolen cattle.",
+        "A yodeling one-eyed cow leads the trio's bounty-hunting scheme."
+      ]
+    },
+    {
+      "title": "Chicken Little",
+      "clues": [
+        "A small-town chicken becomes a laughingstock after a false alarm about the sky falling.",
+        "A year later, something really does fall from the sky into his backyard.",
+        "It turns out to be part of an actual alien invasion ship.",
+        "He and his misfit friends must warn a town that no longer trusts a word he says."
+      ]
+    },
+    {
+      "title": "Meet the Robinsons",
+      "clues": [
+        "A brilliant orphan boy invents a memory-scanning machine for a school science fair.",
+        "A mysterious boy claiming to be from the future warns him about a 'bowler hat guy.'",
+        "He travels forward in time and is adopted into an eccentric, chaotic family.",
+        "The film's motto, repeated throughout, is 'keep moving forward.'"
+      ]
+    },
+    {
+      "title": "Bolt",
+      "clues": [
+        "The main character is a TV star dog who believes his superpowers are real.",
+        "He's accidentally shipped across the country away from the studio set.",
+        "He teams up with a cynical alley cat and an obsessed hamster in a plastic ball.",
+        "He must learn that being an ordinary dog can still mean being a hero."
+      ]
+    },
+    {
+      "title": "Wreck-It Ralph",
+      "clues": [
+        "The main character is the villain of his own 1980s-style arcade game.",
+        "Tired of being unappreciated, he sneaks into other games to earn a hero's medal.",
+        "He ends up in a candy-themed go-kart racing game run by a sugary tyrant.",
+        "He befriends a glitchy racer who isn't supposed to exist in that game at all."
+      ]
+    },
+    {
+      "title": "Big Hero 6",
+      "clues": [
+        "A young robotics prodigy lives in a fictional city blending San Francisco and Tokyo.",
+        "His brother built a soft, inflatable healthcare companion robot before the story begins.",
+        "A tragic fire prompts the boy to reprogram that robot for crime-fighting.",
+        "He assembles a team of his brother's friends, each armed with their own tech-based gear."
+      ]
+    },
+    {
+      "title": "Raya and the Last Dragon",
+      "clues": [
+        "A fantasy land once thrived until it was overrun by soul-stealing creatures called the Druun.",
+        "The land had been divided into five rival, animal-named nations.",
+        "A warrior princess sets out to reassemble a shattered magical gem.",
+        "She needs the help of the last known dragon to save her petrified father."
+      ]
+    },
+    {
+      "title": "Wish",
+      "clues": [
+        "A young woman lives in a kingdom where people surrender their wishes to their ruler.",
+        "Most of those people never get their wishes granted at all.",
+        "She befriends a small ball of star-stuff that falls from the night sky.",
+        "She turns against the very king she once admired to reclaim everyone's stolen wishes."
+      ]
+    },
+    {
+      "title": "Strange World",
+      "clues": [
+        "Three generations of one family of explorers don't see eye to eye.",
+        "Their remote homeland relies entirely on one glowing plant for power.",
+        "They descend beneath their world to find out why that plant is dying.",
+        "They discover their entire world is something far stranger than a planet."
+      ]
+    },
+    {
+      "title": "A Bug's Life",
+      "clues": [
+        "This was the second entirely computer-animated feature ever released.",
+        "An ant colony must gather food each year to pay off a gang of grasshoppers.",
+        "One inventive but accident-prone ant loses the tribute and is banished.",
+        "He returns with a troupe of out-of-work circus bugs, mistaken for real warriors."
+      ]
+    },
+    {
+      "title": "Monsters, Inc.",
+      "clues": [
+        "This company generates power by scaring human children at night.",
+        "Its top scarer is a huge, furry, blue-and-purple monster.",
+        "A door-related accident lets a little human girl loose in the monster world.",
+        "The company discovers laughter produces even more energy than screams ever did."
+      ]
+    },
+    {
+      "title": "Cars",
+      "clues": [
+        "Every character in this world is a living vehicle instead of a person.",
+        "A hotshot rookie race car gets stranded in a forgotten town along an old highway.",
+        "The town was bypassed decades earlier when a new interstate was built nearby.",
+        "A rusty tow truck becomes his best friend despite a rocky first meeting."
+      ]
+    },
+    {
+      "title": "WALL-E",
+      "clues": [
+        "The main character is a trash-compacting robot left alone on Earth for centuries.",
+        "Humanity fled the planet generations earlier aboard a massive space cruise liner.",
+        "A sleek white probe robot arrives searching for proof that plant life has returned.",
+        "He follows her back into space, risking everything to save one small plant."
+      ]
+    },
+    {
+      "title": "The Incredibles",
+      "clues": [
+        "A family of superheroes is forced to live disguised as an ordinary suburban household.",
+        "Superheroes had been legally banned years earlier after one too many lawsuits.",
+        "The father secretly moonlights on hero missions his wife doesn't know about.",
+        "A former childhood fan-turned-villain lures him into a trap on a remote island."
+      ]
+    },
+    {
+      "title": "Brave",
+      "clues": [
+        "A Scottish princess would rather shoot arrows than follow royal tradition.",
+        "Her mother wants her to marry a suitor chosen from the kingdom's rival clans.",
+        "A witch's spell meant to change her mother's mind goes horribly wrong instead.",
+        "Her mother is transformed into a bear, and the spell must be undone before it's permanent."
+      ]
+    },
+    {
+      "title": "Inside Out",
+      "clues": [
+        "This story takes place mostly inside the mind of an 11-year-old girl.",
+        "Five emotions take turns operating the control panel of her brain.",
+        "One emotion, usually in charge, insists on staying relentlessly positive.",
+        "A move to a new city throws the whole emotional headquarters into chaos when core memories go missing."
+      ]
+    },
+    {
+      "title": "Coco",
+      "clues": [
+        "A boy from a family that has banned music for generations dreams of being a musician.",
+        "He's magically transported to a vibrant land of the dead during a holiday of remembrance.",
+        "He needs a long-dead relative's blessing before sunrise or he'll be trapped there.",
+        "He idolizes a famous, long-deceased singer who may not be who he seems."
+      ]
+    },
+    {
+      "title": "Luca",
+      "clues": [
+        "This story is set in a sun-soaked town on the Italian Riviera.",
+        "The main character is secretly a sea monster who can pass as human on land.",
+        "He and a new friend dream of winning a local town race for a prize scooter.",
+        "Being caught in the rain risks exposing what he really is to the whole town."
+      ]
+    },
+    {
+      "title": "Turning Red",
+      "clues": [
+        "A confident 13-year-old in Toronto keeps a huge secret from her overprotective mother.",
+        "Strong emotions cause her to transform into a giant red panda.",
+        "Her family has passed this ability down through generations of women.",
+        "She must choose whether to seal the panda away forever during a rare red moon ritual."
+      ]
+    },
+    {
+      "title": "Soul",
+      "clues": [
+        "A middle school band teacher finally gets his big break as a jazz pianist.",
+        "An accident sends his soul toward the afterlife before he can play the gig.",
+        "He escapes into a realm where new souls develop their personalities before being born.",
+        "He's mistaken for a mentor to a soul who has no interest in life on Earth at all."
+      ]
+    },
+    {
+      "title": "Onward",
+      "clues": [
+        "Two elf brothers live in a suburban fantasy world that has forgotten most of its magic.",
+        "A birthday spell is meant to briefly bring their late father back to life.",
+        "The spell only succeeds in restoring the bottom half of him.",
+        "The brothers set off on a quest before the magic runs out at sunset the next day."
+      ]
+    },
+    {
+      "title": "The Good Dinosaur",
+      "clues": [
+        "This story imagines what if the asteroid that ended the dinosaurs had missed Earth.",
+        "A young dinosaur is separated from his family after a river accident.",
+        "A feral human boy becomes his unlikely companion on the journey home.",
+        "He must overcome his fears to survive alongside his newfound friend in the wild."
+      ]
+    }
+  ]
+}

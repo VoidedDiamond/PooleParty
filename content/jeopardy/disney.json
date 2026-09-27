@@ -1,0 +1,45 @@
+{
+  "title": "Disney Night",
+  "categories": [
+    { "name": "Disney Animated Classics", "clues": [
+      { "value": 200,  "clue": "This 1937 film was Disney's first full-length animated feature, following a princess and seven miniature companions.", "answer": "What is Snow White and the Seven Dwarfs?" },
+      { "value": 400,  "clue": "In this 1994 film, a lion cub named Simba flees his kingdom after his father Mufasa is killed.", "answer": "What is The Lion King?" },
+      { "value": 600,  "clue": "This 1989 film centers on a mermaid princess named Ariel who longs to live on land.", "answer": "What is The Little Mermaid?" },
+      { "value": 800,  "clue": "In this 2013 film, a princess named Elsa has the power to create ice and snow.", "answer": "What is Frozen?" },
+      { "value": 1000, "clue": "This 1940 film follows a wooden puppet who dreams of becoming a real boy.", "answer": "What is Pinocchio?" }
+    ]},
+    { "name": "Pixar", "clues": [
+      { "value": 200,  "clue": "This 1995 film was the first full-length computer-animated feature, starring a cowboy doll and a spaceman toy.", "answer": "What is Toy Story?" },
+      { "value": 400,  "clue": "This 2003 film follows a clownfish searching the ocean for his missing son.", "answer": "What is Finding Nemo?" },
+      { "value": 600,  "clue": "In this 2009 film, an elderly man ties thousands of balloons to his house to fly it to South America.", "answer": "What is Up?" },
+      { "value": 800,  "clue": "This 2015 film takes place mostly inside the mind of a girl named Riley, featuring emotions like Joy and Sadness.", "answer": "What is Inside Out?" },
+      { "value": 1000, "clue": "This 2017 film follows a boy named Miguel who travels to the Land of the Dead on Dia de los Muertos.", "answer": "What is Coco?" }
+    ]},
+    { "name": "Disney Princesses", "clues": [
+      { "value": 200,  "clue": "This princess pricks her finger on a spinning wheel and falls into a deep sleep.", "answer": "Who is Aurora/Sleeping Beauty?" },
+      { "value": 400,  "clue": "This princess loses a glass slipper at the royal ball.", "answer": "Who is Cinderella?" },
+      { "value": 600,  "clue": "This princess has 70 feet of magical golden hair in a 2010 film.", "answer": "Who is Rapunzel?" },
+      { "value": 800,  "clue": "This princess is the daughter of Chief Powhatan and befriends an English settler.", "answer": "Who is Pocahontas?" },
+      { "value": 1000, "clue": "This princess becomes the first Disney princess to run her own restaurant, in a 2009 film.", "answer": "Who is Tiana?" }
+    ]},
+    { "name": "Disney Parks", "clues": [
+      { "value": 200,  "clue": "This original Disney theme park opened in Anaheim, California in 1955.", "answer": "What is Disneyland?" },
+      { "value": 400,  "clue": "This Florida resort, which opened in 1971, includes Magic Kingdom, Epcot, and two other theme parks.", "answer": "What is Walt Disney World?" },
+      { "value": 600,  "clue": "This centerpiece attraction of Magic Kingdom is a castle named for the princess who loses a glass slipper.", "answer": "What is Cinderella Castle?" },
+      { "value": 800,  "clue": "This geodesic sphere is the iconic structure at the entrance of Epcot.", "answer": "What is Spaceship Earth?" },
+      { "value": 1000, "clue": "This Disneyland ride, which inspired a hit film franchise, sends guests on a boat trip past pirates.", "answer": "What is Pirates of the Caribbean?" }
+    ]},
+    { "name": "Disney Villains", "clues": [
+      { "value": 200,  "clue": "This Sleeping Beauty villain can transform into a dragon and calls herself the Mistress of All Evil.", "answer": "Who is Maleficent?" },
+      { "value": 400,  "clue": "This Lion King villain is Simba's uncle and helps hyenas take over Pride Rock.", "answer": "Who is Scar?" },
+      { "value": 600,  "clue": "This Little Mermaid villain is a sea witch with tentacles who trades voices for legs.", "answer": "Who is Ursula?" },
+      { "value": 800,  "clue": "This Snow White villain disguises herself as an old peddler woman to deliver a poisoned apple.", "answer": "Who is the Evil Queen?" },
+      { "value": 1000, "clue": "This 101 Dalmatians villain wants to make a coat from puppy fur.", "answer": "Who is Cruella de Vil?" }
+    ]}
+  ],
+  "final": {
+    "category": "Disney Music",
+    "clue": "This composer wrote the scores for The Little Mermaid, Beauty and the Beast, and Aladdin, winning multiple Academy Awards along the way.",
+    "answer": "Who is Alan Menken?"
+  }
+}

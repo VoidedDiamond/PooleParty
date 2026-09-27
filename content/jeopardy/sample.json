@@ -1,0 +1,45 @@
+{
+  "title": "Sample Board",
+  "categories": [
+    { "name": "Science", "clues": [
+      { "value": 200,  "clue": "This planet, the fourth from the Sun, is known as the Red Planet.", "answer": "What is Mars?" },
+      { "value": 400,  "clue": "H2O is the chemical formula for this compound.", "answer": "What is water?" },
+      { "value": 600,  "clue": "This cell structure is often called the powerhouse of the cell.", "answer": "What is the mitochondrion?" },
+      { "value": 800,  "clue": "The chemical symbol Au stands for this element.", "answer": "What is gold?" },
+      { "value": 1000, "clue": "This scientist's 1915 theory of general relativity describes gravity as curved spacetime.", "answer": "Who is Albert Einstein?" }
+    ]},
+    { "name": "U.S. Geography", "clues": [
+      { "value": 200,  "clue": "The Grand Canyon is located in this Southwestern state.", "answer": "What is Arizona?" },
+      { "value": 400,  "clue": "This city is the capital of Texas.", "answer": "What is Austin?" },
+      { "value": 600,  "clue": "This is the only U.S. state made up entirely of islands.", "answer": "What is Hawaii?" },
+      { "value": 800,  "clue": "The Great Salt Lake is in this state.", "answer": "What is Utah?" },
+      { "value": 1000, "clue": "North America's tallest peak, in Alaska, goes by this name, which replaced McKinley.", "answer": "What is Denali?" }
+    ]},
+    { "name": "Food & Drink", "clues": [
+      { "value": 200,  "clue": "This dish topped with tomato sauce and cheese originated in Naples, Italy.", "answer": "What is pizza?" },
+      { "value": 400,  "clue": "Guacamole is made primarily from this fruit.", "answer": "What is an avocado?" },
+      { "value": 600,  "clue": "Sushi rice is seasoned with this acidic liquid.", "answer": "What is vinegar?" },
+      { "value": 800,  "clue": "This spice, among the most expensive in the world by weight, comes from crocus flowers.", "answer": "What is saffron?" },
+      { "value": 1000, "clue": "This Italian term, meaning \"to the tooth,\" describes pasta cooked until firm.", "answer": "What is al dente?" }
+    ]},
+    { "name": "Movies", "clues": [
+      { "value": 200,  "clue": "In this 1994 Disney film, a young lion cub named Simba is destined to be king.", "answer": "What is The Lion King?" },
+      { "value": 400,  "clue": "This director made Jaws, E.T., and Jurassic Park.", "answer": "Who is Steven Spielberg?" },
+      { "value": 600,  "clue": "In The Wizard of Oz, this is the name of Dorothy's dog.", "answer": "Who is Toto?" },
+      { "value": 800,  "clue": "Leonardo DiCaprio and Kate Winslet starred in this 1997 film about a doomed ship.", "answer": "What is Titanic?" },
+      { "value": 1000, "clue": "In 2020, this South Korean film became the first non-English-language film to win Best Picture.", "answer": "What is Parasite?" }
+    ]},
+    { "name": "History", "clues": [
+      { "value": 200,  "clue": "He was the first President of the United States.", "answer": "Who is George Washington?" },
+      { "value": 400,  "clue": "The Great Pyramid of Giza, the only ancient wonder still standing, is in this country.", "answer": "What is Egypt?" },
+      { "value": 600,  "clue": "The Berlin Wall fell in this year.", "answer": "What is 1989?" },
+      { "value": 800,  "clue": "King John of England sealed this 1215 charter limiting royal power.", "answer": "What is the Magna Carta?" },
+      { "value": 1000, "clue": "The first voyage around the globe set sail in 1519 under this Portuguese explorer, who died along the way.", "answer": "Who is Ferdinand Magellan?" }
+    ]}
+  ],
+  "final": {
+    "category": "Continents",
+    "clue": "This is the only country in the world that is also a continent.",
+    "answer": "What is Australia?"
+  }
+}

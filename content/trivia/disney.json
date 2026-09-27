@@ -1,0 +1,443 @@
+{
+  "title": "Disney Trivia",
+  "maxTier": 3,
+  "tierLabels": [
+    "Hard",
+    "Harder",
+    "Expert"
+  ],
+  "questions": [
+    {
+      "tier": 1,
+      "topic": "Characters",
+      "q": "What was Scar's name before he earned his scar in 'The Lion King'?",
+      "choices": [
+        "Taka",
+        "Kopa",
+        "Ahadi",
+        "Nuka"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Movies",
+      "q": "Who voiced the Genie in the original 1992 'Aladdin'?",
+      "choices": [
+        "Robin Williams",
+        "James Earl Jones",
+        "Jonathan Freeman",
+        "Gilbert Gottfried"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Characters",
+      "q": "What is the name of the whale that swallows Geppetto in 'Pinocchio'?",
+      "choices": [
+        "Monstro",
+        "Leviathan",
+        "Behemoth",
+        "Moby"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Characters",
+      "q": "What are the names of Ursula's two eel henchmen in 'The Little Mermaid'?",
+      "choices": [
+        "Flotsam and Jetsam",
+        "Scuttle and Sebastian",
+        "Slinky and Sly",
+        "Gill and Fin"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Parks",
+      "q": "What year did the Magic Kingdom at Walt Disney World in Florida open?",
+      "choices": [
+        "1955",
+        "1971",
+        "1982",
+        "1966"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 1,
+      "topic": "Movies",
+      "q": "What does Belle's father Maurice invent and show off at the fair in 'Beauty and the Beast'?",
+      "choices": [
+        "A wood-chopping machine",
+        "A steam engine",
+        "A hot air balloon",
+        "A music box"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Movies",
+      "q": "In which country is 'Encanto' set?",
+      "choices": [
+        "Colombia",
+        "Peru",
+        "Brazil",
+        "Mexico"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Characters",
+      "q": "What is the last name of Mirabel's family in 'Encanto'?",
+      "choices": [
+        "Madrigal",
+        "Rivera",
+        "Cortez",
+        "Fernandez"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Pixar",
+      "q": "What is the name of Sid's dog in the original 'Toy Story'?",
+      "choices": [
+        "Scud",
+        "Rex",
+        "Buster",
+        "Spot"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Movies",
+      "q": "What is the name of the giant coconut crab villain in 'Moana'?",
+      "choices": [
+        "Tamatoa",
+        "Te Fiti",
+        "Te Ka",
+        "Maui"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Movies",
+      "q": "What color was the dress Cinderella's mice and bird friends made for her, before her stepsisters tore it apart?",
+      "choices": [
+        "Pink",
+        "Yellow",
+        "Green",
+        "Blue"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Characters",
+      "q": "What is the name of the crocodile who swallowed a clock and stalks Captain Hook in 'Peter Pan'?",
+      "choices": [
+        "Tick-Tock",
+        "Nana",
+        "Smee",
+        "Kaa"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Movies",
+      "q": "Who composed the orchestral score (not the songs) for the original 1994 'The Lion King'?",
+      "choices": [
+        "Hans Zimmer",
+        "Alan Menken",
+        "Randy Newman",
+        "Danny Elfman"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Characters",
+      "q": "What is the name of the prince in 1959's 'Sleeping Beauty'?",
+      "choices": [
+        "Phillip",
+        "Charming",
+        "Eric",
+        "Ferdinand"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Characters",
+      "q": "What is the name of Prince Eric's dog in 'The Little Mermaid'?",
+      "choices": [
+        "Max",
+        "Rex",
+        "Bruno",
+        "Duke"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Pixar",
+      "q": "What year was the original 'Toy Story' released?",
+      "choices": [
+        "1993",
+        "1995",
+        "1997",
+        "1999"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Villains",
+      "q": "What is the name of the prospector doll who turns villain in 'Toy Story 2'?",
+      "choices": [
+        "Stinky Pete",
+        "Lotso",
+        "Zurg",
+        "Al McWhiggin"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Villains",
+      "q": "Ursula's design in 'The Little Mermaid' was famously inspired by which drag performer?",
+      "choices": [
+        "Divine",
+        "RuPaul",
+        "Boy George",
+        "Grace Jones"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Characters",
+      "q": "What is the name of Gaston's bumbling sidekick in 'Beauty and the Beast'?",
+      "choices": [
+        "LeFou",
+        "Lumiere",
+        "Cogsworth",
+        "Chip"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Movies",
+      "q": "Which was Walt Disney's very first full-length animated feature film?",
+      "choices": [
+        "Snow White and the Seven Dwarfs",
+        "Pinocchio",
+        "Fantasia",
+        "Bambi"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Characters",
+      "q": "What is the name of Belle's horse in 'Beauty and the Beast'?",
+      "choices": [
+        "Philippe",
+        "Samson",
+        "Angus",
+        "Maximus"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Characters",
+      "q": "What are the names of the farmer couple who raise Hercules on Earth in 'Hercules'?",
+      "choices": [
+        "Amphitryon and Alcmene",
+        "Zeus and Hera",
+        "Philoctetes and Megara",
+        "Icarus and Daedalus"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Villains",
+      "q": "What is the name of the lava demon in 'Moana' who is later revealed to be Te Fiti without her heart?",
+      "choices": [
+        "Te Ka",
+        "Tamatoa",
+        "Maui",
+        "Chernabog"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 2,
+      "topic": "Parks",
+      "q": "What year did Walt Disney die?",
+      "choices": [
+        "1966",
+        "1971",
+        "1955",
+        "1961"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Characters",
+      "q": "Who provided the original voice of Mickey Mouse?",
+      "choices": [
+        "Walt Disney",
+        "Wayne Allwine",
+        "Bret Iwan",
+        "Jimmy MacDonald"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Movies",
+      "q": "What was the first Disney short film to win an Academy Award, in 1932?",
+      "choices": [
+        "Flowers and Trees",
+        "The Skeleton Dance",
+        "Steamboat Willie",
+        "The Three Little Pigs"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Characters",
+      "q": "What are the names of the two mouse secret agents in 1977's 'The Rescuers'?",
+      "choices": [
+        "Bernard and Miss Bianca",
+        "Basil and Olivia",
+        "Jaq and Gus",
+        "Timothy and Ben"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Movies",
+      "q": "'The Jungle Book' is based on stories written by which author?",
+      "choices": [
+        "Rudyard Kipling",
+        "Roald Dahl",
+        "C.S. Lewis",
+        "Lewis Carroll"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Parks",
+      "q": "What year did Disney complete its acquisition of Pixar?",
+      "choices": [
+        "2001",
+        "2006",
+        "2009",
+        "2012"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 3,
+      "topic": "Movies",
+      "q": "What year did Disney acquire Marvel Entertainment?",
+      "choices": [
+        "2006",
+        "2009",
+        "2012",
+        "2015"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 3,
+      "topic": "Movies",
+      "q": "What year did Disney acquire Lucasfilm, the home of Star Wars?",
+      "choices": [
+        "2009",
+        "2012",
+        "2015",
+        "2019"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 3,
+      "topic": "Movies",
+      "q": "Who was the supervising director of 'Snow White and the Seven Dwarfs' (1937)?",
+      "choices": [
+        "David Hand",
+        "Wilfred Jackson",
+        "Ben Sharpsteen",
+        "Hamilton Luske"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Characters",
+      "q": "In the 2017 live-action 'Beauty and the Beast,' what is the wardrobe character named?",
+      "choices": [
+        "Madame de Garderobe",
+        "Madame Armoire",
+        "Madame Couture",
+        "Madame Fifi"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Pixar",
+      "q": "What was the first Pixar short film to win an Academy Award, in 1988?",
+      "choices": [
+        "Tin Toy",
+        "Luxo Jr.",
+        "Geri's Game",
+        "Knick Knack"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Parks",
+      "q": "What is Walt Disney's middle name?",
+      "choices": [
+        "Elias",
+        "Edward",
+        "Ellis",
+        "Earl"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Parks",
+      "q": "What year did the original Disneyland park in Anaheim open?",
+      "choices": [
+        "1955",
+        "1959",
+        "1963",
+        "1971"
+      ],
+      "correct": 0
+    }
+  ]
+}

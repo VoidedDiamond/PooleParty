@@ -1,0 +1,733 @@
+{
+  "title": "Are You Smarter Than a 5th Grader?",
+  "maxTier": 5,
+  "tierLabels": [
+    "Grade 1",
+    "Grade 2",
+    "Grade 3",
+    "Grade 4",
+    "Grade 5"
+  ],
+  "questions": [
+    {
+      "tier": 1,
+      "topic": "Math",
+      "q": "What is 3 + 4?",
+      "choices": [
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 1,
+      "topic": "Math",
+      "q": "Which number comes right after 9?",
+      "choices": [
+        "8",
+        "10",
+        "11",
+        "7"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 1,
+      "topic": "Science",
+      "q": "What do plants need to grow, besides water and soil?",
+      "choices": [
+        "Sunlight",
+        "Ice",
+        "Sand",
+        "Glue"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Science",
+      "q": "Which of these animals can fly?",
+      "choices": [
+        "Dog",
+        "Robin",
+        "Turtle",
+        "Frog"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 1,
+      "topic": "Reading",
+      "q": "Which word rhymes with 'cat'?",
+      "choices": [
+        "Dog",
+        "Hat",
+        "Sun",
+        "Fish"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 1,
+      "topic": "Reading",
+      "q": "What is the opposite of 'up'?",
+      "choices": [
+        "Down",
+        "Left",
+        "Big",
+        "Fast"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 1,
+      "topic": "Social Studies",
+      "q": "What do we call the money used in the United States?",
+      "choices": [
+        "Pounds",
+        "Euros",
+        "Dollars",
+        "Pesos"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 1,
+      "topic": "Social Studies",
+      "q": "Which season comes after winter?",
+      "choices": [
+        "Summer",
+        "Fall",
+        "Spring",
+        "Autumn"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 1,
+      "topic": "Math",
+      "q": "How many days are in one week?",
+      "choices": [
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 1,
+      "topic": "Science",
+      "q": "What color do you get when you mix blue and yellow?",
+      "choices": [
+        "Purple",
+        "Green",
+        "Orange",
+        "Pink"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 1,
+      "topic": "Reading",
+      "q": "How many letters are in the word 'apple'?",
+      "choices": [
+        "4",
+        "5",
+        "6",
+        "3"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 1,
+      "topic": "Math",
+      "q": "What shape has 3 sides?",
+      "choices": [
+        "Square",
+        "Circle",
+        "Triangle",
+        "Rectangle"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 2,
+      "topic": "Math",
+      "q": "What is 12 + 15?",
+      "choices": [
+        "25",
+        "27",
+        "26",
+        "28"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Math",
+      "q": "How many sides does a hexagon have?",
+      "choices": [
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Science",
+      "q": "Which of these is a mammal?",
+      "choices": [
+        "Shark",
+        "Dolphin",
+        "Octopus",
+        "Lizard"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Science",
+      "q": "What is the closest star to Earth?",
+      "choices": [
+        "The North Star",
+        "The Moon",
+        "The Sun",
+        "Sirius"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 2,
+      "topic": "Reading",
+      "q": "Which of these is a synonym for 'happy'?",
+      "choices": [
+        "Sad",
+        "Joyful",
+        "Angry",
+        "Tired"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Social Studies",
+      "q": "What is the capital of the United States?",
+      "choices": [
+        "New York City",
+        "Washington, D.C.",
+        "Los Angeles",
+        "Chicago"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Social Studies",
+      "q": "Which ocean is the largest?",
+      "choices": [
+        "Atlantic",
+        "Indian",
+        "Arctic",
+        "Pacific"
+      ],
+      "correct": 3
+    },
+    {
+      "tier": 2,
+      "topic": "Math",
+      "q": "What is 9 x 2?",
+      "choices": [
+        "16",
+        "18",
+        "20",
+        "12"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Science",
+      "q": "What gas do humans need to breathe in to survive?",
+      "choices": [
+        "Carbon dioxide",
+        "Oxygen",
+        "Nitrogen",
+        "Helium"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Reading",
+      "q": "What is a group of words that expresses a complete thought called?",
+      "choices": [
+        "A paragraph",
+        "A sentence",
+        "A letter",
+        "A syllable"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Math",
+      "q": "How many minutes are in one hour?",
+      "choices": [
+        "50",
+        "60",
+        "100",
+        "30"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 2,
+      "topic": "Science",
+      "q": "Which planet is known as the Red Planet?",
+      "choices": [
+        "Venus",
+        "Jupiter",
+        "Mars",
+        "Saturn"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 3,
+      "topic": "Math",
+      "q": "What is 7 x 8?",
+      "choices": [
+        "54",
+        "56",
+        "58",
+        "64"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 3,
+      "topic": "Math",
+      "q": "What is 100 divided by 4?",
+      "choices": [
+        "20",
+        "25",
+        "30",
+        "24"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 3,
+      "topic": "Science",
+      "q": "What part of the plant absorbs water from the soil?",
+      "choices": [
+        "Leaves",
+        "Petals",
+        "Roots",
+        "Stem"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 3,
+      "topic": "Science",
+      "q": "How many legs does an insect have?",
+      "choices": [
+        "4",
+        "6",
+        "8",
+        "10"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 3,
+      "topic": "Reading",
+      "q": "What punctuation mark ends a question?",
+      "choices": [
+        "Period",
+        "Comma",
+        "Question mark",
+        "Exclamation point"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 3,
+      "topic": "Social Studies",
+      "q": "Which continent is the United States located on?",
+      "choices": [
+        "South America",
+        "North America",
+        "Europe",
+        "Asia"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 3,
+      "topic": "Social Studies",
+      "q": "Who was the first President of the United States?",
+      "choices": [
+        "Thomas Jefferson",
+        "Abraham Lincoln",
+        "George Washington",
+        "John Adams"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 3,
+      "topic": "Math",
+      "q": "What is the value of a half (1/2) written as a decimal?",
+      "choices": [
+        "0.5",
+        "0.2",
+        "1.5",
+        "0.25"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 3,
+      "topic": "Science",
+      "q": "What is the process called when a caterpillar becomes a butterfly?",
+      "choices": [
+        "Hibernation",
+        "Metamorphosis",
+        "Photosynthesis",
+        "Pollination"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 3,
+      "topic": "Reading",
+      "q": "Which of these words is a verb?",
+      "choices": [
+        "Table",
+        "Quickly",
+        "Jump",
+        "Blue"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 3,
+      "topic": "Math",
+      "q": "What is 15 - 9?",
+      "choices": [
+        "5",
+        "6",
+        "7",
+        "4"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 3,
+      "topic": "Social Studies",
+      "q": "What do we call a person who studies the past?",
+      "choices": [
+        "A biologist",
+        "A historian",
+        "A geologist",
+        "An astronaut"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 4,
+      "topic": "Math",
+      "q": "What is 6 squared (6 x 6)?",
+      "choices": [
+        "12",
+        "36",
+        "42",
+        "24"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 4,
+      "topic": "Math",
+      "q": "What is the perimeter of a square with sides of 5 cm?",
+      "choices": [
+        "10 cm",
+        "15 cm",
+        "20 cm",
+        "25 cm"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 4,
+      "topic": "Science",
+      "q": "What is the largest organ in the human body?",
+      "choices": [
+        "Heart",
+        "Liver",
+        "Skin",
+        "Brain"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 4,
+      "topic": "Science",
+      "q": "Which of these is NOT a state of matter?",
+      "choices": [
+        "Solid",
+        "Liquid",
+        "Gas",
+        "Energy"
+      ],
+      "correct": 3
+    },
+    {
+      "tier": 4,
+      "topic": "Reading",
+      "q": "What do we call a word that means the same as another word?",
+      "choices": [
+        "Antonym",
+        "Synonym",
+        "Homophone",
+        "Adjective"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 4,
+      "topic": "Social Studies",
+      "q": "How many states are in the United States?",
+      "choices": [
+        "48",
+        "49",
+        "50",
+        "52"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 4,
+      "topic": "Social Studies",
+      "q": "Which river is the longest in the world?",
+      "choices": [
+        "Amazon River",
+        "Nile River",
+        "Mississippi River",
+        "Yangtze River"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 4,
+      "topic": "Math",
+      "q": "What fraction is equivalent to 2/4?",
+      "choices": [
+        "1/2",
+        "1/4",
+        "3/4",
+        "2/3"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 4,
+      "topic": "Science",
+      "q": "What force pulls objects toward the Earth?",
+      "choices": [
+        "Magnetism",
+        "Friction",
+        "Gravity",
+        "Momentum"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 4,
+      "topic": "Reading",
+      "q": "In the sentence 'She quickly ran home,' which word is an adverb?",
+      "choices": [
+        "She",
+        "Quickly",
+        "Ran",
+        "Home"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 4,
+      "topic": "Math",
+      "q": "What is 9 x 7?",
+      "choices": [
+        "56",
+        "63",
+        "72",
+        "54"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 4,
+      "topic": "Social Studies",
+      "q": "What is the name of the document that begins 'We the People'?",
+      "choices": [
+        "The Declaration of Independence",
+        "The Bill of Rights",
+        "The U.S. Constitution",
+        "The Gettysburg Address"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 5,
+      "topic": "Math",
+      "q": "What is 3/4 + 1/4?",
+      "choices": [
+        "1",
+        "1/2",
+        "4/8",
+        "2"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 5,
+      "topic": "Math",
+      "q": "What is the area of a rectangle that is 6 cm by 4 cm?",
+      "choices": [
+        "10 sq cm",
+        "20 sq cm",
+        "24 sq cm",
+        "28 sq cm"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 5,
+      "topic": "Science",
+      "q": "What is the powerhouse of the cell?",
+      "choices": [
+        "Nucleus",
+        "Mitochondria",
+        "Cell wall",
+        "Ribosome"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 5,
+      "topic": "Science",
+      "q": "Which planet has the most moons in our solar system?",
+      "choices": [
+        "Earth",
+        "Mars",
+        "Saturn",
+        "Mercury"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 5,
+      "topic": "Reading",
+      "q": "What is the main idea of a story usually called?",
+      "choices": [
+        "The theme",
+        "The setting",
+        "The climax",
+        "The dialogue"
+      ],
+      "correct": 0
+    },
+    {
+      "tier": 5,
+      "topic": "Social Studies",
+      "q": "Who wrote the Declaration of Independence?",
+      "choices": [
+        "Benjamin Franklin",
+        "Thomas Jefferson",
+        "George Washington",
+        "John Hancock"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 5,
+      "topic": "Social Studies",
+      "q": "Which mountain range runs along the western United States?",
+      "choices": [
+        "Appalachian Mountains",
+        "Rocky Mountains",
+        "Andes Mountains",
+        "Alps"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 5,
+      "topic": "Math",
+      "q": "What is 144 divided by 12?",
+      "choices": [
+        "10",
+        "11",
+        "12",
+        "14"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 5,
+      "topic": "Science",
+      "q": "What do we call water in its solid form?",
+      "choices": [
+        "Vapor",
+        "Ice",
+        "Steam",
+        "Fog"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 5,
+      "topic": "Reading",
+      "q": "What do you call a story that is not true and comes from the author's imagination?",
+      "choices": [
+        "Nonfiction",
+        "Biography",
+        "Fiction",
+        "Autobiography"
+      ],
+      "correct": 2
+    },
+    {
+      "tier": 5,
+      "topic": "Math",
+      "q": "Round 3.68 to the nearest whole number.",
+      "choices": [
+        "3",
+        "4",
+        "3.7",
+        "3.5"
+      ],
+      "correct": 1
+    },
+    {
+      "tier": 5,
+      "topic": "Social Studies",
+      "q": "What line divides the Earth into the Northern and Southern Hemispheres?",
+      "choices": [
+        "The Prime Meridian",
+        "The Equator",
+        "The Tropic of Cancer",
+        "The International Date Line"
+      ],
+      "correct": 1
+    }
+  ]
+}

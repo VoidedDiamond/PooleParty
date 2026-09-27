@@ -1,0 +1,304 @@
+{
+ "kind": "feud-bank",
+ "source": "hand-written sample",
+ "questions": [
+  {
+   "q": "Name something you take to the beach.",
+   "a": [
+    [
+     "towel",
+     34
+    ],
+    [
+     "sunscreen",
+     26
+    ],
+    [
+     "umbrella",
+     14
+    ],
+    [
+     "sunglasses",
+     11
+    ],
+    [
+     "water",
+     8
+    ],
+    [
+     "chair",
+     7
+    ]
+   ]
+  },
+  {
+   "q": "Name a fruit that is red.",
+   "a": [
+    [
+     "apple",
+     38
+    ],
+    [
+     "strawberry",
+     27
+    ],
+    [
+     "cherry",
+     15
+    ],
+    [
+     "watermelon",
+     9
+    ],
+    [
+     "raspberry",
+     6
+    ],
+    [
+     "tomato",
+     5
+    ]
+   ]
+  },
+  {
+   "q": "Name something in a kitchen that gets hot.",
+   "a": [
+    [
+     "stove",
+     40
+    ],
+    [
+     "oven",
+     33
+    ],
+    [
+     "microwave",
+     12
+    ],
+    [
+     "toaster",
+     8
+    ],
+    [
+     "kettle",
+     4
+    ],
+    [
+     "pan",
+     3
+    ]
+   ]
+  },
+  {
+   "q": "Name a pet people keep at home.",
+   "a": [
+    [
+     "dog",
+     45
+    ],
+    [
+     "cat",
+     37
+    ],
+    [
+     "fish",
+     8
+    ],
+    [
+     "hamster",
+     5
+    ],
+    [
+     "bird",
+     3
+    ],
+    [
+     "rabbit",
+     2
+    ]
+   ]
+  },
+  {
+   "q": "Name something you find in a school backpack.",
+   "a": [
+    [
+     "books",
+     35
+    ],
+    [
+     "pencil",
+     22
+    ],
+    [
+     "lunch",
+     16
+    ],
+    [
+     "notebook",
+     12
+    ],
+    [
+     "water bottle",
+     8
+    ],
+    [
+     "calculator",
+     4
+    ],
+    [
+     "folder",
+     3
+    ]
+   ]
+  },
+  {
+   "q": "Name a holiday people decorate for.",
+   "a": [
+    [
+     "christmas",
+     48
+    ],
+    [
+     "halloween",
+     30
+    ],
+    [
+     "easter",
+     9
+    ],
+    [
+     "thanksgiving",
+     7
+    ],
+    [
+     "fourth of july",
+     4
+    ],
+    [
+     "valentine's day",
+     2
+    ]
+   ]
+  },
+  {
+   "q": "Name something you do before bed.",
+   "a": [
+    [
+     "brush teeth",
+     42
+    ],
+    [
+     "shower",
+     18
+    ],
+    [
+     "read",
+     15
+    ],
+    [
+     "set alarm",
+     10
+    ],
+    [
+     "wash face",
+     8
+    ],
+    [
+     "pajamas",
+     7
+    ]
+   ]
+  },
+  {
+   "q": "Name a sport played with a ball.",
+   "a": [
+    [
+     "soccer",
+     30
+    ],
+    [
+     "basketball",
+     28
+    ],
+    [
+     "baseball",
+     16
+    ],
+    [
+     "football",
+     13
+    ],
+    [
+     "tennis",
+     7
+    ],
+    [
+     "volleyball",
+     6
+    ]
+   ]
+  },
+  {
+   "q": "Name something people do at a birthday party.",
+   "a": [
+    [
+     "eat cake",
+     36
+    ],
+    [
+     "sing",
+     22
+    ],
+    [
+     "open presents",
+     18
+    ],
+    [
+     "blow candles",
+     12
+    ],
+    [
+     "play games",
+     8
+    ],
+    [
+     "dance",
+     4
+    ]
+   ]
+  },
+  {
+   "q": "Name a job where you wear a uniform.",
+   "a": [
+    [
+     "police officer",
+     30
+    ],
+    [
+     "nurse",
+     22
+    ],
+    [
+     "firefighter",
+     17
+    ],
+    [
+     "soldier",
+     12
+    ],
+    [
+     "chef",
+     8
+    ],
+    [
+     "mail carrier",
+     6
+    ],
+    [
+     "pilot",
+     5
+    ]
+   ]
+  }
+ ]
+}

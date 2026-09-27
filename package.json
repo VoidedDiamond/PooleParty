@@ -1,0 +1,22 @@
+{
+  "name": "poole-party",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Poole Party: local Jackbox-style party games night",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "fetch-data": "node tools/fetch-data.js",
+    "build-data": "node tools/fetch-data.js",
+    "import-wheel": "node tools/import-wheel-csv.js",
+    "test": "node tools/self-test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.7.5"
+  }
+}

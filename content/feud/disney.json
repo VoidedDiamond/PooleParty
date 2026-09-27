@@ -1,0 +1,18 @@
+{
+  "kind": "feud-bank",
+  "source": "hand-written Disney night sample",
+  "questions": [
+    { "q": "Name a Disney movie you could watch over and over.", "a": [["frozen", 28], ["lion king", 22], ["moana", 16], ["aladdin", 14], ["beauty and the beast", 12], ["toy story", 8]] },
+    { "q": "Name a ride you'd find at a Disney park.", "a": [["roller coaster", 30], ["teacups", 22], ["it's a small world", 18], ["space mountain", 16], ["haunted mansion", 14]] },
+    { "q": "Name a Disney princess.", "a": [["cinderella", 26], ["belle", 22], ["ariel", 20], ["snow white", 18], ["elsa", 14]] },
+    { "q": "Name something you'd buy as a souvenir at a Disney park.", "a": [["mickey ears", 34], ["t shirt", 24], ["stuffed animal", 18], ["keychain", 14], ["snow globe", 10]] },
+    { "q": "Name a Disney villain.", "a": [["maleficent", 26], ["scar", 22], ["ursula", 20], ["cruella de vil", 18], ["evil queen", 14]] },
+    { "q": "Name a Pixar movie.", "a": [["toy story", 30], ["finding nemo", 24], ["up", 18], ["inside out", 16], ["coco", 12]] },
+    { "q": "Name a Disney animal sidekick.", "a": [["sebastian", 28], ["abu", 24], ["mushu", 18], ["pascal", 16], ["flounder", 14]] },
+    { "q": "Name a Disney park or resort you'd like to visit.", "a": [["disneyland", 30], ["walt disney world", 26], ["epcot", 16], ["disneyland paris", 14], ["tokyo disneyland", 14]] },
+    { "q": "Name a food you'd eat at a Disney park.", "a": [["turkey leg", 26], ["churro", 24], ["ice cream", 20], ["popcorn", 18], ["mickey pretzel", 12]] },
+    { "q": "Name a Disney song everybody knows.", "a": [["let it go", 30], ["circle of life", 22], ["a whole new world", 20], ["hakuna matata", 16], ["under the sea", 12]] },
+    { "q": "Name something you'd bring to a Disney park on a hot day.", "a": [["water bottle", 30], ["sunscreen", 24], ["hat", 18], ["sunglasses", 16], ["fan", 12]] },
+    { "q": "Name a classic Disney animated film from the 1990s.", "a": [["lion king", 28], ["aladdin", 24], ["beauty and the beast", 20], ["pocahontas", 16], ["mulan", 12]] }
+  ]
+}

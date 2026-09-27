@@ -1,0 +1,478 @@
+{
+ "kind": "wheel-puzzles",
+ "source": "hand-written sample",
+ "puzzles": [
+  {
+   "cat": "PHRASE",
+   "text": "A PIECE OF CAKE"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "BREAK THE ICE"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "BETTER LATE THAN NEVER"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "ONCE IN A BLUE MOON"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "HIT THE ROAD"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "UNDER THE WEATHER"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "SPILL THE BEANS"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "BITE THE BULLET"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "ACTIONS SPEAK LOUDER THAN WORDS"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "CURIOSITY KILLED THE CAT"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "EASY AS PIE"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "BACK TO SQUARE ONE"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "THE EARLY BIRD CATCHES THE WORM"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "LET SLEEPING DOGS LIE"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "A DIME A DOZEN"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "BEAT AROUND THE BUSH"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "CALL IT A DAY"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "COST AN ARM AND A LEG"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "CUT TO THE CHASE"
+  },
+  {
+   "cat": "PHRASE",
+   "text": "ON CLOUD NINE"
+  },
+  {
+   "cat": "THING",
+   "text": "A BIRTHDAY CAKE"
+  },
+  {
+   "cat": "THING",
+   "text": "A PAIR OF SUNGLASSES"
+  },
+  {
+   "cat": "THING",
+   "text": "A ROLLER COASTER"
+  },
+  {
+   "cat": "THING",
+   "text": "THE KITCHEN SINK"
+  },
+  {
+   "cat": "THING",
+   "text": "A BOX OF CRAYONS"
+  },
+  {
+   "cat": "THING",
+   "text": "A HOT AIR BALLOON"
+  },
+  {
+   "cat": "THING",
+   "text": "A TELEPHONE BOOTH"
+  },
+  {
+   "cat": "THING",
+   "text": "A SNOW GLOBE"
+  },
+  {
+   "cat": "THING",
+   "text": "AN ICE CREAM SUNDAE"
+  },
+  {
+   "cat": "THING",
+   "text": "A BASEBALL GLOVE"
+  },
+  {
+   "cat": "THING",
+   "text": "A GRAND PIANO"
+  },
+  {
+   "cat": "THING",
+   "text": "A BEACH UMBRELLA"
+  },
+  {
+   "cat": "THING",
+   "text": "A CAMPING TENT"
+  },
+  {
+   "cat": "THING",
+   "text": "A SKATEBOARD"
+  },
+  {
+   "cat": "THING",
+   "text": "A LIGHTHOUSE"
+  },
+  {
+   "cat": "THING",
+   "text": "A JACK O LANTERN"
+  },
+  {
+   "cat": "THING",
+   "text": "A BOWL OF POPCORN"
+  },
+  {
+   "cat": "THING",
+   "text": "A TREASURE MAP"
+  },
+  {
+   "cat": "PLACE",
+   "text": "THE GRAND CANYON"
+  },
+  {
+   "cat": "PLACE",
+   "text": "NEW YORK CITY"
+  },
+  {
+   "cat": "PLACE",
+   "text": "THE GREAT BARRIER REEF"
+  },
+  {
+   "cat": "PLACE",
+   "text": "NIAGARA FALLS"
+  },
+  {
+   "cat": "PLACE",
+   "text": "MOUNT RUSHMORE"
+  },
+  {
+   "cat": "PLACE",
+   "text": "THE EIFFEL TOWER"
+  },
+  {
+   "cat": "PLACE",
+   "text": "THE STATUE OF LIBERTY"
+  },
+  {
+   "cat": "PLACE",
+   "text": "YELLOWSTONE NATIONAL PARK"
+  },
+  {
+   "cat": "PLACE",
+   "text": "THE GOLDEN GATE BRIDGE"
+  },
+  {
+   "cat": "PLACE",
+   "text": "THE AMAZON RAINFOREST"
+  },
+  {
+   "cat": "PLACE",
+   "text": "SAN FRANCISCO CALIFORNIA"
+  },
+  {
+   "cat": "PLACE",
+   "text": "THE GREAT WALL OF CHINA"
+  },
+  {
+   "cat": "PLACE",
+   "text": "A HAUNTED HOUSE"
+  },
+  {
+   "cat": "PLACE",
+   "text": "THE NORTH POLE"
+  },
+  {
+   "cat": "PLACE",
+   "text": "WALT DISNEY WORLD"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "PEANUT BUTTER AND JELLY"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "SPAGHETTI AND MEATBALLS"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "CHOCOLATE CHIP COOKIES"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "A GRILLED CHEESE SANDWICH"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "STRAWBERRY MILKSHAKE"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "FRENCH FRIES AND KETCHUP"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "APPLE PIE WITH ICE CREAM"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "CHICKEN NOODLE SOUP"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "BLUEBERRY PANCAKES"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "FRESH SQUEEZED ORANGE JUICE"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "MACARONI AND CHEESE"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "A HOT FUDGE SUNDAE"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "PEPPERONI PIZZA"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "TOASTED MARSHMALLOWS"
+  },
+  {
+   "cat": "FOOD & DRINK",
+   "text": "CINNAMON ROLLS"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "BIG APPLE PIE"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "HOT DOG DAYS OF SUMMER"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "TOP HAT TRICK"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "SNOW WHITE HOUSE"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "PEANUT BUTTER CUP CAKE"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "SUPER BOWL GAME NIGHT"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "SAND CASTLE ROCK"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "LIGHT HOUSE PARTY"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "FIRE TRUCK STOP"
+  },
+  {
+   "cat": "BEFORE & AFTER",
+   "text": "ROCK STAR WARS"
+  },
+  {
+   "cat": "PERSON",
+   "text": "A FIREFIGHTER"
+  },
+  {
+   "cat": "PERSON",
+   "text": "A MIDDLE SCHOOL TEACHER"
+  },
+  {
+   "cat": "PERSON",
+   "text": "THE TOOTH FAIRY"
+  },
+  {
+   "cat": "PERSON",
+   "text": "A PROFESSIONAL SKATEBOARDER"
+  },
+  {
+   "cat": "PERSON",
+   "text": "A LIFEGUARD"
+  },
+  {
+   "cat": "PERSON",
+   "text": "THE EASTER BUNNY"
+  },
+  {
+   "cat": "PERSON",
+   "text": "A MAIL CARRIER"
+  },
+  {
+   "cat": "PERSON",
+   "text": "A SPACE ASTRONAUT"
+  },
+  {
+   "cat": "PERSON",
+   "text": "A FRIENDLY NEIGHBOR"
+  },
+  {
+   "cat": "PERSON",
+   "text": "THE CLASS PRESIDENT"
+  },
+  {
+   "cat": "EVENT",
+   "text": "A FAMILY VACATION"
+  },
+  {
+   "cat": "EVENT",
+   "text": "A SURPRISE BIRTHDAY PARTY"
+  },
+  {
+   "cat": "EVENT",
+   "text": "THE FOURTH OF JULY FIREWORKS"
+  },
+  {
+   "cat": "EVENT",
+   "text": "A SCHOOL TALENT SHOW"
+  },
+  {
+   "cat": "EVENT",
+   "text": "THANKSGIVING DINNER"
+  },
+  {
+   "cat": "EVENT",
+   "text": "A SLEEPOVER"
+  },
+  {
+   "cat": "EVENT",
+   "text": "THE FIRST DAY OF SCHOOL"
+  },
+  {
+   "cat": "EVENT",
+   "text": "A SNOW DAY"
+  },
+  {
+   "cat": "EVENT",
+   "text": "A CAMPING TRIP"
+  },
+  {
+   "cat": "EVENT",
+   "text": "A HOLIDAY PARADE"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "BUILDING A SNOWMAN"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "ROASTING MARSHMALLOWS"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "FLYING A KITE"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "WALKING THE DOG"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "RIDING A BICYCLE"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "PLAYING HIDE AND SEEK"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "BAKING COOKIES"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "SINGING IN THE SHOWER"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "TAKING A NAP"
+  },
+  {
+   "cat": "WHAT ARE YOU DOING?",
+   "text": "PLAYING BOARD GAMES"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "HAPPY BIRTHDAY TO YOU"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "TWINKLE TWINKLE LITTLE STAR"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "TAKE ME OUT TO THE BALL GAME"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "OLD MACDONALD HAD A FARM"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "ROW ROW ROW YOUR BOAT"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "JINGLE BELLS"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "THE WHEELS ON THE BUS"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "YOU ARE MY SUNSHINE"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "OVER THE RAINBOW"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "HEAD SHOULDERS KNEES AND TOES"
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "scattergories-categories",
+  "letters": ["A", "B", "C", "D", "E", "F", "G", "H", "J", "K", "L", "M", "N", "O", "P", "R", "S", "T", "W"],
+  "categories": [
+    "Types of fruit", "Movies", "Occupations", "Dog breeds", "Video games", "Countries", "School subjects",
+    "Things in a kitchen", "Superheroes", "Sports", "Musical instruments", "Colors", "Board games",
+    "Things at the beach", "Cartoon characters", "Vegetables", "Types of weather", "Things that are cold",
+    "Things that are round", "Car brands", "TV shows", "Things in a backpack", "Ice cream flavors",
+    "Things you find in space", "Holidays", "Types of dances", "Things at a birthday party", "Bugs and insects",
+    "Types of trees", "Things in a hospital", "Famous athletes", "Fictional animals", "Things that fly",
+    "Kitchen appliances", "Types of shoes", "Things in a garage", "Amusement park rides", "Fast food restaurants",
+    "Things that are sticky", "Zoo animals", "Types of pasta", "Party games", "Things with wheels",
+    "Superpowers", "Things in a classroom", "Snack foods", "Things at a campsite", "Types of hats",
+    "Musical genres", "Things in the ocean", "Historical figures", "Things you plug in", "Farm animals",
+    "Types of candy", "Things in a wallet", "Winter sports", "Things that are loud", "Drinks",
+    "Types of birds", "Things in a bathroom", "Board game pieces", "Things at a wedding", "Comic book characters",
+    "Things in a park", "Household chores", "Types of soup", "Things with buttons", "Breakfast foods",
+    "Things you wear on your head", "National parks", "Types of flowers", "Tools", "Things in outer space",
+    "Things that are stripy", "Things a pirate would have", "Things in a toolbox", "Types of cheese",
+    "Things in a first aid kit"
+  ]
+}

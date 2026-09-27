@@ -1,0 +1,106 @@
+{
+ "kind": "wheel-puzzles",
+ "source": "hand-written Disney night sample",
+ "puzzles": [
+  {
+   "cat": "CHARACTER",
+   "text": "MICKEY MOUSE"
+  },
+  {
+   "cat": "CHARACTER",
+   "text": "DONALD DUCK"
+  },
+  {
+   "cat": "CHARACTER",
+   "text": "WINNIE THE POOH"
+  },
+  {
+   "cat": "CHARACTER",
+   "text": "CAPTAIN JACK SPARROW"
+  },
+  {
+   "cat": "CHARACTER",
+   "text": "ELSA AND ANNA"
+  },
+  {
+   "cat": "MOVIE",
+   "text": "THE LION KING"
+  },
+  {
+   "cat": "MOVIE",
+   "text": "BEAUTY AND THE BEAST"
+  },
+  {
+   "cat": "MOVIE",
+   "text": "FINDING NEMO"
+  },
+  {
+   "cat": "MOVIE",
+   "text": "THE LITTLE MERMAID"
+  },
+  {
+   "cat": "MOVIE",
+   "text": "TOY STORY"
+  },
+  {
+   "cat": "PLACE",
+   "text": "MAGIC KINGDOM"
+  },
+  {
+   "cat": "PLACE",
+   "text": "CINDERELLA CASTLE"
+  },
+  {
+   "cat": "PLACE",
+   "text": "SPACESHIP EARTH"
+  },
+  {
+   "cat": "PLACE",
+   "text": "DISNEYLAND CALIFORNIA"
+  },
+  {
+   "cat": "PLACE",
+   "text": "ANIMAL KINGDOM"
+  },
+  {
+   "cat": "RIDE",
+   "text": "SPACE MOUNTAIN"
+  },
+  {
+   "cat": "RIDE",
+   "text": "PIRATES OF THE CARIBBEAN"
+  },
+  {
+   "cat": "RIDE",
+   "text": "HAUNTED MANSION"
+  },
+  {
+   "cat": "RIDE",
+   "text": "IT'S A SMALL WORLD"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "LET IT GO"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "CIRCLE OF LIFE"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "A WHOLE NEW WORLD"
+  },
+  {
+   "cat": "SONG TITLE",
+   "text": "HAKUNA MATATA"
+  },
+  {
+   "cat": "THING",
+   "text": "MOUSE EARS HAT"
+  },
+  {
+   "cat": "THING",
+   "text": "A CHURRO"
+  }
+ ]
+}
