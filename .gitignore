@@ -1,0 +1,4 @@
+node_modules/
+# portable Node.js fetched by Poole Party.bat (tools/get-node.ps1)
+node/
+node-download/

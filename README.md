@@ -20,6 +20,16 @@ starts the server, and opens the TV screen in your browser automatically after a
 Leave its console window open while you play; closing it stops the game. Re-run
 `node tools/make-icon.js` if you ever want to regenerate `Poole Party.ico`.
 
+**No admin rights (school or work computer)?** You don't need to install Node. If it isn't
+installed, `Poole Party.bat` downloads the official zip from nodejs.org into a `node` folder next to
+it the first time (about 35 MB, checked against nodejs.org's published checksum) and uses that.
+Nothing is installed; delete the `node` folder to remove it. To set it up by hand instead, download
+the Windows "Standalone Binary (.zip)" from https://nodejs.org/en/download, unzip it, and rename the
+folder inside to `node` so that `node\node.exe` sits next to `Poole Party.bat`. For the `npm`
+commands above in PowerShell, first run `$env:Path = "$PWD\node;$env:Path"` in this folder.
+Allowing Node through the firewall (below) can need an admin password, so on a locked-down computer
+phones may not be able to connect even though the TV screen works.
+
 The terminal prints the addresses:
 
 - TV display: `http://localhost:3000/host` (fullscreen on the TV, F11)
@@ -173,7 +183,8 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     games/                  jeopardy.js, feud.js, wheel.js, wavelength.js,
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
                              match.js, content.js
-    tools/                  data download and build scripts, family filter
+    tools/                  data download and build scripts, family filter,
+                             get-node.ps1 (portable Node for Poole Party.bat)
     content/                sample content and generated banks (jeopardy/, feud/, wheel/,
                              wavelength/, pictionary/, tshirt/, trivia/, movie/)
     public/host*.js         TV views          public/play*.js     phone views

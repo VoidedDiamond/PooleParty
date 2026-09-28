@@ -2,11 +2,26 @@
 title Poole Party
 cd /d "%~dp0"
 
-if not exist "node_modules" (
-  echo First run - installing dependencies, this can take a minute...
-  call npm install
-  echo.
-)
+rem Node.js doesn't have to be installed: a portable copy in a "node" folder
+rem here works too, and needs no admin rights. If there's neither, fetch one.
+if exist "node\node.exe" goto use_local_node
+where node >nul 2>nul
+if not errorlevel 1 goto have_node
+echo Node.js isn't installed, so downloading a portable copy into this folder.
+echo No admin rights needed, and this only happens once...
+powershell -NoProfile -ExecutionPolicy Bypass -File "tools\get-node.ps1"
+if not exist "node\node.exe" goto no_node
+echo.
+:use_local_node
+set "PATH=%~dp0node;%PATH%"
+:have_node
+
+if exist "node_modules" goto start
+echo First run - installing dependencies, this can take a minute...
+call npm install
+if errorlevel 1 goto install_failed
+echo.
+:start
 
 start "" /min powershell -NoProfile -Command "Start-Sleep -Seconds 3; Start-Process 'http://localhost:3000/host'"
 
@@ -16,3 +31,20 @@ echo Leave this window open while you play. Closing it ends the game.
 echo.
 
 call npm start
+goto :eof
+
+:no_node
+echo.
+echo Couldn't set up Node.js automatically. To do it by hand:
+echo   1. Go to https://nodejs.org/en/download and get the Windows "Standalone Binary (.zip)".
+echo   2. Unzip it, rename the folder inside to "node", and move that folder here, so this file exists:
+echo      %~dp0node\node.exe
+echo   3. Run Poole Party again.
+pause
+exit /b 1
+
+:install_failed
+echo.
+echo Installing dependencies failed - see the messages above. Check the internet connection and run Poole Party again.
+pause
+exit /b 1
