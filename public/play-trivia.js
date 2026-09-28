@@ -8,9 +8,11 @@
   mod.screen = (s, me) => {
     if (s.phase === 'question') {
       if (s.qIndex !== lastQIndex) { lastQIndex = s.qIndex; answeredThisQuestion = false; }
-      if (answeredThisQuestion) {
-        return { key: 'answered', html: `<p class="say">Answer locked in!</p>
-          <p class="note">${s.answeredCount} player${s.answeredCount === 1 ? '' : 's'} answered\u2026</p>` };
+      if (answeredThisQuestion || s.myAnswer) {
+        const pick = s.myAnswer ? s.myAnswer.idx : null;
+        return { key: 'answered', html: `<p class="kicker">Answer locked in</p>
+          ${pick != null ? `<p class="reveal-word"><span class="letter">${LETTERS[pick]}</span>${esc((s.choices || [])[pick] || '')}</p>` : ''}
+          <p class="note">${s.answeredCount} of ${s.players.filter(p => p.connected).length} answered. Faster right answers score more.</p>` };
       }
       return { key: 'question', html: `<p class="kicker">Question ${s.qIndex} of ${s.totalQuestions} \u00b7 ${esc(s.tierLabel)}</p>
         <p class="qtext">${esc(s.question)}</p>${bar(s.endsAt, s.windowMs)}
@@ -20,7 +22,13 @@
 
     if (s.phase === 'reveal') {
       const letter = LETTERS[s.correct];
-      return { key: 'reveal', html: `<p class="kicker">The answer was</p>
+      const mine = s.myAnswer;
+      const verdict = !mine ? { cls: 'miss', title: 'Out of time', note: 'No answer this round.' }
+        : mine.correct ? { cls: 'good', title: 'Correct!', note: `+${mine.pts} points` }
+          : { cls: 'bad', title: 'Not quite', note: `You picked ${LETTERS[mine.idx]}.` };
+      return { key: 'reveal', html: `<div class="verdict ${verdict.cls}">${icon(mine && mine.correct ? 'check' : 'x')}</div>
+        <p class="say">${verdict.title}</p><p class="note">${esc(verdict.note)}</p>
+        <p class="kicker">The answer was</p>
         <p class="reveal-word"><span class="letter">${letter}</span>${esc((s.choices || [])[s.correct] || '')}</p>` };
     }
 

@@ -23,9 +23,7 @@
   }
 
   function blanksHTML(s) {
-    return `<div class="hm-tvblanks">${(s.blanks || '').split('').map(c => c === ' '
-      ? '<span class="hm-gap"></span>'
-      : `<span class="hm-cell">${c === '_' ? '' : esc(c)}</span>`).join('')}</div>`;
+    return hangmanBlanksHTML(s.blanks);
   }
 
   function chooseHTML(s) {

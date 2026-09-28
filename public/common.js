@@ -36,6 +36,7 @@ const GLYPHS = {
   x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
   flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  tv: '<rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>',
   smartphone: '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
   wifi: '<path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/>',
   lock: '<rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
@@ -312,6 +313,72 @@ function wordBlanksHTML(shape) {
   }).join('')}</div>`;
 }
 
+// ---- Wavelength dial ---------------------------------------------------------
+// The real Wavelength board is a big semicircle: a needle sweeps a 180 degree arc, and on reveal,
+// colored scoring bands light up centered on the hidden target. The TV and the phones draw the
+// same SVG (viewBox 0 0 300 160). -90deg = far left of the scale, 0 = straight up, +90 = far right.
+const WL = (() => {
+  const CX = 150, CY = 150, R_OUT = 148, R_IN = 80;
+  // Zone widths as a percentage of the 0-1000 scale; must match games/wavelength.js (SCALE=1000, ZONE=45).
+  const PCT = { four: 4.5, three: 13.5, two: 22.5 };
+  const f = n => n.toFixed(2);
+  const toDeg = v => Math.max(-90, Math.min(90, (v / 1000 - 0.5) * 180));
+  const pointAt = (deg, r) => {
+    const rad = deg * Math.PI / 180;
+    return [CX + r * Math.sin(rad), CY - r * Math.cos(rad)];
+  };
+  const sectorPath = (startDeg, endDeg, rIn, rOut) => {
+    const [x1, y1] = pointAt(startDeg, rOut);
+    const [x2, y2] = pointAt(endDeg, rOut);
+    const [x3, y3] = pointAt(endDeg, rIn);
+    const [x4, y4] = pointAt(startDeg, rIn);
+    const large = Math.abs(endDeg - startDeg) > 180 ? 1 : 0;
+    return `M ${f(x1)} ${f(y1)} A ${rOut} ${rOut} 0 ${large} 1 ${f(x2)} ${f(y2)} L ${f(x3)} ${f(y3)} A ${rIn} ${rIn} 0 ${large} 0 ${f(x4)} ${f(y4)} Z`;
+  };
+  const zones = target => {
+    const t = toDeg(target);
+    const band = (pct, cls) => {
+      const half = (pct / 100) * 90;
+      return `<path class="wlzone ${cls}" d="${sectorPath(Math.max(-90, t - half), Math.min(90, t + half), R_IN, R_OUT)}"></path>`;
+    };
+    return band(PCT.two, 'z2') + band(PCT.three, 'z3') + band(PCT.four, 'z4');
+  };
+  const targetLine = target => {
+    const [x1, y1] = pointAt(toDeg(target), R_IN);
+    const [x2, y2] = pointAt(toDeg(target), R_OUT);
+    return `<line class="wltargetline" x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}"></line>`;
+  };
+  const needle = (value, color, cls = '') => {
+    const [x, y] = pointAt(toDeg(value), R_OUT - 18);
+    return `<g class="wlneedle ${cls}"><line x1="${CX}" y1="${CY}" x2="${f(x)}" y2="${f(y)}" stroke="${color}"></line></g>`;
+  };
+  const ticks = () => [-90, -45, 0, 45, 90].map(d => {
+    const [x1, y1] = pointAt(d, R_IN - 8); const [x2, y2] = pointAt(d, R_IN - 18);
+    return `<line class="wltick" x1="${f(x1)}" y1="${f(y1)}" x2="${f(x2)}" y2="${f(y2)}"></line>`;
+  }).join('');
+  // Full dial. inner: extra SVG (zones, needles) drawn between the track and the hub.
+  const svg = (inner = '', id = '') => `<svg viewBox="0 0 300 160" class="wlarc"${id ? ` id="${id}"` : ''}>
+    <path class="wlarc-track" d="${sectorPath(-90, 90, R_IN, R_OUT)}"></path>${inner}
+    <path class="wlarc-outline" d="${sectorPath(-90, 90, R_IN, R_OUT)}"></path>${ticks()}
+    <circle cx="${CX}" cy="${CY}" r="10" class="wlneedle-hub"></circle></svg>`;
+  // Screen point -> 0..1000 on the scale (for dragging the needle on a phone).
+  const valueAt = (svgEl, clientX, clientY) => {
+    const pt = svgEl.createSVGPoint();
+    pt.x = clientX; pt.y = clientY;
+    const p = pt.matrixTransform(svgEl.getScreenCTM().inverse());
+    const deg = Math.max(-90, Math.min(90, Math.atan2(p.x - CX, CY - p.y) * 180 / Math.PI));
+    return Math.round((deg / 180 + 0.5) * 1000);
+  };
+  return { zones, targetLine, needle, svg, valueAt, toDeg };
+})();
+
+function hangmanBlanksHTML(blanks, cls = '') {
+  const words = String(blanks || '').split(' ');
+  const longest = Math.max(1, ...words.map(w => w.length));
+  return `<div class="hm-tvblanks${cls ? ' ' + cls : ''}" style="--n:${longest}">${words.map(w => `<span class="hm-word">${[...w].map(c =>
+    `<span class="hm-cell">${c === '_' ? '' : esc(c)}</span>`).join('')}</span>`).join('')}</div>`;
+}
+
 function toast(msg) {
   let t = $('#toast');
   if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
@@ -362,11 +429,11 @@ function makeCanvas(canvas, { color = '#111', size = 8, interactive = false, onP
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = Math.max(1, Math.floor(rect.width));
     const h = Math.max(1, Math.floor(rect.height));
+    if (canvas.width === w * dpr && canvas.height === h * dpr) return;
     const prev = document.createElement('canvas');
     prev.width = committed.width; prev.height = committed.height;
     prev.getContext('2d').drawImage(committed, 0, 0);
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+    canvas.width = w * dpr; canvas.height = h * dpr; // CSS keeps the element at 100% of its box
     committed.width = w * dpr; committed.height = h * dpr;
     if (prev.width > 0 && prev.height > 0) {
       cctx.drawImage(prev, 0, 0, prev.width, prev.height, 0, 0, committed.width, committed.height);
@@ -471,8 +538,13 @@ function makeCanvas(canvas, { color = '#111', size = 8, interactive = false, onP
     canvas.addEventListener('pointerleave', end);
   }
 
+  // Track the box, not the window: layouts settle after the canvas is made (a scoreboard filling
+  // in below it, a phone rotating), and a canvas stuck at its first size draws strokes off-target.
   resize();
-  window.addEventListener('resize', resize);
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => { if (!canvas.isConnected) ro.disconnect(); else resize(); });
+    ro.observe(canvas.parentElement);
+  } else window.addEventListener('resize', resize);
 
   return {
     setColor: c => { col = c; },

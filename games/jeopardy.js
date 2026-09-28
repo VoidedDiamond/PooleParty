@@ -392,7 +392,8 @@ class Jeopardy {
     this.phase = 'final_judge';
     f.endsAt = null;
     for (const id of f.eligible) if (f.verdicts[id] === undefined) { f.answers[id] = ''; f.verdicts[id] = false; }
-    f.order = [...f.eligible].sort((a, b) => this.players.get(a).score - this.players.get(b).score);
+    const scoreOf = id => (this.players.get(id) || { score: 0 }).score;
+    f.order = [...f.eligible].sort((a, b) => scoreOf(a) - scoreOf(b));
     f.idx = 0;
     f.shown = false;
     this.later(1500, () => this.finalStep());

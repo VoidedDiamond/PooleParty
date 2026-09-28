@@ -12,7 +12,7 @@
     const colors = ['#141414', '#e53e3e', '#3182ce', '#38a169', '#d69e2e'];
     return `<div class="ptoolbar">
       ${colors.map(c => `<button class="pswatch ${c === currentColor ? 'sel' : ''}" data-color="${c}" style="background:${c}"></button>`).join('')}
-      <button class="ghost" id="tundo">Undo</button>
+      <button class="ghost" id="tundo">${icon('rotate-ccw')} Undo</button>
       <button class="ghost" id="tclear">Clear</button>
     </div>`;
   }
@@ -38,9 +38,10 @@
         return { key: 'vote-wait', html: `<p class="say">Vote submitted!</p>
           <p class="note">Check the TV to see all the designs while we wait for everyone.</p>` };
       }
-      return { key: 'vote', html: `<p class="say">Vote for your favorite!</p>
-        <p class="note">Check the TV to see all the designs.</p>
-        <div class="vlist">${(s.voteOptions || []).map(o => `<button class="choice vchoice" data-id="${o.id}">${icon('heart')} ${esc(o.name)}</button>`).join('')}</div>` };
+      return { key: 'vote', html: `<p class="kicker">${esc(s.prompt)}</p><p class="say">Vote for your favorite</p>
+        <div class="tvote">${(s.voteOptions || []).map(o => `<button class="tvote-card" data-id="${o.id}">
+          <div class="tart">${tshirtTemplateHTML()}<canvas data-for="${o.id}"></canvas></div>
+          <span>${icon('heart')} ${esc(o.name)}</span></button>`).join('')}</div>` };
     }
 
     if (s.phase === 'results') {
@@ -53,7 +54,7 @@
     return finalScoresPhone(s, me);
   };
 
-  mod.wire = (key) => {
+  mod.wire = (key, s) => {
     if (key === 'draw') {
       submitted = false;
       const canvasEl = $('#tcanvas');
@@ -74,7 +75,10 @@
       };
     }
     if (key === 'vote') {
-      document.querySelectorAll('.vchoice').forEach(b => {
+      const byId = new Map((s.designs || []).map(d => [d.id, d.strokes]));
+      document.querySelectorAll('.tvote-card').forEach(b => {
+        const cv = b.querySelector('canvas');
+        requestAnimationFrame(() => makeCanvas(cv, { interactive: false, size: 4 }).renderStatic(byId.get(b.dataset.id) || []));
         b.onclick = () => act('vote', { targetId: b.dataset.id });
       });
     }

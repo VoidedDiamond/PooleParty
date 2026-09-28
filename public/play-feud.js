@@ -3,14 +3,16 @@
   const mod = {};
   mod.inputScreens = new Set(['foinput', 'fturn', 'fsteal', 'fminput']);
 
-  const inputHTML = (title, note, s) => `<p class="say">${title}</p><p class="note">${note}</p>${bar(s.endsAt, s.windowMs)}
+  const inputHTML = (title, note, s) => `<p class="say">${title}</p><p class="qtext">${esc(s.question)}</p><p class="note">${note}</p>${bar(s.endsAt, s.windowMs)}
     <input id="answer" type="text" maxlength="60" autocomplete="off" autocapitalize="off" placeholder="Type your answer" value="${esc(draft.answer)}">
     <button id="sendanswer" class="primary">Submit answer</button>`;
 
   mod.screen = (s, me) => {
     const myTeam = s.teams[s.players.find(p => p.id === me.id).team];
-    const head = `<div class="me" style="--color:${myTeam.color}"><b>${esc(myTeam.name)}</b><span>${myTeam.score}</span></div>`;
-    const q = `<p class="note">${esc(s.question)}</p>`;
+    // Your name, with your team's color and score (a solo "team" is just you).
+    const teamTag = myTeam.name === me.name ? '' : ` <small>· ${esc(myTeam.name)}</small>`;
+    const head = `<div class="me" style="--color:${myTeam.color}"><b>${esc(me.name)}${teamTag}</b><span>${myTeam.score}</span></div>`;
+    const q = `<p class="qtext">${esc(s.question)}</p>`;
     const done = key => ({ key, head, html: '' });
     let out;
     switch (s.phase) {
@@ -18,7 +20,7 @@
         const f = s.face;
         if (f.ids.includes(me.id) && !f.resolved) {
           if (f.submitted[me.id]) out = { key: 'foLocked', html: `<p class="say">Answer locked in</p>${q}<p class="note">Waiting for the other player.</p>` };
-          else out = { key: 'foinput', html: q + inputHTML('Face-off', 'Give the answer you think most people said.', s) };
+          else out = { key: 'foinput', html: inputHTML('Face-off', 'Give the answer you think most people said.', s) };
         } else out = { key: 'foWatch', html: `<p class="say">Face-off</p>${q}<p class="note">Watch the TV.</p>` };
         break;
       }
@@ -55,18 +57,23 @@
         break;
       }
       case 'play':
-        if (s.turnPid === me.id) out = { key: 'fturn', html: q + inputHTML('Your turn', 'Name something on the board.', s) };
+        if (s.turnPid === me.id) out = { key: 'fturn', html: inputHTML('Your turn', 'Name something on the board.', s) };
         else {
           const p = findPlayer(s, s.turnPid);
           out = { key: 'fwait', html: `<p class="say">${esc(p ? p.name : 'A teammate')} is answering</p>${q}` };
         }
         break;
       case 'steal':
-        if (s.stealPid === me.id) out = { key: 'fsteal', html: q + inputHTML('Steal!', 'One answer. Get it right to take the points.', s) };
+        if (s.stealPid === me.id) out = { key: 'fsteal', html: inputHTML('Steal!', 'One answer. Get it right to take the points.', s) };
         else out = { key: 'fsteal-wait', html: `<p class="say">Steal attempt</p>${q}<p class="note">Watch the TV.</p>` };
         break;
       case 'strikeout': out = { key: 'fstrikeout', html: '<p class="say">Three strikes!</p><p class="note">Watch the TV.</p>' }; break;
-      case 'reveal': out = { key: 'freveal', html: '<p class="say">Round over</p><p class="note">Watch the TV.</p>' }; break;
+      case 'reveal': {
+        const t = s.award && s.teams[s.award.team];
+        const note = t ? (s.award.points ? `${esc(t.name)} ${t.id === s.players.find(x => x.id === me.id).team ? '(your team) ' : ''}banks ${s.award.points} points.` : 'No points this round.') : '';
+        out = { key: 'freveal', html: `<p class="say">Round over</p><p class="note">${note}</p>` };
+        break;
+      }
       default: {
         const [a, b] = s.teams;
         const tie = a.score === b.score;

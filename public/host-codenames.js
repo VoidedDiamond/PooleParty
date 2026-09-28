@@ -34,11 +34,11 @@
   function statusHTML(s) {
     const t = s.teams[s.turn];
     if (s.phase === 'clue') {
-      return `<div class="big" style="color:${t.color}">${esc(t.name)}'s spymaster is thinking of a clue</div>${bar(s.endsAt, s.windowMs)}`;
+      return `<div class="big" style="color:${t.color}">${pname(s, t.spymaster)} is thinking of a clue for ${esc(t.name)}</div>${bar(s.endsAt, s.windowMs)}`;
     }
     if (s.phase === 'guess') {
       return `<div class="big" style="color:${t.color}">Clue: "${esc(s.clue.word)}" (${s.clue.number})</div>
-        <div>${esc(t.name)} has made ${s.clue.guessesMade} guess${s.clue.guessesMade === 1 ? '' : 'es'} — no limit, keep going while right</div>${bar(s.endsAt, s.windowMs)}`;
+        <div class="note">${esc(t.name)} has made ${s.clue.guessesMade} guess${s.clue.guessesMade === 1 ? '' : 'es'}. Keep going while you're right.</div>${bar(s.endsAt, s.windowMs)}`;
     }
     if (s.phase === 'end') {
       const w = s.teams[s.winner];

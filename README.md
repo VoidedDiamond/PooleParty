@@ -2,7 +2,7 @@
 
 Jackbox-style game night on your own network. One laptop runs the server and shows the game on the TV. Everyone else plays from their phone browser. No account, no app, no internet needed once it is set up.
 
-Twelve games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary, Disney Pictionary, T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, and Scattergories. No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
+Thirteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, and Neanderthals. No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
 
 ## Run it
 
@@ -55,17 +55,16 @@ For real households where nobody wants that much control, an advanced `/console`
 - The controlling team takes turns typing answers. Three strikes and the other team gets one steal attempt.
 - The face-off winner chooses to play or pass.
 - Four rounds. Points count double in round 3 and triple in round 4.
-- Fast Money: the leading team plays. Each player gets 5 survey questions typed on their phone (20 seconds for the first player, 25 for the second, and the second player cannot repeat the first player's answer). Answers are revealed one at a time and 200 points wins. It does not change the game score.
+- Fast Money: the leading team plays. Each player gets 5 survey questions typed on their phone (30 seconds for the first player, 35 for the second, and the second player cannot repeat the first player's answer). Answers are revealed one at a time and 200 points wins. It does not change the game score.
 - Answers on the board are matched leniently ("sun screen" finds "sunscreen", "beach hat" finds "sun hat").
 
 ### Wavelength
 
-No teams: everyone plays for themselves, and roles rotate through the group in join order over one round per player (2 players means 2 rounds, 5 players means 5 rounds).
+No teams: everyone plays for themselves. The Psychic role rotates through the group in join order, one round per player (2 players means 2 rounds, 5 players means 5 rounds).
 
-- Each round has a Psychic and a Guesser, both chosen in turn order, so everyone gets exactly one turn at each role. Anyone else that round just watches the TV.
-- The Psychic's phone privately shows a hidden target on a spectrum between two words (like "Hot" and "Cold") and a single button once they've said their clue **out loud**. There is nothing to type; say the clue the way you would around the table.
-- Once the clue is given, the Guesser drags a slider on their phone to where the group thinks the target is, live on the TV, then locks it in.
-- Landing dead center scores 4 points, a bit off scores 3 or 2, and a miss scores 0. Both the Psychic and the Guesser get the same points that round, since it took both of them.
+- The Psychic's phone privately shows a hidden bullseye on a dial between two words (like "Hot" and "Cold") and a single button once they've said their clue **out loud**. There is nothing to type; say the clue the way you would around the table.
+- Everyone else then drags the needle on their own phone's dial to where they think the bullseye is and locks it in. Guesses stay private until the reveal, when every needle appears on the TV.
+- Landing dead center scores 4 points, a bit off scores 3 or 2, and a miss scores 0. The Psychic earns the average of what the guessers scored, so a clearer clue pays off.
 - Scores are individual and carry across the whole game; there's a ranked list at the end.
 
 Wavelength itself is a physical board game (Asmodee/CMYK, 2019), not a Jackbox title — Jackbox's closest game, Blather 'Round, is actually a Taboo-style word game, not a spectrum-guessing one. The 239 spectrum pairs bundled here (`content/wavelength/pairs.json`) and the scoring math (a 4-point zone 4.5% of the scale wide, with 3- and 2-point zones 3x and 5x that) are adapted from two MIT-licensed open source clones, [Hamatti/taajuus](https://github.com/Hamatti/taajuus) and [gjeuken/telewave](https://github.com/gjeuken/telewave), which it builds on. Add your own pairs by editing that file, or point at your own with `--wavelength=file.json`; format is `{ "pairs": [{ "left": "Hot", "right": "Cold" }] }`. The Standard/Disney toggle doesn't have a Disney pack for this game yet, so it always uses the standard set.
@@ -83,7 +82,7 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 
 ### Pictionary / Disney Pictionary
 - No teams: the drawer rotates so everyone draws exactly once per game (2 players means 2 rounds, 5 players means 5 rounds).
-- The drawer picks 1 of 3 word choices, then draws on their phone — it streams live to the TV as they draw, using a smooth pressure-simulated freehand line (the same rendering approach as tldraw and Excalidraw), vendored locally in `public/vendor/perfect-freehand.js` so it needs no internet.
+- The drawer picks 1 of 3 word choices, then draws on their phone — it streams live to the TV as they draw, using a smooth pressure-simulated freehand line (the same rendering approach as tldraw and Excalidraw), vendored locally in `public/vendor/perfect-freehand.js` so it needs no internet. Five pen colors, Undo and Clear; the drawing is square on every screen, so what the drawer sees is exactly what the TV shows.
 - Everyone else types guesses on their own phone; guesses are fuzzy-matched by `games/match.js`, so small typos still count. First correct guess scores the most; the drawer scores a little for every correct guess.
 - Pick "Disney Pictionary" from the host's picker (or the Disney Night toggle) for an all-Disney word list: characters, movies, magic objects, and park moments.
 
@@ -115,6 +114,14 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 - Each round reveals a letter and 8 categories; everyone privately types an answer starting with that letter for every category, against the clock.
 - Then the group judges it together, one category at a time: every answer is valid by default, but anyone (other than its author) can challenge one they don't buy. If a majority of the other players challenge it, it's thrown out — no single judge, no typing "valid/invalid" on every single answer.
 - Valid answers score 2 points, or 1 if another player wrote a near-identical valid answer in the same category. Plays 3 rounds with fresh letters and categories.
+
+### Hangman
+- One player per round picks a theme (from 3 choices) and a secret word from it is drawn automatically. Everyone else taps letters on their phone or types a guess for the whole thing.
+- Six misses completes the figure and ends the round. Guessers score for each letter they found, plus a bonus for solving; the theme picker scores more the longer the group struggles.
+
+### Neanderthals
+- Like Password, but the hinter may only grunt ONE SYLLABLE at a time out loud: no whole words, no pointing, no spelling. The table polices the rule.
+- The hinter taps "They got it!" or "Nope, grunt again". Points start at 10 and drop by 2 per extra grunt; both players score. Plays 8 rounds.
 
 ## Content
 

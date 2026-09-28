@@ -4,9 +4,7 @@
   mod.inputScreens = new Set(['hmguess']);
   const AZ = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-  const blanksHTML = s => `<div class="hm-tvblanks phone">${(s.blanks || '').split('').map(c => (c === ' '
-    ? '<span class="hm-gap"></span>'
-    : `<span class="hm-cell">${c === '_' ? '' : esc(c)}</span>`)).join('')}</div>`;
+  const blanksHTML = s => hangmanBlanksHTML(s.blanks, 'phone');
 
   const missesHTML = s => `${s.wrongCount} of ${s.maxWrong} misses`;
 
@@ -55,7 +53,7 @@
       <div id="hmword">${blanksHTML(s)}</div>
       <p class="note" id="hmmiss">${missesHTML(s)}</p>${bar(s.endsAt, s.windowMs)}
       <div class="hm-keys" id="hmkeys">${keysHTML(s)}</div>
-      <div class="row"><input id="wordGuess" type="text" maxlength="40" autocomplete="off" placeholder="Guess the whole thing">
+      <div class="row"><input id="wordGuess" type="text" maxlength="40" autocomplete="off" placeholder="Solve it…">
       <button class="primary" id="wordGuessGo">Guess</button></div>` };
   };
 

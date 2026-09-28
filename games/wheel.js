@@ -73,6 +73,10 @@ class Wheel {
   }
 
   onPlayerRemoved() {
+    if (this.phase.startsWith('bonus')) {
+      if (!this.players.has(this.bonus.pid) && this.phase !== 'bonus_end') { this.phase = 'bonus_solve'; this.bonusFinish(false); }
+      return;
+    }
     if (!this.players.has(this.turnPid) && this.phase !== 'end' && this.phase !== 'roundEnd') {
       this.turnPid = this.order()[0] || null;
       this.beginTurn();
@@ -236,8 +240,14 @@ class Wheel {
     }
   }
 
+  consonantsLeft() {
+    for (const ch of this.puzzleLetters()) if (!VOWELS.includes(ch) && !this.called.has(ch)) return true;
+    return false;
+  }
+
   spin() {
     if (this.phase !== 'turn') return 'You cannot spin right now';
+    if (!this.consonantsLeft()) return 'No consonants left. Buy a vowel or solve';
     const index = crypto.randomInt(WEDGES.length);
     this.phase = 'spinning';
     this.msg = '';
@@ -336,6 +346,7 @@ class Wheel {
       vowelCost: VOWEL_COST,
       wedges: WEDGES,
       spin: this.phase === 'spinning' || this.spin_ ? this.spin_ || null : null,
+      consonantsLeft: this.consonantsLeft(),
       wedge: this.wedge || null,
       turnPid: ['roundEnd', 'end', 'bonus_end'].includes(this.phase) ? null : this.turnPid,
       bonus: this.bonus && { pid: this.bonus.pid, prize: this.bonus.prize, won: this.bonus.won },

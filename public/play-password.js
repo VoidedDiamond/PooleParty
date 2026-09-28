@@ -21,7 +21,8 @@
           <input id="clueword" type="text" maxlength="20" autocomplete="off" placeholder="One-word clue">
           <button class="primary" id="sendclue">Give this clue</button>${bar(s.endsAt, s.windowMs)}` };
       }
-      return { key: 'pwjudge', html: `<p class="say">Your clue: "${esc(s.clue)}"</p><p class="note">Did ${esc((findPlayer(s, s.guesserId) || {}).name || 'they')} get it?</p>
+      return { key: 'pwjudge', html: `<p class="kicker">The password is</p><p class="pw-word-phone">${esc(s.word)}</p>
+        <p class="note">You said "${esc(s.clue)}". Did ${esc((findPlayer(s, s.guesserId) || {}).name || 'they')} say it?</p>
         <button class="primary" id="gotit">They got it!</button><button class="ghost big" id="miss">Nope, new clue</button>${bar(s.endsAt, s.windowMs)}` };
     }
 

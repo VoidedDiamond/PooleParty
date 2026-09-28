@@ -56,7 +56,10 @@
         return `<div class="big steal">STEAL! ${pname(s, s.stealPid)} gets one answer</div>${bar(s.endsAt, s.windowMs)}`;
       case 'reveal': {
         const a = s.award;
-        return `<div class="big">${a ? `${esc(team(s, a.team).name)} wins ${a.points}${s.mult > 1 ? ` (x${s.mult})` : ''}` : ''}</div><div>${guessLine(s)}</div>`;
+        const result = !a ? '' : a.points
+          ? `${esc(team(s, a.team).name)} banks ${a.points} points${s.mult > 1 ? ` (x${s.mult})` : ''}`
+          : 'Nobody scores this round';
+        return `<div class="big">${result}</div><div>${guessLine(s)}</div>`;
       }
       default: return '';
     }

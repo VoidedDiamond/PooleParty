@@ -112,9 +112,10 @@ class Trivia {
     else this.startQuestion();
   }
 
-  view(role) {
+  view(role, pid) {
     const priv = role === 'console';
     const showAnswer = priv || this.phase === 'reveal' || this.phase === 'end';
+    const mine = pid ? this.answers.get(pid) : null;
     return {
       game: 'trivia',
       title: this.title,
@@ -129,6 +130,10 @@ class Trivia {
       tierLabel: (this.source.data.tierLabels && this.source.data.tierLabels[this.current.tier - 1]) || `Tier ${this.current.tier}`,
       correct: showAnswer ? this.current.correct : null,
       answeredCount: this.answers.size,
+      answeredIds: [...this.answers.keys()],
+      // Your own pick is yours to see right away; whether it was right waits for the reveal.
+      myAnswer: mine ? { idx: mine.idx, correct: showAnswer ? mine.correct : null, pts: showAnswer ? mine.pts : null } : null,
+      results: showAnswer ? [...this.answers.entries()].map(([id, a]) => ({ id, idx: a.idx, correct: a.correct, pts: a.pts })) : null,
       players: [...this.players.values()].map(p => ({
         id: p.id, name: p.name, color: p.color, score: p.score, connected: p.connected,
       })),

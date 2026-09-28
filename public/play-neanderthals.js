@@ -20,7 +20,8 @@
           <p class="note big-warn">Grunt ONE SYLLABLE. That's it. No words, no pointing, no spelling.</p>
           <button class="primary" id="sendgrunt">I've grunted — their turn</button>${bar(s.endsAt, s.windowMs)}` };
       }
-      return { key: 'ndjudge', html: `<p class="say">Waiting on a guess</p><p class="note">Did ${esc((findPlayer(s, s.guesserId) || {}).name || 'they')} get it?</p>
+      return { key: 'ndjudge', html: `<p class="kicker">The word is</p><p class="pw-word-phone">${esc(s.word)}</p>
+        <p class="note">Did ${esc((findPlayer(s, s.guesserId) || {}).name || 'they')} say it?</p>
         <button class="primary" id="gotit">They got it!</button><button class="ghost big" id="miss">Nope, grunt again</button>${bar(s.endsAt, s.windowMs)}` };
     }
 

@@ -223,7 +223,8 @@ class Scattergories {
       round: this.round + 1, rounds: ROUNDS,
       letter: this.letter, categories: this.categories,
       doneCount: this.doneIds ? this.doneIds.size : 0, totalCount: this.connectedIds().length,
-      mySubmitted: this.answers && this.answers.has(pid),
+      // doneIds, not answers: answers also holds the live drafts streamed while typing.
+      mySubmitted: !!(this.doneIds && this.doneIds.has(pid)),
       players: [...this.players.values()].map(p => ({
         id: p.id, name: p.name, color: p.color, score: p.score, connected: p.connected,
       })),

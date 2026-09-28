@@ -339,10 +339,10 @@ io.on('connection', socket => {
     for (const s of io.sockets.sockets.values()) {
       if (s.data.role === 'display') s.emit('stroke', msg);
     }
-    if (typeof game.recordStroke === 'function' && (msg.kind === 'start' || msg.kind === 'point' || msg.kind === 'clear')) {
+    if (typeof game.recordStroke === 'function' && ['start', 'point', 'clear', 'undo'].includes(msg.kind)) {
       game.recordStroke(msg.kind, msg.point, msg.color);
     }
-    if (msg.kind === 'end' || msg.kind === 'clear') broadcast();
+    if (msg.kind === 'end' || msg.kind === 'clear' || msg.kind === 'undo') broadcast();
   });
 
   socket.on('disconnect', () => {

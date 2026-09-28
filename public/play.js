@@ -121,9 +121,25 @@ function hostBarHTML(s) {
     <button class="ghost" id="hostMenu">${icon('house')} Menu</button>
   </div>`;
 }
+// An in-app confirmation sheet (instead of the browser's confirm() box). Resolves true or false.
+function confirmSheet(title, note, okLabel) {
+  return new Promise(resolve => {
+    const el = document.createElement('div');
+    el.className = 'sheet-backdrop';
+    el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><p class="say">${esc(title)}</p><p class="note">${esc(note)}</p>
+      <button class="primary" data-ok>${esc(okLabel)}</button><button class="ghost big" data-cancel>Keep playing</button></div>`;
+    const done = ok => { el.classList.remove('show'); setTimeout(() => el.remove(), 180); resolve(ok); };
+    el.onclick = e => {
+      if (e.target.closest('[data-ok]')) done(true);
+      else if (e.target === el || e.target.closest('[data-cancel]')) done(false);
+    };
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+  });
+}
 function wireHostBar() {
-  if ($('#hostMenu')) $('#hostMenu').onclick = () => { if (confirm('End this game and go back to the game menu?')) act('toMenu'); };
-  if ($('#hostRestart')) $('#hostRestart').onclick = () => { if (confirm('Restart this game from the beginning?')) act('reset'); };
+  if ($('#hostMenu')) $('#hostMenu').onclick = async () => { if (await confirmSheet('End this game?', 'Everyone goes back to the game menu. Scores from this game are cleared.', 'End game')) act('toMenu'); };
+  if ($('#hostRestart')) $('#hostRestart').onclick = async () => { if (await confirmSheet('Restart this game?', 'It starts over from round one with fresh content.', 'Restart')) act('reset'); };
 }
 
 const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals'];
@@ -164,10 +180,19 @@ function render() {
   lastScreen = sig;
   const fmt = POINT_GAMES.includes(s.game) ? String : money; // points, not dollars
   const head = screen.head || headHTML(me, me.score === undefined ? null : { text: fmt(me.score), neg: me.score < 0 });
-  app.innerHTML = `<div class="wrap">${head}${screen.html}${amHost ? hostBarHTML(s) : ''}</div>`;
+  app.innerHTML = `<div class="wrap">${head}<main class="screen">${screen.html}</main>${amHost ? hostBarHTML(s) : ''}</div>`;
+  markIdle();
   if (s.game === 'hub') wireHub(s);
   else if (mod && mod.wire) mod.wire(screen.key, s, me);
   if (amHost) wireHostBar();
+}
+
+function markIdle() {
+  const el = $('.screen');
+  if (!el || el.querySelector('button, input, canvas, .wldial.live')) return;
+  el.classList.add('idle');
+  const busy = el.querySelector('.hero-check, .verdict, .reveal-word, .pw-word-phone, .ranking, .wldial, .wmini, .cn-pgrid, .intro, .hm-tvblanks, .mclues, .fmpcol, .sg-prow, .qtext');
+  if (!busy) el.insertAdjacentHTML('afterbegin', `<div class="idle-mark">${icon('tv')}</div>`);
 }
 
 // Helpers the game modules share.

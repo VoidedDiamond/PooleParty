@@ -125,6 +125,7 @@ class Tshirt {
       }
     }
     this.phase = 'results';
+    this.setTimer(RESULTS_PAUSE_MS);
     this.later(RESULTS_PAUSE_MS, () => this.afterResults());
   }
 
@@ -132,7 +133,7 @@ class Tshirt {
     if (this.phase !== 'results') return;
     clearTimeout(this.timer);
     this.timer = null;
-    if (this.roundNum >= ROUNDS_PER_GAME) { this.phase = 'end'; }
+    if (this.roundNum >= ROUNDS_PER_GAME) { this.phase = 'end'; this.endsAt = null; }
     else this.startRound();
   }
 

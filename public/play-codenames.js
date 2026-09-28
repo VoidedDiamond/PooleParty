@@ -54,8 +54,8 @@
     if (isSpymaster) {
       if (s.phase === 'clue' && onTurn) {
         return { key: 'cnclue', html: `<p class="say">Give a one-word clue</p>
-          <input id="clueword" type="text" maxlength="24" autocomplete="off" placeholder="Clue word">
-          <input id="cluenum" type="number" min="0" max="9" value="1" placeholder="Number">
+          <div class="row cn-clueform"><input id="clueword" type="text" maxlength="24" autocomplete="off" autocapitalize="characters" placeholder="Clue word">
+          <input id="cluenum" type="number" inputmode="numeric" min="0" max="9" value="1" aria-label="How many words"></div>
           <button class="primary" id="sendclue">Give clue</button>${bar(s.endsAt, s.windowMs)}${gridHTML(s, false)}` };
       }
       if (s.phase === 'guess' && soloSelf) {
@@ -68,7 +68,8 @@
     }
 
     if (s.phase === 'clue') {
-      return { key: 'cnwaitclue', html: `<p class="say">${esc(s.teams[s.turn].name)}'s spymaster is thinking of a clue</p><p class="note">Hang tight.</p>` };
+      const spy = findPlayer(s, s.teams[s.turn].spymaster);
+      return { key: 'cnwaitclue', html: `<p class="say">${esc(spy ? spy.name : 'The spymaster')} is thinking of a clue</p><p class="note">${esc(s.teams[s.turn].name)}'s turn. Hang tight.</p>` };
     }
 
     // guess phase

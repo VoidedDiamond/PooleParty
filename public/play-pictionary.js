@@ -10,6 +10,7 @@
     const colors = ['#141414', '#e53e3e', '#3182ce', '#38a169', '#d69e2e'];
     return `<div class="ptoolbar">
       ${colors.map(c => `<button class="pswatch ${c === currentColor ? 'sel' : ''}" data-color="${c}" style="background:${c}"></button>`).join('')}
+      <button class="ghost" id="pundo">${icon('rotate-ccw')} Undo</button>
       <button class="ghost" id="pclear">Clear</button>
     </div>`;
   }
@@ -87,6 +88,7 @@
         };
       });
       if ($('#pclear')) $('#pclear').onclick = () => { if (canvasObj) canvasObj.clear(); };
+      if ($('#pundo')) $('#pundo').onclick = () => { if (canvasObj) canvasObj.undo(); };
     }
     if (key === 'guess') {
       const input = wireInput('guessInput', 'answer');

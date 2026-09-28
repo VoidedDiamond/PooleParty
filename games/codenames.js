@@ -69,10 +69,7 @@ class Codenames {
     return [...this.players.values()].filter(p => this.teamOf.get(p.id) === t && p.connected).map(p => p.id);
   }
 
-  teamName(t) {
-    const list = [...this.players.values()].filter(p => this.teamOf.get(p.id) === t);
-    return list.length === 1 ? list[0].name : `Team ${TEAM_NAMES[t]}`;
-  }
+  teamName(t) { return `Team ${TEAM_NAMES[t]}`; }
 
   pickTeam(pid, team) {
     if (this.phase !== 'teams') return 'Teams are already set';

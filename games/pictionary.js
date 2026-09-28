@@ -133,7 +133,8 @@ class Pictionary {
   recordStroke(kind, point, color) {
     if (kind === 'start') this.strokes.push({ c: color || '#141414', s: [point] });
     else if (kind === 'point') { const s = this.strokes[this.strokes.length - 1]; if (s) s.s.push(point); }
-    else if (kind === 'clear') this.strokes = [];
+    else if (kind === 'clear') { this.strokes = []; this.strokeRev = (this.strokeRev || 0) + 1; }
+    else if (kind === 'undo') { this.strokes.pop(); this.strokeRev = (this.strokeRev || 0) + 1; }
   }
 
   endRound() {
@@ -165,6 +166,7 @@ class Pictionary {
       drawerId: this.drawerId,
       drawerName: this.name(this.drawerId),
       roundSeq: this.roundSeq || 0,
+      strokeRev: this.strokeRev || 0,
       choices: (isDrawer || priv) && this.phase === 'choosing' ? this.choices : null,
       wordLength: this.word ? this.word.replace(/[^a-zA-Z]/g, '').length : 0,
       wordShape: this.word ? this.word.replace(/[A-Za-z]/g, '_') : '',

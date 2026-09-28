@@ -168,7 +168,11 @@ class Feud {
   }
 
   skip() {
-    if (this.phase === 'faceoff') { this.resolveFaceoff(); return null; }
+    if (this.phase === 'faceoff') {
+      if (this.cur.face.resolved) this.startChoice(this.cur.face.winner);
+      else this.resolveFaceoff();
+      return null;
+    }
     if (this.phase === 'play') { this.strike('timeout', this.cur.turnPid); return null; }
     if (this.phase === 'strikeout') { clearTimeout(this.timer); this.startSteal(); return null; }
     if (this.phase === 'steal') { this.finishSteal(this.cur.steal.pid, '', -1); return null; }

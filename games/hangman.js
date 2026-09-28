@@ -92,9 +92,10 @@ class Hangman {
 
   guessWord(pid, text) {
     if (this.phase !== 'guessing' || pid === this.giverId) return 'Not your turn';
-    const guess = String(text || '').trim().toUpperCase();
+    const letters = t => String(t || '').toUpperCase().replace(/[^A-Z]/g, '');
+    const guess = letters(text);
     if (!guess) return 'Type a guess first';
-    if (guess === this.word) { this.finishRound(true, pid); return null; }
+    if (guess === letters(this.word)) { this.finishRound(true, pid); return null; }
     this.wrongCount += 1;
     if (this.wrongCount >= MAX_WRONG) this.finishRound(false);
     return null;
