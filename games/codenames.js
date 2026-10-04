@@ -83,16 +83,30 @@ class Codenames {
 
   finishTeamPick() {
     if (this.phase !== 'teams') return;
-    // Anyone who didn't choose (disconnected mid-pick) gets balanced in automatically.
-    const connected = [...this.players.values()].filter(p => p.connected).map(p => p.id);
-    for (const id of connected) {
-      if (!this.teamOf.has(id)) {
-        const count = [0, 0];
-        for (const t of this.teamOf.values()) count[t]++;
-        this.teamOf.set(id, count[0] <= count[1] ? 0 : 1);
-      }
+    this.phase = 'teamsDone';
+    // Anyone who didn't choose (phone asleep when picking closed, say) gets balanced in, and if
+    // everybody piled onto one side, half of them are moved so both teams have players.
+    this.ensureTeams();
+    for (const t of [0, 1]) {
+      const mine = [...this.teamOf.entries()].filter(([, x]) => x === t).map(([id]) => id);
+      const theirs = [...this.teamOf.entries()].filter(([, x]) => x !== t).map(([id]) => id);
+      if (!mine.length && theirs.length > 1) shuffle(theirs).slice(0, Math.floor(theirs.length / 2)).forEach(id => this.teamOf.set(id, t));
     }
     this.startRoles();
+  }
+
+  // Every player has a team once team picking is over, including anyone whose phone was asleep
+  // at that moment or who joined after the game started: they go to the smaller team. Without
+  // this they'd see the role buttons but have every tap refused.
+  ensureTeams() {
+    if (this.phase === 'teams') return;
+    for (const id of [...this.teamOf.keys()]) if (!this.players.has(id)) this.teamOf.delete(id);
+    for (const p of this.players.values()) {
+      if (this.teamOf.has(p.id)) continue;
+      const count = [0, 0];
+      for (const t of this.teamOf.values()) count[t]++;
+      this.teamOf.set(p.id, count[0] <= count[1] ? 0 : 1);
+    }
   }
 
   // ---- roles ----------------------------------------------------------------
@@ -116,6 +130,7 @@ class Codenames {
 
   pickRole(pid, role) {
     if (this.phase !== 'roles') return 'Not choosing roles right now';
+    this.ensureTeams();
     if (!['spy', 'guess'].includes(role)) return 'Bad role';
     const t = this.teamOf.get(pid);
     if (t == null) return 'No team';
@@ -246,6 +261,7 @@ class Codenames {
   // ---- actions ----------------------------------------------------------------
   handle(actor, type, p) {
     p = p || {};
+    this.ensureTeams();
     const host = actor.role === 'console' || !!actor.isHost;
     const pid = actor.playerId;
     switch (type) {
@@ -268,6 +284,7 @@ class Codenames {
 
   // ---- view ---------------------------------------------------------------
   view(role, pid) {
+    this.ensureTeams();
     if (this.phase === 'teams') {
       return {
         game: 'codenames', title: 'Codenames', phase: 'teams',
