@@ -1,3 +1,5 @@
 node_modules/
 # Written at runtime to avoid repeating content between games; each install keeps its own.
 data/recent-usage.json
+# Raw OpenTriviaQA files; the built pack is content/trivia/general.json (npm run fetch-data -- trivia).
+data/raw/opentriviaqa/

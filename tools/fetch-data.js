@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const { build: buildJeopardy } = require('./build-jeopardy-bank');
 const { build: buildFeud } = require('./build-feud-bank');
+const { build: buildTrivia } = require('./build-trivia-pack');
 
 const ROOT = path.join(__dirname, '..');
 const RAW = path.join(ROOT, 'data', 'raw');
@@ -37,7 +38,7 @@ async function download({ file, url }, force) {
 
 (async () => {
   const force = process.argv.includes('--force');
-  const only = process.argv.find(a => a === 'jeopardy' || a === 'feud');
+  const only = process.argv.find(a => a === 'jeopardy' || a === 'feud' || a === 'trivia');
   if (process.argv.includes('--full')) {
     const raw = await download(SOURCES.jeopardyFull, force);
     console.log('Jeopardy full bank:', buildJeopardy(raw, path.join(ROOT, 'content/jeopardy/bank-full.json'),
@@ -55,4 +56,5 @@ async function download({ file, url }, force) {
     const raw = await download(SOURCES.feud, force);
     console.log('Family Feud bank:', buildFeud(raw, path.join(ROOT, 'content/feud/bank.json')));
   }
+  if (!only || only === 'trivia') console.log('Trivia Night pack:', await buildTrivia());
 })().catch(e => { console.error(e.message); process.exit(1); });

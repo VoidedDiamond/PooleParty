@@ -265,11 +265,16 @@ function loadHangmanSource(override) {
 }
 
 // ---- Neanderthals ------------------------------------------------------------------
+// Cards: { cards: [{ one: "Fork", three: "Pitchfork", ban: ["eat", ...] }] }. A plain
+// { words: [...] } list (the old format) still loads: each word becomes a 1-point-only card.
 function loadNeanderthalsSource(override) {
-  const file = override ? path.resolve(override) : path.join(ROOT, 'content/neanderthals/words.json');
+  const file = override ? path.resolve(override) : path.join(ROOT, 'content/neanderthals/cards.json');
   const data = readJSON(file);
-  if (!Array.isArray(data.words) || !data.words.length) throw new Error(`${file}: "words" must be a non-empty array`);
-  return { data, label: `${data.words.length.toLocaleString()} words` };
+  const cards = Array.isArray(data.cards) ? data.cards.filter(c => c && c.one)
+    : Array.isArray(data.words) ? data.words.map(w => ({ one: w, three: null, ban: [] })) : [];
+  if (!cards.length) throw new Error(`${file}: "cards" must be a non-empty array`);
+  for (const c of cards) { c.three = c.three || null; c.ban = Array.isArray(c.ban) ? c.ban : []; }
+  return { data, cards, label: `${cards.length.toLocaleString()} cards` };
 }
 
 // ---- Scattergories --------------------------------------------------------------

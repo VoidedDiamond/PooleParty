@@ -137,13 +137,45 @@ function confirmSheet(title, note, okLabel) {
     requestAnimationFrame(() => el.classList.add('show'));
   });
 }
+// Lobby only: a sheet with the name box, prefilled.
+function wireRename(me) {
+  const b = $('#renameBtn');
+  if (!b) return;
+  b.onclick = () => {
+    const el = document.createElement('div');
+    el.className = 'sheet-backdrop';
+    el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><p class="say">Change your name</p>
+      <input id="newName" maxlength="14" autocomplete="off" autocapitalize="words" value="${esc(me.name)}">
+      <p class="err" id="renameErr"></p>
+      <button class="primary" data-ok>Save</button><button class="ghost big" data-cancel>Cancel</button></div>`;
+    const close = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 180); };
+    const save = async () => {
+      const name = $('#newName', el).value.trim();
+      if (!name) { $('#renameErr', el).textContent = 'Type a name first.'; return; }
+      const err = await send(socket, 'rename', { name });
+      if (err) { $('#renameErr', el).textContent = err; return; }
+      localStorage.setItem(LS_NAME, name);
+      close();
+    };
+    el.onclick = e => {
+      if (e.target.closest('[data-ok]')) save();
+      else if (e.target === el || e.target.closest('[data-cancel]')) close();
+    };
+    $('#newName', el).onkeydown = e => { if (e.key === 'Enter') save(); };
+    document.body.appendChild(el);
+    requestAnimationFrame(() => { el.classList.add('show'); $('#newName', el).select(); });
+  };
+}
+
 function wireHostBar() {
   if ($('#hostMenu')) $('#hostMenu').onclick = async () => { if (await confirmSheet('End this game?', 'Everyone goes back to the game menu. Scores from this game are cleared.', 'End game')) act('toMenu'); };
   if ($('#hostRestart')) $('#hostRestart').onclick = async () => { if (await confirmSheet('Restart this game?', 'It starts over from round one with fresh content.', 'Restart')) act('reset'); };
 }
 
 const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals'];
-const headHTML = (me, score) => `<div class="me" style="--color:${me.color}"><b>${esc(me.name)}</b>${score == null ? '' : `<span class="${score.neg ? 'neg' : ''}">${score.text}</span>`}</div>`;
+const headHTML = (me, score, editable = false) => `<div class="me" style="--color:${me.color}"><b>${esc(me.name)}</b>${editable
+  ? `<button class="ghost me-edit" id="renameBtn">${icon('pencil')} Change name</button>`
+  : score == null ? '' : `<span class="${score.neg ? 'neg' : ''}">${score.text}</span>`}</div>`;
 
 function render() {
   const s = state;
@@ -167,11 +199,7 @@ function render() {
   const screen = s.game === 'hub' || !mod ? hubScreen(s, amHost) : mod.screen(s, me);
   const inputs = (mod && mod.inputScreens) || new Set();
   const stamp = (s.fm && `${s.fm.stage}:${s.fm.step}:${s.fm.idx}`) || (s.current && s.current.endsAt) || (s.final && s.final.endsAt) || s.endsAt || '';
-  // Movie Reveal's clue list grows mid-round while endsAt stays fixed; fold the clue count into
-  // the signature so a newly-revealed clue still gets through even while the guess input is
-  // protected from being wiped mid-keystroke.
-  const extra = Array.isArray(s.clues) ? s.clues.length : '';
-  const sig = `${s.game}:${screen.key}:${stamp}:${extra}:${amHost}`;
+  const sig = `${s.game}:${screen.key}:${stamp}:${amHost}`;
   if (inputs.has(screen.key) && sig === lastScreen) {
     // Don't wipe what's being typed; a module can still patch live bits (feeds, counters) in place.
     if (mod && mod.refresh) mod.refresh(screen.key, s, me);
@@ -179,10 +207,10 @@ function render() {
   }
   lastScreen = sig;
   const fmt = POINT_GAMES.includes(s.game) ? String : money; // points, not dollars
-  const head = screen.head || headHTML(me, me.score === undefined ? null : { text: fmt(me.score), neg: me.score < 0 });
+  const head = screen.head || headHTML(me, me.score === undefined ? null : { text: fmt(me.score), neg: me.score < 0 }, s.game === 'hub');
   app.innerHTML = `<div class="wrap">${head}<main class="screen">${screen.html}</main>${amHost ? hostBarHTML(s) : ''}</div>`;
   markIdle();
-  if (s.game === 'hub') wireHub(s);
+  if (s.game === 'hub') { wireHub(s); wireRename(me); }
   else if (mod && mod.wire) mod.wire(screen.key, s, me);
   if (amHost) wireHostBar();
 }
@@ -201,4 +229,9 @@ function wireInput(id, key) {
   if (el) el.oninput = () => { draft[key] = el.value; };
   return el;
 }
-function onEnter(el, fn) { if (el) el.onkeydown = e => { if (e.key === 'Enter') fn(); }; }
+// Some Android keyboards report Enter only as keyCode 13, not as e.key.
+function onEnter(el, fn) {
+  if (!el) return;
+  el.setAttribute('enterkeyhint', 'send');
+  el.onkeydown = e => { if (e.key === 'Enter' || e.keyCode === 13) { e.preventDefault(); fn(); } };
+}

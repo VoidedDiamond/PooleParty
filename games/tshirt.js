@@ -1,4 +1,5 @@
 'use strict';
+const { shuffle } = require('./content');
 
 const DRAW_MS = 100000;
 const VOTE_MS = 45000;
@@ -104,7 +105,9 @@ class Tshirt {
     for (const p of this.players.values()) {
       if (p.connected && !this.submissions.has(p.id)) this.submissions.set(p.id, []);
     }
-    this.galleryOrder = [...this.submissions.keys()];
+    // Shuffled, and shown as Shirt A, B, C... until the results: the order people finished in
+    // (or joined in) must not give away whose shirt is whose.
+    this.galleryOrder = shuffle([...this.submissions.keys()]);
     this.phase = 'voting';
     this.setTimer(VOTE_MS);
     this.later(VOTE_MS, () => this.finishVoting());
@@ -140,6 +143,9 @@ class Tshirt {
   view(role, pid) {
     const priv = role === 'console';
     const showGallery = this.phase === 'voting' || this.phase === 'results' || priv;
+    const named = this.phase === 'results' || priv;
+    const label = id => `Shirt ${String.fromCharCode(65 + this.galleryOrder.indexOf(id))}`;
+    const nameOf = id => (this.players.get(id) || {}).name || '?';
     return {
       game: 'tshirt',
       title: 'T-Shirt Wars',
@@ -150,10 +156,10 @@ class Tshirt {
       doneCount: this.doneIds.size,
       totalCount: [...this.players.values()].filter(p => p.connected).length,
       designs: showGallery ? this.galleryOrder.map(id => ({
-        id, name: (this.players.get(id) || {}).name || '?', strokes: this.submissions.get(id) || [],
+        id, label: label(id), name: named ? nameOf(id) : null, mine: id === pid, strokes: this.submissions.get(id) || [],
       })) : null,
       voteOptions: this.phase === 'voting'
-        ? this.galleryOrder.filter(id => id !== pid).map(id => ({ id, name: (this.players.get(id) || {}).name || '?' }))
+        ? this.galleryOrder.filter(id => id !== pid).map(id => ({ id, label: label(id) }))
         : null,
       myVote: this.votes.get(pid) || null,
       results: this.results,

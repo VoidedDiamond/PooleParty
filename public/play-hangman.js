@@ -6,7 +6,7 @@
 
   const blanksHTML = s => hangmanBlanksHTML(s.blanks, 'phone');
 
-  const missesHTML = s => `${s.wrongCount} of ${s.maxWrong} misses`;
+  const missesHTML = s => `${s.wrongCount} of ${s.maxWrong} misses${s.lastMiss ? ` · ${s.lastMiss.name} −${s.lastMiss.pts}` : ''}`;
 
   function keysHTML(s) {
     return AZ.map(l => {

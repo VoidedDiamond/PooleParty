@@ -26,7 +26,7 @@
   function boardHTML(s) {
     const cells = s.board.map(c => {
       const cls = c.revealed ? `cn-cell revealed ${COLOR_CLASS(c.color)}` : 'cn-cell hidden';
-      return `<div class="${cls}"><span>${esc(c.word)}</span></div>`;
+      return `<div class="${cls}">${c.revealed ? '<i class="cn-mark"></i>' : ''}<span>${esc(c.word)}</span></div>`;
     }).join('');
     return `<div class="cn-board">${cells}</div>`;
   }
@@ -60,7 +60,7 @@
       if (s.phase === 'teams') return teamsHTML(s);
       if (s.phase === 'roles') return rolesHTML(s);
       const remain = `<div class="cn-scores">${s.teams.map(t => `<div class="cn-score" style="--color:${t.color}">
-        <span>${esc(t.name)}</span><b>${s.remaining[t.id]}</b></div>`).join('')}</div>`;
+        <span><i class="cn-mark ${t.id === 0 ? 'red' : 'blue'}"></i> ${esc(t.name)}</span><b>${s.remaining[t.id]}</b></div>`).join('')}</div>`;
       return `<div class="stage"><div class="main">
         ${remain}
         ${boardHTML(s)}

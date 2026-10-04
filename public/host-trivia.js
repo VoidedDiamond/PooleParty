@@ -22,7 +22,7 @@
   function questionHTML(s, reveal) {
     return `<div class="stage"><div class="tv-header">
         <div><div class="kicker">Question ${s.qIndex} of ${s.totalQuestions} \u00b7 ${esc(s.topic || '')}</div>
-        <span class="badge">${esc(s.tierLabel || `Tier ${s.tier}`)}</span></div>
+        ${s.tierLabel && s.tierLabel !== s.topic ? `<span class="badge">${esc(s.tierLabel)}</span>` : ''}</div>
         ${reveal ? '' : bar(s.endsAt, s.windowMs)}
       </div>
       <div class="main"><div class="cluebox">

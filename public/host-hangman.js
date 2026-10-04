@@ -44,7 +44,7 @@
         ${blanksHTML(s)}
         <div class="hm-missed">${missed ? `Missed ${missed}` : 'No misses yet'}</div>
         ${bar(s.endsAt, s.windowMs)}
-        <div class="note center">The longer it takes, the more ${esc(s.giverName)} earns.</div>
+        <div class="note center">${s.lastMiss ? `<span class="no">${esc(s.lastMiss.name)} missed with ${esc(s.lastMiss.what)}: −${s.lastMiss.pts}</span>` : `The longer it takes, the more ${esc(s.giverName)} earns. Wrong guesses cost points.`}</div>
       </div>
     </div>${scoreboardHTML(s, { turnId: s.giverId, plain: true })}</div>`;
   }

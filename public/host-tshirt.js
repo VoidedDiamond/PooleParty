@@ -39,7 +39,7 @@
       card.appendChild(art);
       const label = document.createElement('div');
       label.className = 'tlabel';
-      label.innerHTML = `<span>${esc(d.name)}</span>${votes != null ? `<span>${votes} ${icon('heart')}</span>` : ''}`;
+      label.innerHTML = `<span>${d.name ? `${esc(d.name)} <small>${esc(d.label)}</small>` : esc(d.label)}</span>${votes != null ? `<span>${votes} ${icon('heart')}</span>` : ''}`;
       card.appendChild(label);
       grid.appendChild(card);
       requestAnimationFrame(() => { makeCanvas(canvasEl, { interactive: false, size: 6 }).renderStatic(d.strokes); });

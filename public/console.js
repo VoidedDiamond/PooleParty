@@ -22,6 +22,7 @@ function hubPanel(s) {
       ${btn('Wavelength', 'data-act="startGame" data-type="wavelength"', 'gold big')}
       ${btn('Pictionary', 'data-act="startGame" data-type="pictionary"', 'gold big')}
       ${btn('T-Shirt Wars', 'data-act="startGame" data-type="tshirt"', 'gold big')}
+      ${btn('Trivia Night (hard)', 'data-act="startGame" data-type="trivia" data-pack="general"', 'gold big')}
       ${btn('5th Grade Trivia', 'data-act="startGame" data-type="trivia" data-pack="fifthgrade"', 'gold big')}
       ${btn('Disney Trivia', 'data-act="startGame" data-type="trivia" data-pack="disney"', 'gold big')}
       ${btn('Name That Disney Movie', 'data-act="startGame" data-type="moviereveal"', 'gold big')}

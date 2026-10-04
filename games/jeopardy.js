@@ -11,6 +11,7 @@ const REVEAL_MS = 6000;
 const REVEAL_CHALLENGE_MS = 10000;
 const CHALLENGE_MS = 10000;
 const CHALLENGE_DONE_MS = 4500;
+const CHALLENGE_PENALTY = 0.5; // a rejected challenge costs this share of the clue's value
 const FINAL_ANSWER_MS = 40000;
 const BOARD_MS = 40000; // if the picker's phone dies or they wander off, a random clue gets picked for them
 const DD_WAGER_MS = 30000;
@@ -298,6 +299,12 @@ class Jeopardy {
     const yes = Object.values(ch.votes).filter(Boolean).length;
     const accepted = ch.voters.length === 0 || yes * 2 > ch.voters.length;
     ch.result = accepted ? 'accepted' : 'rejected';
+    if (!accepted) {
+      // Challenging should be for real disputes, not a free reroll.
+      const p = this.players.get(ch.pid);
+      ch.penalty = Math.max(5, Math.round((c.value * CHALLENGE_PENALTY) / 5) * 5);
+      if (p) p.score -= ch.penalty;
+    }
     if (accepted) {
       const r = [...c.rulings].reverse().find(x => x.pid === ch.pid);
       const p = this.players.get(ch.pid);
@@ -461,7 +468,7 @@ class Jeopardy {
         rulings: c.rulings.map(r => ({ pid: r.pid, guess: r.guess, correct: r.correct, overruled: !!r.overruled })),
         challengeable: this.challengeable(c) ? [...new Set(c.rulings.map(r => r.pid))] : [],
         challenge: c.challenge && {
-          pid: c.challenge.pid, voters: c.challenge.voters, result: c.challenge.result,
+          pid: c.challenge.pid, voters: c.challenge.voters, result: c.challenge.result, penalty: c.challenge.penalty || 0,
           votes: Object.keys(c.challenge.votes).length, youVoted: c.challenge.votes[pid] !== undefined,
         },
         endsAt: c.endsAt,

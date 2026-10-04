@@ -36,7 +36,7 @@ If guests aren't on your Wi-Fi yet, start the server with `--wifi-ssid=` (and `-
 
 ## Playing
 
-There's no separate admin screen. Everyone joins from their phone by scanning the QR code on the TV and typing a name. Whoever joins first is the host: their phone shows a game picker (and a Disney Night toggle, if you've kept the Disney content) instead of "waiting for host". They tap a game once everyone's in. If the host's phone drops out mid-game (locked, closed, out of battery), the next connected player quietly becomes host, with no setup needed. During a game the host's phone has a small Menu / Restart bar at the bottom; everyone else's phone doesn't show it, since only the host can use it.
+There's no separate admin screen. Everyone joins from their phone by scanning the QR code on the TV and typing a name. Whoever joins first is the host: their phone shows a game picker (and a Disney Night toggle, if you've kept the Disney content) instead of "waiting for host". They tap a game once everyone's in. Anyone can fix their name from the lobby with the Change name button. If the host's phone drops out mid-game (locked, closed, out of battery), the next connected player quietly becomes host, with no setup needed. During a game the host's phone has a small Menu / Restart bar at the bottom; everyone else's phone doesn't show it, since only the host can use it.
 
 For real households where nobody wants that much control, an advanced `/console` page still exists (open it on any browser on the same machine, or from a phone with the `?key=` link the terminal prints) with score adjustments, manual judging overrides, and a kick-player button. It's optional. Day to day, nobody needs to open it.
 
@@ -45,7 +45,7 @@ For real households where nobody wants that much control, an advanced `/console`
 - Wait for the buzzers to open, then tap BUZZ. Buzzing early locks you out briefly.
 - Typed mode: you type the answer and the matcher rules on it. Multiple choice: four options appear on your phone only.
 - Wrong answers cost points and reopen the buzzers for the others. The player who answers correctly picks next.
-- Challenge: if a clue ends with nobody right and you think you were, tap Challenge. The other players vote on their phones. If they accept, you get the points.
+- Challenge: if a clue ends with nobody right and you think you were, tap Challenge. The other players vote on their phones. If they accept, you get the points; if they reject it, you lose half the clue's value.
 - Daily Double and Final Jeopardy (secret wagers, auto-judged) are included.
 - A board is 5 random categories from the bank, five clues each.
 
@@ -89,12 +89,14 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 ### T-Shirt Wars
 - Everyone gets the same silly design prompt (e.g. "a shirt for a superhero whose only power is finding parking spots") and draws their own shirt design at the same time, privately, on their own phone.
 - Once everyone taps "I'm Done" (or time runs out), the TV reveals every design and each phone gets a "vote for your favorite" screen — you can't vote for your own.
+- Designs are shown as Shirt A, B, C… while voting; names appear with the results.
+- Pen tools: five quick colors, a "+" for 24 more (or any color via the phone's picker), Undo and Clear.
 - Whoever gets the most votes that round scores the most points. Plays 3 rounds, then a final scoreboard.
 
-### Trivia: 5th Grade / Disney
-- A set of 10 multiple-choice questions. 5th Grade cycles grade 1 up through grade 5 (then loops); Disney Trivia cycles Easy → Medium → Hard, covering movies, characters, songs, villains, parks, and Pixar.
+### Trivia: Trivia Night / 5th Grade / Disney
+- A set of 10 multiple-choice questions. **Trivia Night** (the default, and the hard one) draws from about 13,600 grown-up questions and visits ten subjects per game: History, Geography, Science, Movies, Music, Television, Sports, Books & Arts, Animals and a Potluck. 5th Grade cycles grade 1 up through grade 5; Disney Trivia gets harder as it goes.
 - Everyone answers on their own phone at the same time; the TV just shows the question and a running "answered" count so nobody can see picks before the reveal.
-- Correct answers score 100-200 points depending on how fast you answered.
+- Correct answers score 100-200 points depending on how fast you answered (25 seconds per question). Your phone tells you if you were right; the TV shows who got it.
 
 ### Name That Disney Movie
 - The TV (and every phone) shows a vague clue about a Disney movie's plot. Every several seconds a more specific clue is added, up to 4 total.
@@ -105,10 +107,11 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 - 3+ players: choose Random Teams or Pick Your Team when you start it (2 players just get one per side automatically). Each team's first member becomes its spymaster.
 - The spymaster sees every word's secret color on their own phone and types a one-word clue plus a number; their teammates tap words on their phones to guess (the TV board only reveals colors as they're actually guessed, so nobody else can peek).
 - Guessing the other team's word or a neutral word ends your turn; guessing the black assassin word loses instantly. First team to find all of their own words wins.
+- Colorblind friendly: every card whose color is known carries a shape (red ▲, blue ■, neutral —, assassin ✕), and each phone has a Colorblind mode switch that adds stripes and stronger contrast.
 
 ### Password
 - Rotates a hinter/guesser pair each round (everyone gets a turn). The hinter privately sees the password and types one-word clues; the guesser says guesses out loud — no typing needed.
-- The hinter taps "They got it!" to award the current point total (starts at 10, drops by 2 per extra clue) or "Nope, new clue" to try again. Both the hinter and guesser score when it's guessed. Plays 8 rounds.
+- The hinter taps "They got it!" to award the current point total (starts at 10, drops by 2 per extra clue) or "Nope, new clue" to try again. Both the hinter and guesser score when it's guessed. The game is a whole number of laps around the group (about 8 rounds), so everyone hints and guesses equally often, odd-sized groups included.
 
 ### Scattergories
 - Each round reveals a letter and 8 categories; everyone privately types an answer starting with that letter for every category, against the clock.
@@ -117,11 +120,15 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 
 ### Hangman
 - One player per round picks a theme (from 3 choices) and a secret word from it is drawn automatically. Everyone else taps letters on their phone or types a guess for the whole thing.
-- Six misses completes the figure and ends the round. Guessers score for each letter they found, plus a bonus for solving; the theme picker scores more the longer the group struggles.
+- Six misses completes the figure and ends the round. Guessers score for each letter they found, plus a bonus for solving, and lose 10 points for a wrong letter (25 for a wrong solve); the theme picker scores more the longer the group struggles.
 
 ### Neanderthals
-- Like Password, but the hinter may only grunt ONE SYLLABLE at a time out loud: no whole words, no pointing, no spelling. The table polices the rule.
-- The hinter taps "They got it!" or "Nope, grunt again". Points start at 10 and drop by 2 per extra grunt; both players score. Plays 8 rounds.
+Based on the rules of Poetry for Neanderthals. Two ways to play: **Teams** (Team Glad vs Team Mad, 4+ players) or **Everyone for themselves**.
+- Players take turns as the Poet, an equal number of turns each (teams get the same number of turns). A turn is 90 seconds: get through as many cards as you can. The TV shows one big countdown bar.
+- Each card has a 1-point word and a 3-point phrase, plus a short "don't say" list. Get the word (+1), then go for the phrase (+2 more) or tap Next card. Going straight for the phrase scores 3.
+- Speak in one-syllable words only, as many as you like. Never say a word from the card or any part of one, or anything on the don't-say list. No gestures, rhymes, spelling or initials.
+- Passing a fresh card costs 1 point. Breaking a rule earns a NO! (−1, card lost): in Teams the other team sees the card on their phones and smacks the NO! button; everyone for themselves, any guesser can call it. The Poet can also tap "I slipped". Penalties only ever cost the Poet's side, never the guesser.
+- Everyone for themselves: the Poet taps who said it, and both score. Cards live in `content/neanderthals/cards.json` (`{ "cards": [{ "one": "Fork", "three": "Pitchfork", "ban": ["eat", "spoon"] }] }`); `--neanderthals=file.json` loads your own.
 
 ## Content
 
@@ -129,6 +136,7 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 
 - Jeopardy: the Kids and Teen tournament clues from jwolle1/jeopardy_clue_dataset. About 1,950 five-clue categories. That dataset states that its clues belong to Jeopardy Productions, Inc. and asks that it not be used for public-facing sites or apps. Keep this for private use at home.
 - Family Feud: about 6,000 surveys from ProtoQA (iesl/protoqa-data), licensed CC-BY-4.0.
+- Trivia Night: questions from OpenTriviaQA (uberspot/OpenTriviaQA), licensed CC BY-SA 4.0, filtered by `tools/build-trivia-pack.js` (four distinct choices, no giveaways or dated questions, family filter) into `content/trivia/general.json`. `npm run fetch-data -- trivia` rebuilds it.
 
 For the whole Jeopardy archive instead of just the Kids and Teen games, run `npm run fetch-data -- --full`. It downloads about 80 MB, keeps the family-friendly categories (about 45,000 boards), and saves a random 15,000 of them to `content/jeopardy/bank-full.json`. Regular-show clues are much harder, so multiple choice mode is friendlier. Delete `bank-full.json` to go back to the Kids and Teen set.
 

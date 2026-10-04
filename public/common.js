@@ -36,6 +36,9 @@ const GLYPHS = {
   x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   heart: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
   flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+  pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
+  'trash-2': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+  plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
   tv: '<rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>',
   smartphone: '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
   wifi: '<path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/>',
@@ -132,6 +135,7 @@ const GAME_MENU = [
     (s.content.disney && s.content.disney.pictionary) ? [{ key: 'std', label: 'Standard', opts: {} }, { key: 'disney', label: 'Disney Words', opts: { theme: 'disney' } }] : null },
   { id: 'tshirt', name: 'T-Shirt Wars', tagline: 'Design shirts, vote a winner', min: 2 },
   { id: 'trivia', name: 'Trivia', tagline: 'Quick-fire multiple choice', min: 1, dynamic: () => [
+    { key: 'general', label: 'Trivia Night (hard)', opts: { pack: 'general' } },
     { key: 'fifthgrade', label: '5th Grade', opts: { pack: 'fifthgrade' } }, { key: 'disney', label: 'Disney', opts: { pack: 'disney' } },
   ] },
   { id: 'moviereveal', name: 'Name That Disney Movie', tagline: 'Crack it from the clues', min: 1 },
@@ -140,7 +144,8 @@ const GAME_MENU = [
   { id: 'password', name: 'Password', tagline: 'One-word clues, fast guesses', min: 2 },
   { id: 'scattergories', name: 'Scattergories', tagline: 'One letter, eight categories', min: 1 },
   { id: 'hangman', name: 'Hangman', tagline: 'Crack the word letter by letter', min: 2 },
-  { id: 'neanderthals', name: 'Neanderthals', tagline: 'Hint in one syllable. Ugh.', min: 2 },
+  { id: 'neanderthals', name: 'Neanderthals', tagline: 'Hint in one syllable. Ugh.', min: 2, dynamic: s =>
+    s.players.length >= 4 ? [{ key: 'teams', label: 'Teams: Glad vs Mad', opts: { mode: 'teams' } }, { key: 'solo', label: 'Everyone for themselves', opts: { mode: 'solo' } }] : null },
 ];
 const gameVariants = (entry, s) => (entry.dynamic ? entry.dynamic(s) : null);
 
@@ -151,6 +156,7 @@ const GAME_INSTRUCTIONS = {
     'Wait for the buzzers to open, then tap BUZZ. Buzzing early locks you out briefly.',
     'Typed mode: type your answer. Multiple choice: pick from four options on your phone.',
     'Wrong answers cost points and reopen the buzzers. Whoever answers right picks next.',
+    'Ruled wrong but sure you were right? Challenge it: the others vote. A rejected challenge costs half the clue’s value.',
     'Watch for the Daily Double and Final Jeopardy — secret wagers, auto-judged.',
   ] },
   feud: { title: 'Family Feud', rules: [
@@ -214,13 +220,14 @@ const GAME_INSTRUCTIONS = {
     'Each round, one player (the theme giver) rotates through and picks a theme/category.',
     'A secret word from that theme is chosen automatically — everyone else guesses letters or the whole word.',
     'Six wrong guesses and the hangman is complete — the round ends either way.',
-    'The theme giver scores more the longer it takes and the more wrong guesses happen. Guessers score per correct letter, plus a bonus for calling the whole word.',
+    'Guessers score per correct letter, plus a bonus for solving. A wrong letter costs you 10 points, a wrong solve 25.',
+    'The theme giver scores more the longer it takes and the more wrong guesses happen.',
   ] },
   neanderthals: { title: 'Neanderthals', rules: [
-    'Rotating hinter/guesser pairs, just like Password — but no typing allowed for the hint.',
-    'The hinter privately sees the word and can only grunt ONE SYLLABLE at a time out loud (no words, no pointing, no spelling).',
-    'The guesser shouts their guess out loud. The hinter judges "got it" or "grunt again".',
-    'Points start at 10 and drop with every extra grunt, so a fast guess is worth more.',
+    'Take turns as the Poet: 90 seconds to get through as many cards as you can. Everyone is the Poet equally often.',
+    'Each card has a 1-point word and a 3-point phrase. Get the word, then go for the phrase or move on.',
+    'Speak in ONE-SYLLABLE words only, as many as you like. Never say a word from the card or any part of one, and nothing on the “don’t say” list. No gestures, rhymes, spelling or initials.',
+    'Slip up and you get a NO! (−1, card lost). Passing a card is −1 too. Penalties hit the Poet, never the guesser.',
   ] },
 };
 // The intro card (badge, title, numbered rules), shared by the TV and phone intro screens.
@@ -397,6 +404,59 @@ function tshirtTemplateHTML() {
   </svg>`;
 }
 
+// ---- pen toolbar (Pictionary drawer, T-Shirt Wars) ----------------------------
+// Five quick colors, a "+" swatch that opens a bigger palette (plus the phone's own color picker),
+// then Undo and Clear. The chosen color sticks for the rest of the game on that phone.
+const PEN_COLORS = ['#141414', '#e53e3e', '#3182ce', '#38a169', '#d69e2e'];
+const MORE_PEN_COLORS = [
+  '#ffffff', '#9ca3af', '#4b5563', '#7c2d12', '#a16207', '#fde047',
+  '#f97316', '#fb7185', '#ec4899', '#be185d', '#a855f7', '#6d28d9',
+  '#1e3a8a', '#0ea5e9', '#22d3ee', '#14b8a6', '#065f46', '#84cc16',
+  '#fca5a5', '#fed7aa', '#d9f99d', '#bae6fd', '#ddd6fe', '#f5d0fe',
+];
+let penColor = PEN_COLORS[0];
+
+function penToolbarHTML() {
+  const extra = !PEN_COLORS.includes(penColor);
+  return `<div class="ptoolbar">
+    ${PEN_COLORS.map(c => `<button class="pswatch${c === penColor ? ' sel' : ''}" data-color="${c}" style="background:${c}" aria-label="Pen color"></button>`).join('')}
+    <button class="pswatch more${extra ? ' sel' : ''}" id="pmore" style="${extra ? `background:${penColor}` : ''}" aria-label="More colors">${extra ? '' : icon('plus')}</button>
+    <button class="ghost ptool" id="pundo" aria-label="Undo">${icon('rotate-ccw')}</button>
+    <button class="ghost ptool" id="pclear" aria-label="Clear">${icon('trash-2')}</button>
+  </div>`;
+}
+
+// getCanvas: () => the makeCanvas() object for the current drawing.
+function wirePenToolbar(getCanvas) {
+  const pick = c => {
+    penColor = c;
+    const cv = getCanvas(); if (cv) cv.setColor(c);
+    const bar = $('.ptoolbar');
+    if (bar) bar.outerHTML = penToolbarHTML();
+    wirePenToolbar(getCanvas);
+  };
+  document.querySelectorAll('.ptoolbar .pswatch[data-color]').forEach(b => { b.onclick = () => pick(b.dataset.color); });
+  if ($('#pundo')) $('#pundo').onclick = () => { const cv = getCanvas(); if (cv) cv.undo(); };
+  if ($('#pclear')) $('#pclear').onclick = () => { const cv = getCanvas(); if (cv) cv.clear(); };
+  if ($('#pmore')) $('#pmore').onclick = () => {
+    const el = document.createElement('div');
+    el.className = 'sheet-backdrop';
+    el.innerHTML = `<div class="sheet"><p class="say">More colors</p>
+      <div class="pmore-grid">${MORE_PEN_COLORS.map(c => `<button class="pswatch${c === penColor ? ' sel' : ''}" data-c="${c}" style="background:${c}" aria-label="Pen color"></button>`).join('')}</div>
+      <label class="ghost big pcustom">Pick any color<input type="color" value="${penColor}"></label>
+      <button class="ghost big" data-cancel>Done</button></div>`;
+    const close = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 180); };
+    el.onclick = e => {
+      const sw = e.target.closest('[data-c]');
+      if (sw) { pick(sw.dataset.c); close(); }
+      else if (e.target === el || e.target.closest('[data-cancel]')) close();
+    };
+    el.querySelector('input[type=color]').oninput = e => pick(e.target.value);
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+  };
+}
+
 // ---- shared freehand drawing surface (Pictionary, T-Shirt Wars) ----------
 // Points are normalized 0..1 of the canvas's own box, not raw pixels, so a
 // stroke drawn on one canvas (e.g. a phone) lines up correctly when replayed
@@ -516,6 +576,10 @@ function makeCanvas(canvas, { color = '#111', size = 8, interactive = false, onP
 
   if (interactive) {
     canvas.style.touchAction = 'none';
+    // A long press on iOS/Android otherwise starts a text selection that highlights the page.
+    canvas.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+    canvas.addEventListener('selectstart', e => e.preventDefault());
     const toPoint = e => {
       const rect = canvas.getBoundingClientRect();
       const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));

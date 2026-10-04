@@ -87,6 +87,7 @@ const disneySources = {
 // Trivia ships two independent packs (not a toggle on one game, since the question sets are
 // unrelated): 5th Grade and Disney. Both use the same game module.
 const triviaSources = {
+  general: tryLoad(content.loadTriviaSource, 'content/trivia/general.json'),
   fifthgrade: tryLoad(content.loadTriviaSource, 'content/trivia/fifthgrade.json'),
   disney: tryLoad(content.loadTriviaSource, 'content/trivia/disney.json'),
 };
@@ -103,13 +104,13 @@ const GAMES = {
   wavelength: { min: 2, make: (opts) => new Wavelength(players, broadcast, { source: pickSource('wavelength', opts) }) },
   pictionary: { min: 2, make: (opts) => new Pictionary(players, broadcast, { source: pickSource('pictionary', opts) }) },
   tshirt: { min: 2, make: (opts) => new Tshirt(players, broadcast, { source: sources.tshirt }) },
-  trivia: { min: 1, make: (opts) => new Trivia(players, broadcast, { source: triviaSources[opts.pack] || triviaSources.fifthgrade }) },
+  trivia: { min: 1, make: (opts) => new Trivia(players, broadcast, { source: triviaSources[opts.pack] || triviaSources.general || triviaSources.fifthgrade }) },
   moviereveal: { min: 1, make: (opts) => new MovieReveal(players, broadcast, { source: sources.moviereveal }) },
   codenames: { min: 2, make: (opts) => new Codenames(players, broadcast, { source: sources.codenames, teamMode: opts.teamMode }) },
   password: { min: 2, make: (opts) => new Password(players, broadcast, { source: sources.password }) },
   scattergories: { min: 1, make: (opts) => new Scattergories(players, broadcast, { source: sources.scattergories }) },
   hangman: { min: 2, make: (opts) => new Hangman(players, broadcast, { source: sources.hangman }) },
-  neanderthals: { min: 2, make: (opts) => new Neanderthals(players, broadcast, { source: sources.neanderthals }) },
+  neanderthals: { min: 2, make: (opts) => new Neanderthals(players, broadcast, { source: sources.neanderthals, mode: opts.mode }) },
 };
 
 let game = null; // null means the menu (or a game's intro) is showing
@@ -227,9 +228,9 @@ function broadcast() {
   }
 }
 
-function uniqueName(raw) {
-  const base = String(raw || '').trim().slice(0, 14) || 'Player';
-  const taken = new Set([...players.values()].map(p => p.name.toLowerCase()));
+function uniqueName(raw, selfId = null) {
+  const base = String(raw || '').trim().replace(/\s+/g, ' ').slice(0, 14) || 'Player';
+  const taken = new Set([...players.values()].filter(p => p.id !== selfId).map(p => p.name.toLowerCase()));
   if (!taken.has(base.toLowerCase())) return base;
   for (let n = 2; ; n++) {
     const candidate = `${base.slice(0, 12)} ${n}`;
@@ -294,6 +295,13 @@ io.on('connection', socket => {
     try {
       if (HOST_ACTIONS.has(type) && r !== 'console' && !isHost) {
         err = 'Only the host can do that';
+      } else if (type === 'rename') {
+        // Players fix their own name from the lobby; mid-game it would confuse score lists.
+        const p = r === 'player' && players.get(socket.data.playerId);
+        if (!p) err = 'Players only';
+        else if (game || intro) err = 'You can change your name between games';
+        else if (!String((payload && payload.name) || '').trim()) err = 'Type a name first';
+        else p.name = uniqueName(payload.name, p.id);
       } else if (type === 'hubMenu') {
         if (!game && !intro) hubMenu = (payload && payload.game) || null;
       } else if (type === 'startGame') {
@@ -368,7 +376,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Pictionary:    ${sources.pictionary.label}`);
   console.log(`T-Shirt Wars:  ${sources.tshirt.label}`);
   console.log(`Movie Reveal:  ${sources.moviereveal.label}`);
-  console.log(`Trivia packs:  ${['fifthgrade', 'disney'].filter(k => triviaSources[k]).join(', ') || 'none loaded'}`);
+  console.log(`Trivia packs:  ${['general', 'fifthgrade', 'disney'].filter(k => triviaSources[k]).join(', ') || 'none loaded'}`);
   console.log(`Codenames:     ${sources.codenames.label}`);
   console.log(`Password:      ${sources.password.label}`);
   console.log(`Scattergories: ${sources.scattergories.label}`);

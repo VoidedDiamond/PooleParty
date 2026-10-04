@@ -4,18 +4,8 @@
   mod.inputScreens = new Set(['draw']);
 
   let canvasObj = null;
-  let currentColor = '#141414';
   let submitted = false;
   let submittedForEndsAt = null; // which round's drawing timer `submitted` applies to
-
-  function toolbarHTML() {
-    const colors = ['#141414', '#e53e3e', '#3182ce', '#38a169', '#d69e2e'];
-    return `<div class="ptoolbar">
-      ${colors.map(c => `<button class="pswatch ${c === currentColor ? 'sel' : ''}" data-color="${c}" style="background:${c}"></button>`).join('')}
-      <button class="ghost" id="tundo">${icon('rotate-ccw')} Undo</button>
-      <button class="ghost" id="tclear">Clear</button>
-    </div>`;
-  }
 
   mod.screen = (s, me) => {
     if (s.phase === 'drawing') {
@@ -28,7 +18,7 @@
       }
       return { key: 'draw', html: `<p class="say">${esc(s.prompt)}</p>${bar(s.endsAt, s.windowMs)}
         <div class="pcanvaswrap phone-canvas">${tshirtTemplateHTML()}<canvas id="tcanvas"></canvas></div>
-        ${toolbarHTML()}
+        ${penToolbarHTML()}
         <button class="primary" id="tdone">I'm Done</button>` };
     }
 
@@ -41,7 +31,7 @@
       return { key: 'vote', html: `<p class="kicker">${esc(s.prompt)}</p><p class="say">Vote for your favorite</p>
         <div class="tvote">${(s.voteOptions || []).map(o => `<button class="tvote-card" data-id="${o.id}">
           <div class="tart">${tshirtTemplateHTML()}<canvas data-for="${o.id}"></canvas></div>
-          <span>${icon('heart')} ${esc(o.name)}</span></button>`).join('')}</div>` };
+          <span>${icon('heart')} ${esc(o.label)}</span></button>`).join('')}</div>` };
     }
 
     if (s.phase === 'results') {
@@ -58,17 +48,8 @@
     if (key === 'draw') {
       submitted = false;
       const canvasEl = $('#tcanvas');
-      canvasObj = makeCanvas(canvasEl, { interactive: true, size: 7, color: currentColor });
-      document.querySelectorAll('.pswatch').forEach(b => {
-        b.onclick = () => {
-          currentColor = b.dataset.color;
-          if (canvasObj) canvasObj.setColor(currentColor);
-          document.querySelectorAll('.pswatch').forEach(x => x.classList.remove('sel'));
-          b.classList.add('sel');
-        };
-      });
-      if ($('#tclear')) $('#tclear').onclick = () => { if (canvasObj) canvasObj.clear(); };
-      if ($('#tundo')) $('#tundo').onclick = () => { if (canvasObj) canvasObj.undo(); };
+      canvasObj = makeCanvas(canvasEl, { interactive: true, size: 7, color: penColor });
+      wirePenToolbar(() => canvasObj);
       if ($('#tdone')) $('#tdone').onclick = () => {
         submitted = true;
         act('submitDrawing', { strokes: canvasObj ? canvasObj.toWire() : [] });

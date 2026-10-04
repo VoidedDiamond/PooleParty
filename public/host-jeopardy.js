@@ -27,7 +27,7 @@
       extra = bar(c.endsAt, c.windowMs);
     } else if (c.stage === 'revealed') {
       if (c.challenge) {
-        if (c.challenge.result) status = `Challenge ${c.challenge.result}`;
+        if (c.challenge.result) status = c.challenge.result === 'accepted' ? 'Challenge accepted' : `Challenge rejected. ${who(s, c.challenge.pid)} loses ${money(c.challenge.penalty)}`;
         else { status = `${who(s, c.challenge.pid)} challenges the ruling. Other players vote on their phones.`; extra = bar(c.endsAt, c.windowMs); }
       } else if (c.challengeable.length) {
         status = 'Ruled wrong but you were right? Challenge on your phone.';

@@ -1,6 +1,6 @@
 'use strict';
 
-const ROUND_MS = 20000;
+const ROUND_MS = 25000; // the Trivia Night questions run long
 const REVEAL_MS = 4000;
 const QUESTIONS_PER_GAME = 10;
 

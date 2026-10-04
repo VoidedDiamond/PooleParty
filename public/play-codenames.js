@@ -9,10 +9,18 @@
       const known = c.color != null;
       const cls = c.revealed ? `cn-pcell revealed ${COLOR_CLASS(c.color)}` : known ? `cn-pcell known ${COLOR_CLASS(c.color)}` : 'cn-pcell';
       const disabled = !tappable || c.revealed ? 'disabled' : '';
-      return `<button class="${cls}" data-idx="${c.i}" ${disabled}>${esc(c.word)}</button>`;
+      return `<button class="${cls}" data-idx="${c.i}" ${disabled}>${known || c.revealed ? '<i class="cn-mark"></i>' : ''}${esc(c.word)}</button>`;
     }).join('');
-    return `<div class="cn-pgrid">${cells}</div>`;
+    return `<div class="cn-pgrid">${cells}</div>${cbToggleHTML()}`;
   }
+
+  // Colorblind mode (per phone, remembered): stripes on red cards, a solid fill on blue ones, a
+  // plain grey for neutral, and bigger shape marks, so no card relies on red vs beige alone.
+  const CB_KEY = 'pg_colorblind';
+  const cbOn = () => { try { return localStorage.getItem(CB_KEY) === '1'; } catch { return false; } };
+  const applyCb = () => document.documentElement.classList.toggle('cb', cbOn());
+  const cbToggleHTML = () => `<button class="ghost cb-toggle" id="cbToggle">${cbOn() ? 'Colorblind mode: on' : 'Colorblind mode: off'}</button>`;
+  applyCb();
 
   mod.screen = (s, me) => {
     if (s.phase === 'teams') {
@@ -21,7 +29,7 @@
         return { key: 'cnwait', html: `<p class="say">You're on ${mine.team === 0 ? 'Red' : 'Blue'}</p><p class="note">Waiting for everyone to choose…</p>` };
       }
       return { key: 'cnteams', html: `<p class="say">Choose your team</p>${bar(s.endsAt, s.windowMs)}
-        <div class="row"><button class="primary cnred" data-team="0">Red</button><button class="primary cnblue" data-team="1">Blue</button></div>` };
+        <div class="row"><button class="primary cnred" data-team="0"><i class="cn-mark red"></i> Red</button><button class="primary cnblue" data-team="1"><i class="cn-mark blue"></i> Blue</button></div>` };
     }
 
     if (s.phase === 'roles') {
@@ -82,6 +90,12 @@
   };
 
   mod.wire = (key) => {
+    applyCb();
+    if ($('#cbToggle')) $('#cbToggle').onclick = () => {
+      try { localStorage.setItem(CB_KEY, cbOn() ? '0' : '1'); } catch { /* private mode: session only */ }
+      applyCb();
+      $('#cbToggle').textContent = cbOn() ? 'Colorblind mode: on' : 'Colorblind mode: off';
+    };
     document.querySelectorAll('[data-team]').forEach(b => { b.onclick = () => act('pickTeam', { team: Number(b.dataset.team) }); });
     if ($('#rolespy') && !$('#rolespy').disabled) $('#rolespy').onclick = () => act('pickRole', { role: 'spy' });
     if ($('#roleguess')) $('#roleguess').onclick = () => act('pickRole', { role: 'guess' });

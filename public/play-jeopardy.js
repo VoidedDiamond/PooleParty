@@ -88,9 +88,10 @@
     let extra = '';
     if (c.challengeable.includes(me.id) && !c.challenge && mine) {
       extra = `<p class="note">You answered "${esc(mine.guess || 'nothing')}".</p>
-        <button class="primary" id="challenge">Challenge: I was right</button>`;
+        <button class="primary" id="challenge">Challenge: I was right</button>
+        <p class="note">If the others reject it, you lose half the clue's value.</p>`;
     }
-    if (ch && ch.result) extra += `<p class="note">Challenge ${ch.result}.</p>`;
+    if (ch && ch.result) extra += `<p class="note">${ch.result === 'accepted' ? 'Challenge accepted.' : `Challenge rejected${ch.pid === me.id ? `: you lose ${money(ch.penalty)}` : ''}.`}</p>`;
     return { key: 'rev', html: `<p class="note">The answer</p><p class="say">${esc(c.answer)}</p>${extra}` };
   }
 
