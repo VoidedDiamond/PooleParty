@@ -208,7 +208,10 @@ touch it, and anyone else who downloads Poole Party sets it up the same way with
        Set-Content "$([Environment]::GetFolderPath('Desktop'))\anthropic-api-key.txt" 'sk-ant-...paste-your-key...'
 
    Or open Notepad, paste the key, and **Save As** `anthropic-api-key.txt` on the Desktop.
-4. Start Poole Party. The game window says `Claude key: found on your Desktop (…abcd)` with the
+4. Optional: run `npm run check-key` in the game folder. It says where it found the key and
+   makes one tiny test request to each model (a small fraction of a cent), so you know the key
+   works and has credit before game night.
+5. Start Poole Party. The game window says `Claude key: found on your Desktop (…abcd)` with the
    last four characters, so you can tell which key it picked up. If the game is already running,
    tap **AI** under Host voice (or **On** under AI answers) on the host's phone; it re-reads the file.
 

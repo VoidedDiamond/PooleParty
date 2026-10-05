@@ -182,7 +182,11 @@ async function ask({ system, prompt, wait = 5000, schema = null, feature = 'othe
     else if (e instanceof Anthropic.RateLimitError) { state.lastError = 'Rate limited (or out of API credit). Offline for a minute.'; pause(60000); }
     else if (e instanceof Anthropic.APIUserAbortError || ctrl.signal.aborted) { /* just slow this time */ }
     else if (e instanceof Anthropic.APIConnectionError) state.lastError = 'No internet connection to Claude. Using the offline host and judge.';
-    else if (e instanceof Anthropic.APIError) state.lastError = `Claude error ${e.status}: ${String(e.message).slice(0, 120)}`;
+    else if (e instanceof Anthropic.APIError) {
+      const msg = String((e.error && e.error.error && e.error.error.message) || e.message || '');
+      if (/credit balance/i.test(msg)) { state.lastError = 'Out of API credit. Add some under Billing at platform.claude.com, then tap AI again.'; pause(Infinity); }
+      else state.lastError = `Claude error ${e.status}: ${msg.slice(0, 120)}`;
+    }
     else state.lastError = String(e.message || e).slice(0, 140);
     if (state.lastError) console.warn(`Claude: ${state.lastError}`);
     return null;

@@ -9,7 +9,8 @@
     "fetch-data": "node tools/fetch-data.js",
     "build-data": "node tools/fetch-data.js",
     "import-wheel": "node tools/import-wheel-csv.js",
-    "test": "node tools/self-test.js"
+    "test": "node tools/self-test.js",
+    "check-key": "node tools/check-key.js"
   },
   "engines": {
     "node": ">=18"
