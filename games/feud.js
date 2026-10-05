@@ -1,5 +1,6 @@
 'use strict';
 const { judge } = require('./match');
+const ai = require('./judge');
 const { pickFeudQuestions } = require('./content');
 
 const TEAM_COLORS = ['#ff8a3d', '#4aa8ff'];
@@ -116,6 +117,22 @@ class Feud {
     return judge(text, this.cur.answers.map(a => a.text), { lenient: true });
   }
 
+  // When the built-in matcher misses, Claude gets a quick look ("boot" for "Shoes"). The turn
+  // clock stops while it thinks; done(index) runs only if nothing else moved the game on.
+  aiCheck(pid, text, done) {
+    const c = this.cur;
+    const token = { pid, text };
+    c.checking = token;
+    clearTimeout(this.timer);
+    c.endsAt = null;
+    ai.ask(text, c.answers.map(a => a.text), { mode: 'survey', context: c.q }).then(idx => {
+      if (this.cur !== c || c.checking !== token) return;
+      c.checking = null;
+      try { done(idx == null ? -1 : idx); } catch (e) { console.error(e); }
+      this.notify();
+    });
+  }
+
   revealAnswer(idx, team) {
     const a = this.cur.answers[idx];
     a.revealed = true;
@@ -158,10 +175,12 @@ class Feud {
     }
     if (this.phase === 'play') {
       if (pid !== c.turnPid) return 'It is not your turn';
+      if (c.checking) return 'Checking your answer';
       return this.playGuess(pid, text);
     }
     if (this.phase === 'steal') {
       if (pid !== c.steal.pid) return 'It is not your turn';
+      if (c.checking) return 'Checking your answer';
       return this.stealGuess(pid, text);
     }
     return 'Not now';
@@ -169,7 +188,8 @@ class Feud {
 
   skip() {
     if (this.phase === 'faceoff') {
-      if (this.cur.face.resolved) this.startChoice(this.cur.face.winner);
+      if (this.cur.face.checking) this.finishFaceoff(this.cur.face.checking.res);
+      else if (this.cur.face.resolved) this.startChoice(this.cur.face.winner);
       else this.resolveFaceoff();
       return null;
     }
@@ -191,6 +211,23 @@ class Feud {
       const g = id != null ? c.face.guesses[id] : undefined;
       return { id, guess: g || null, idx: g ? this.match(g).index : -1 };
     });
+    const unsure = res.filter(r => r.guess && r.idx < 0);
+    if (!unsure.length || !ai.enabled()) { this.finishFaceoff(res); return; }
+    // Ask Claude about the misses, both at once, then settle the face-off.
+    const token = { res };
+    c.face.checking = token;
+    c.endsAt = null;
+    Promise.all(unsure.map(r => ai.ask(r.guess, c.answers.map(a => a.text), { mode: 'survey', context: c.q })
+      .then(idx => { if (idx != null && idx >= 0) r.idx = idx; }))).then(() => {
+      if (this.cur !== c || c.face.checking !== token) return;
+      try { this.finishFaceoff(res); } catch (e) { console.error(e); }
+      this.notify();
+    });
+  }
+
+  finishFaceoff(res) {
+    const c = this.cur;
+    c.face.checking = null;
     for (const r of res) {
       if (r.idx >= 0 && !c.answers[r.idx].revealed) this.revealAnswer(r.idx, this.teamOf.get(r.id));
     }
@@ -240,6 +277,7 @@ class Feud {
 
   beginTurn() {
     const c = this.cur;
+    c.checking = null;
     c.turnList = this.teamPlayers(c.control);
     c.turnPid = c.turnList.length ? c.turnList[c.turnIdx % c.turnList.length] : null;
     this.setTimer(c, TURN_MS);
@@ -252,16 +290,29 @@ class Feud {
     const c = this.cur;
     const m = this.match(text);
     if (m.index >= 0 && c.answers[m.index].revealed) return 'That one is already on the board';
-    if (m.index < 0) { this.strike('miss', pid, text); return null; }
-    this.revealAnswer(m.index, c.control);
-    c.lastGuess = { pid, text, kind: 'hit', idx: m.index };
+    if (m.index >= 0) { this.playHit(pid, text, m.index, false); return null; }
+    if (!ai.enabled()) { this.strike('miss', pid, text); return null; }
+    this.aiCheck(pid, text, idx => {
+      if (idx < 0) this.strike('miss', pid, text);
+      else if (c.answers[idx].revealed) { // same as an answer already up: no strike, try again
+        c.lastGuess = { pid, text, kind: 'dup', idx };
+        this.beginTurn();
+      } else this.playHit(pid, text, idx, true);
+    });
+    return null;
+  }
+
+  playHit(pid, text, idx, byAi) {
+    const c = this.cur;
+    this.revealAnswer(idx, c.control);
+    c.lastGuess = { pid, text, kind: 'hit', idx, ai: byAi, as: byAi ? c.answers[idx].text : undefined };
     if (c.answers.every(a => a.revealed)) this.endRound(c.control);
     else { c.turnIdx += 1; this.beginTurn(); }
-    return null;
   }
 
   strike(kind, pid, text = '') {
     const c = this.cur;
+    c.checking = null;
     c.strikes += 1;
     c.lastGuess = { pid, text, kind, idx: -1 };
     if (c.strikes >= 3) {
@@ -289,15 +340,17 @@ class Feud {
 
   stealGuess(pid, text) {
     const m = this.match(text);
-    this.finishSteal(pid, text, m.index);
+    if (m.index >= 0 || !ai.enabled()) { this.finishSteal(pid, text, m.index); return null; }
+    this.aiCheck(pid, text, idx => this.finishSteal(pid, text, idx, true));
     return null;
   }
 
-  finishSteal(pid, text, idx) {
+  finishSteal(pid, text, idx, byAi = false) {
     const c = this.cur;
     if (this.phase !== 'steal') return;
+    c.checking = null;
     const hit = idx >= 0 && !c.answers[idx].revealed;
-    c.lastGuess = { pid, text, kind: hit ? 'hit' : 'miss', idx: hit ? idx : -1 };
+    c.lastGuess = { pid, text, kind: hit ? 'hit' : 'miss', idx: hit ? idx : -1, ai: hit && byAi, as: hit && byAi ? c.answers[idx].text : undefined };
     if (hit) this.revealAnswer(idx, c.steal.team);
     c.steal.result = hit ? 'stolen' : 'failed';
     this.endRound(hit ? c.steal.team : c.control);
@@ -305,6 +358,7 @@ class Feud {
 
   endRound(team) {
     const c = this.cur;
+    c.checking = null;
     clearTimeout(this.timer);
     c.award = { team, points: c.bank * c.mult };
     this.scores[team] += c.award.points;
@@ -367,10 +421,27 @@ class Feud {
       const first = f.results[0][f.idx];
       if (first && first.matched === m.index) return 'Your teammate already said that. Try another answer';
     }
-    f.results[f.step][f.idx] = { text, matched: m.index, pts: m.index >= 0 ? q.answers[m.index].pts : 0 };
+    const r = { text, matched: m.index, pts: m.index >= 0 ? q.answers[m.index].pts : 0 };
+    f.results[f.step][f.idx] = r;
+    if (m.index < 0 && ai.enabled()) this.fmAiCheck(f, f.step, f.idx, r);
     f.idx += 1;
     if (f.idx >= 5) this.fmEndTurn();
     return null;
+  }
+
+  // Fast Money keeps moving while Claude checks a miss in the background; the answer is
+  // updated before its row is revealed.
+  fmAiCheck(f, step, qi, r) {
+    const q = f.qs[qi];
+    ai.ask(r.text, q.answers.map(a => a.text), { mode: 'survey', context: q.q, wait: 8000 }).then(idx => {
+      if (this.fm !== f || f.results[step][qi] !== r || idx == null || idx < 0) return;
+      const shown = f.stage === 'done' || (f.stage === 'reveal' && step * 5 + qi < f.revealN);
+      if (shown) return;
+      const other = f.results[1 - step] && f.results[1 - step][qi];
+      if (other && other.matched === idx) return; // the same answer twice scores once
+      Object.assign(r, { matched: idx, pts: q.answers[idx].pts, ai: true });
+      this.notify();
+    });
   }
 
   fmPass(pid) {
@@ -482,6 +553,7 @@ class Feud {
         results: f.results && f.results.map(r => ({ id: r.id, guess: r.guess, idx: r.idx })),
       },
       lastGuess: c.lastGuess,
+      checking: c.checking ? { pid: c.checking.pid, text: c.checking.text } : (f && f.checking ? { face: true } : null),
       award: c.award,
       endsAt: c.endsAt,
       windowMs: c.total,

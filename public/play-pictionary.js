@@ -5,7 +5,7 @@
 
   let canvasObj = null;
   const feedHTML = s => (s.guesses || []).slice(0, 8).map(g => `<div class="prow ${g.correct ? 'ok' : ''}">
-    <b>${esc(g.name)}</b> ${g.correct ? 'got it!' : esc(g.text)}</div>`).join('');
+    <b>${esc(g.name)}</b> ${g.correct ? 'got it!' : esc(g.text)}${g.checking ? ' <span class="spin sm"></span>' : ''}</div>`).join('');
   const correctText = s => `${s.correctCount || 0} player${(s.correctCount || 0) === 1 ? '' : 's'} guessed it`;
 
   mod.screen = (s, me) => {

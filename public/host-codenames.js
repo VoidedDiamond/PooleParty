@@ -70,11 +70,14 @@
     },
     sounds(a, b) {
       if (!a) return;
+      if (b.phase === 'guess' && a.phase !== 'guess') sfx.pop();
       const l = b.log && b.log[0];
-      if (l && l.kind === 'guess' && (!a.log || !a.log[0] || l.word !== a.log[0].word)) {
-        sfx[typeof l.color === 'number' && l.color === l.team ? 'right' : 'wrong']();
+      if (l && l.kind === 'guess' && (!a.log || !a.log[0] || JSON.stringify(l) !== JSON.stringify(a.log[0]))) {
+        if (l.color === 'assassin') sfx.sting();
+        else if (typeof l.color === 'number' && l.color === l.team) sfx.right();
+        else if (typeof l.color === 'number') sfx.wrong();
+        else sfx.tock(); // a bystander
       }
-      if (b.phase === 'end' && a.phase !== 'end') sfx[b.winner != null ? 'fanfare' : 'wrong']();
     },
   };
 })();

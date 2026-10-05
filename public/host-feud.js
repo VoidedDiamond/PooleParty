@@ -23,15 +23,18 @@
     const g = s.lastGuess;
     if (!g) return '';
     const who = g.pid ? pname(s, g.pid) : 'Someone';
-    if (g.kind === 'hit') return `<span class="ok">${who}: "${esc(g.text)}". On the board.</span>`;
+    if (g.kind === 'hit') return `<span class="ok">${who}: "${esc(g.text)}". ${g.ai ? `The judges count it as ${esc(g.as)}.` : 'On the board.'}</span>`;
+    if (g.kind === 'dup') return `<span class="no">${who}: "${esc(g.text)}". Already on the board. Try another.</span>`;
     if (g.kind === 'timeout') return `<span class="no">${who} ran out of time. Strike.</span>`;
     return `<span class="no">${who}: "${esc(g.text)}". Not on the board.</span>`;
   }
 
   function statusHTML(s) {
+    const ck = s.checking;
     switch (s.phase) {
       case 'faceoff': {
         const f = s.face;
+        if (ck && ck.face) return `<div class="big">Face-off</div>${checkingHTML('Checking the answers with the judges')}`;
         if (f.resolved) {
           const lines = (f.results || []).filter(r => r.id).map(r => {
             const what = r.guess ? (r.idx >= 0 ? `#${r.idx + 1} on the board` : 'not on the board') : 'no answer';
@@ -49,10 +52,12 @@
         return `<div class="big">${w ? esc(team(s, w.team).name) : 'A team'} won the face-off. Play or pass?</div>${bar(s.endsAt, s.windowMs)}`;
       }
       case 'play':
+        if (ck) return `<div class="big"><b>${pname(s, ck.pid)}</b>: "${esc(ck.text)}"</div>${checkingHTML('Checking with the judges')}`;
         return `<div class="big"><b>${pname(s, s.turnPid)}</b> is up</div><div>${guessLine(s)}</div>${bar(s.endsAt, s.windowMs)}`;
       case 'strikeout':
         return `<div class="big steal">THREE STRIKES!</div><div>${guessLine(s)}</div>`;
       case 'steal':
+        if (ck) return `<div class="big steal">STEAL! ${pname(s, ck.pid)}: "${esc(ck.text)}"</div>${checkingHTML('Checking with the judges')}`;
         return `<div class="big steal">STEAL! ${pname(s, s.stealPid)} gets one answer</div>${bar(s.endsAt, s.windowMs)}`;
       case 'reveal': {
         const a = s.award;
@@ -123,11 +128,18 @@
       if (a.fm && b.fm) {
         const sa = a.fm.rows.filter(r => r.shown).length;
         const rb = b.fm.rows.filter(r => r.shown);
-        if (rb.length > sa) sfx[rb[rb.length - 1].pts > 0 ? 'right' : 'wrong']();
-        if (b.fm.win && !a.fm.win) sfx.dd();
+        if (rb.length > sa) sfx[rb[rb.length - 1].pts > 0 ? 'reveal' : 'wrong']();
+        if (b.fm.stage === 'play' && a.fm.stage !== 'play') sfx.start();
+        if (b.fm.stage === 'done' && a.fm.stage !== 'done') sfx[b.fm.win ? 'kaching' : 'lose']();
+        return;
       }
-      if (b.answers.filter(x => x.revealed && !x.missed).length > a.answers.filter(x => x.revealed && !x.missed).length) sfx.right();
-      if (b.strikes > a.strikes) sfx.wrong();
+      if (b.phase === 'faceoff' && a.phase !== 'faceoff') sfx.start();
+      const hits = x => x.answers.filter(y => y.revealed && !y.missed).length;
+      if (hits(b) > hits(a)) sfx.reveal();
+      else if (b.answers.filter(y => y.missed).length > a.answers.filter(y => y.missed).length) sfx.flip();
+      if (b.strikes > a.strikes) sfx.strike();
+      if (b.phase === 'steal' && a.phase !== 'steal') sfx.sting();
+      if (b.award && !a.award && b.award.points) sfx.kaching();
     },
   };
 })();

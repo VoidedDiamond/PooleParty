@@ -51,10 +51,10 @@
   GAMES.tshirt.tv = {
     sounds(a, b) {
       if (!a) return;
-      if (b.phase === 'drawing' && a.phase !== 'drawing') sfx.splash();
+      if (b.phase === 'drawing' && a.phase !== 'drawing') sfx.start();
       if (b.phase === 'voting' && a.phase !== 'voting') sfx.whoosh();
-      if (b.phase === 'results' && a.phase !== 'results') sfx.pop();
-      if (b.doneCount > a.doneCount) sfx.tick();
+      if (b.phase === 'results' && a.phase !== 'results') { sfx.drumroll(1.2); setTimeout(() => sfx.applause(2), 1200); }
+      if (b.doneCount > a.doneCount) sfx.select();
     },
     update(app, s) {
       if (s.phase === 'drawing') { app.innerHTML = drawingHTML(s); return; }

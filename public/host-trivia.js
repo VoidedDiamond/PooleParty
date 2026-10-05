@@ -39,8 +39,11 @@
     },
     sounds(a, b) {
       if (!a) return;
-      if (b.phase === 'question' && a.phase !== 'question') sfx.splash();
-      if (b.phase === 'reveal' && a.phase !== 'reveal') sfx.pop();
+      if (b.phase === 'question' && a.phase !== 'question') sfx.start();
+      if (b.phase === 'reveal' && a.phase !== 'reveal') {
+        const anyRight = (b.results || []).some(r => r.correct);
+        sfx[anyRight ? 'reveal' : 'lose']();
+      }
     },
   };
 })();

@@ -63,6 +63,27 @@
     rot += delta;
     wheelEl.style.transition = animate ? 'transform 4s cubic-bezier(.12,.6,.12,1)' : 'none';
     wheelEl.style.transform = `rotate(${rot}deg)`;
+    if (animate) spinClicks();
+  }
+
+  // The pointer clicks past each wedge: read the wheel's actual angle every frame while it spins.
+  let clickRaf = null;
+  function spinClicks() {
+    cancelAnimationFrame(clickRaf);
+    const until = performance.now() + 4200;
+    let last = null;
+    const frame = () => {
+      if (!wheelEl || !wheelEl.isConnected || performance.now() > until) return;
+      const m = /matrix\(([^)]+)\)/.exec(getComputedStyle(wheelEl).transform);
+      if (m) {
+        const [a, b] = m[1].split(',').map(Number);
+        const seg = Math.floor(((Math.atan2(b, a) * 180 / Math.PI + 360) % 360) / STEP);
+        if (last !== null && seg !== last) sfx.click(0.8);
+        last = seg;
+      }
+      clickRaf = requestAnimationFrame(frame);
+    };
+    clickRaf = requestAnimationFrame(frame);
   }
 
   // Letters that just turned over (compared with the previous state of the same puzzle) flip in.
@@ -117,9 +138,16 @@
     sounds(a, b) {
       if (!a) return;
       const shown = st => st.words.flat().filter(t => t.letter && t.shown).length;
-      if (b.called.length > a.called.length) sfx[shown(b) > shown(a) ? 'right' : 'wrong']();
-      if (b.spin && (!a.spin || b.spin.id !== a.spin.id)) sfx.buzz();
-      if ((b.phase === 'roundEnd' && a.phase !== 'roundEnd') || (b.bonus && b.bonus.won && !(a.bonus && a.bonus.won))) sfx.dd();
+      if (b.called.length > a.called.length) {
+        const n = shown(b) - shown(a);
+        if (n > 0) for (let i = 0; i < Math.min(n, 6); i++) setTimeout(() => sfx.flip(), i * 140);
+        else sfx.wrong();
+      }
+      if (b.msg && b.msg !== a.msg) {
+        if (/BANKRUPT/.test(b.msg)) sfx.bankrupt();
+        else if (/lost a turn/.test(b.msg)) sfx.lose();
+      }
+      if ((b.phase === 'roundEnd' && a.phase !== 'roundEnd') || (b.bonus && b.bonus.won && !(a.bonus && a.bonus.won))) { sfx.kaching(); sfx.applause(1.8); }
     },
   };
 })();

@@ -1,5 +1,6 @@
 'use strict';
 const { judge } = require('./match');
+const ai = require('./judge');
 const { buildBoard, makeChoices } = require('./content');
 
 const READ_BASE_MS = 1500;
@@ -208,6 +209,7 @@ class Jeopardy {
   answer(pid, p) {
     const c = this.current;
     if (this.phase !== 'clue' || !c || c.stage !== 'answering' || c.buzzedId !== pid) return 'It is not your turn to answer';
+    if (c.checking) return 'Checking your answer';
     let guess;
     let correct;
     if (c.answerMode === 'choice') {
@@ -219,6 +221,20 @@ class Jeopardy {
       guess = String(p.text || '').trim().slice(0, 80);
       if (!guess) return 'Type an answer first';
       correct = judge(guess, [c.clue.answer]).index === 0;
+      if (!correct && ai.enabled()) {
+        // Claude takes a quick second look; the answer clock stops while it does.
+        const token = { pid, guess };
+        c.checking = token;
+        clearTimeout(this.timer);
+        c.endsAt = null;
+        ai.ask(guess, [c.clue.answer], { mode: 'exact', context: `Jeopardy, category "${this.board[c.ci].name}": ${c.clue.clue}` }).then(idx => {
+          if (this.current !== c || c.checking !== token || c.stage !== 'answering') return;
+          c.checking = null;
+          try { this.rule(pid, guess, idx === 0, idx === 0); } catch (e) { console.error(e); }
+          this.notify();
+        });
+        return null;
+      }
     }
     return this.rule(pid, guess, correct);
   }
@@ -229,11 +245,12 @@ class Jeopardy {
     return this.rule(c.buzzedId, '(host ruling)', correct);
   }
 
-  rule(pid, guess, correct) {
+  rule(pid, guess, correct, byAi = false) {
     const c = this.current;
+    c.checking = null;
     const p = this.players.get(pid);
     if (p) p.score += correct ? c.value : -c.value;
-    c.rulings.push({ pid, guess, correct });
+    c.rulings.push({ pid, guess, correct, ai: byAi });
     if (correct) {
       if (p) this.controllerId = pid;
       this.reveal();
@@ -388,6 +405,15 @@ class Jeopardy {
       if (!text) return 'Type an answer first';
       f.answers[pid] = text;
       f.verdicts[pid] = judge(text, [f.answer]).index === 0;
+      if (!f.verdicts[pid] && ai.enabled()) {
+        f.pending = (f.pending || 0) + 1;
+        ai.ask(text, [f.answer], { mode: 'exact', context: `Final Jeopardy, category "${f.category}": ${f.clue}`, wait: 6000 }).then(idx => {
+          if (this.final !== f) return;
+          f.pending -= 1;
+          if (idx === 0 && !(pid in f.results)) { f.verdicts[pid] = true; f.aiOk = { ...(f.aiOk || {}), [pid]: true }; }
+          if (!f.pending && f.waitingOnJudge) { f.waitingOnJudge = false; this.later(800, () => this.finalStep()); this.notify(); }
+        });
+      }
     }
     if (f.eligible.every(id => f.answers[id] !== undefined)) this.beginFinalJudge();
     return null;
@@ -403,7 +429,9 @@ class Jeopardy {
     f.order = [...f.eligible].sort((a, b) => scoreOf(a) - scoreOf(b));
     f.idx = 0;
     f.shown = false;
-    this.later(1500, () => this.finalStep());
+    // Hold the reveal until the judge has ruled on every answer (it gives up after a few seconds).
+    if (f.pending) f.waitingOnJudge = true;
+    else this.later(1500, () => this.finalStep());
   }
 
   // Reveal each answer, then apply the ruling, lowest score first.
@@ -465,7 +493,8 @@ class Jeopardy {
         choices: role === 'player' && c.stage === 'answering' && c.buzzedId === pid && c.answerMode === 'choice' ? c.choices : null,
         buzzedId: c.buzzedId,
         lockedOut: [...c.lockedOut],
-        rulings: c.rulings.map(r => ({ pid: r.pid, guess: r.guess, correct: r.correct, overruled: !!r.overruled })),
+        rulings: c.rulings.map(r => ({ pid: r.pid, guess: r.guess, correct: r.correct, overruled: !!r.overruled, ai: !!r.ai })),
+        checking: c.checking ? { pid: c.checking.pid, guess: c.checking.guess } : null,
         challengeable: this.challengeable(c) ? [...new Set(c.rulings.map(r => r.pid))] : [],
         challenge: c.challenge && {
           pid: c.challenge.pid, voters: c.challenge.voters, result: c.challenge.result, penalty: c.challenge.penalty || 0,

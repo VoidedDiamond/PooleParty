@@ -6,16 +6,13 @@
 //   ai      - Claude writes a line about what actually happened ("A GIRAFFE?"), falling back
 //             to a classic line if the internet is down, the key is wrong, or it's too slow
 //   off     - silent
-// The API key stays on this laptop: ANTHROPIC_API_KEY, or the first line of
-// anthropic-api-key.txt next to server.js. Phones never see it.
-const fs = require('fs');
-const path = require('path');
+// The Claude client and the API key live in claude.js; the chosen mode is saved in settings.
+const claude = require('./claude');
+const { settings, update } = require('./settings');
 
-const MODEL = 'claude-opus-5';
 const AI_WAIT_MS = 5000;     // longer than this and the moment has passed: say a classic line instead
 const AI_WAIT_BIG_MS = 9000; // welcome / game over can wait a little longer
 const QUIET_MS = 3500;       // minor moments are skipped if the host spoke this recently
-const KEY_FILE = 'anthropic-api-key.txt';
 
 const SYSTEM = `You are the host of Poole Party, a family game night played on a TV with phones as controllers.
 Your style: a big-hearted, loud, quick-witted TV game-show host. Playful disbelief at wild answers, big hype for great ones, warm sympathy for bad luck.
@@ -62,49 +59,29 @@ const GAME_LINES = {
 const BIG = new Set(['welcome', 'gameover', 'tie', 'test']);
 
 class Announcer {
-  constructor(root) {
-    this.root = root;
-    this.client = null;
-    this.lastError = null;
-    this.aiPausedUntil = 0; // after a bad key or rate limit, use classic lines for a while
+  constructor() {
     this.lastSaidAt = 0;
     this.inFlight = 0;
     this.recentEvents = new Map(); // event key -> time, so two TVs don't double up
     this.recentLines = [];
     this.lastPick = {};
-    this.loadKey();
-    this.mode = this.client ? 'ai' : 'classic';
   }
 
-  loadKey() {
-    let key = process.env.ANTHROPIC_API_KEY || '';
-    if (!key) {
-      try { key = fs.readFileSync(path.join(this.root, KEY_FILE), 'utf8').split(/\r?\n/)[0].trim(); } catch { /* no file */ }
-    }
-    if (!key) { this.client = null; return false; }
-    try {
-      const Anthropic = require('@anthropic-ai/sdk').default;
-      this.client = new Anthropic({ apiKey: key, maxRetries: 0 });
-      return true;
-    } catch (e) {
-      this.client = null;
-      this.lastError = `Could not load the Claude SDK (${e.message}). Run the Update shortcut.`;
-      return false;
-    }
+  get mode() {
+    const m = settings.voiceMode || 'ai';
+    return m === 'ai' && !claude.hasKey() ? 'classic' : m;
   }
 
-  status() { return { mode: this.mode, ai: !!this.client, error: this.mode === 'ai' ? this.lastError : null }; }
+  status() { return { mode: this.mode, ai: claude.hasKey(), error: claude.lastError }; }
 
   setMode(mode) {
     if (!['off', 'classic', 'ai'].includes(mode)) return 'Unknown host mode';
     // Re-read the key every time AI is picked, so a fixed key file works without a restart.
     if (mode === 'ai') {
-      this.lastError = null;
-      if (!this.loadKey()) return this.lastError || `AI host needs an API key: put it in ${KEY_FILE} next to Poole Party.bat`;
+      claude.clearError();
+      if (!claude.load()) return claude.lastError || `AI host needs an API key: put it in ${claude.KEY_FILE} next to Poole Party.bat`;
     }
-    this.mode = mode;
-    this.lastError = null;
-    this.aiPausedUntil = 0;
+    update({ voiceMode: mode });
     return null;
   }
 
@@ -120,7 +97,7 @@ class Announcer {
     if (pri < 2 && (now - this.lastSaidAt < QUIET_MS || this.inFlight)) return null;
 
     let text = null;
-    const ai = this.mode === 'ai' && this.client && ev.fact && now >= this.aiPausedUntil && !(this.inFlight && pri < 3);
+    const ai = this.mode === 'ai' && claude.ready() && ev.fact && !(this.inFlight && pri < 3);
     if (ai) text = await this.aiLine(ev, players, pri);
     if (!text) text = this.classic(ev);
     this.lastSaidAt = Date.now();
@@ -157,42 +134,16 @@ class Announcer {
       `What just happened: ${ev.fact}`,
       this.recentLines.length ? `Your last few lines (don't reuse their jokes): ${this.recentLines.map(l => `"${l}"`).join(' ')}` : '',
     ].filter(Boolean).join('\n');
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), wait);
     this.inFlight += 1;
     try {
-      const res = await this.client.beta.messages.create({
-        model: MODEL,
-        max_tokens: 1024,
-        betas: ['server-side-fallback-2026-07-01'],
-        fallbacks: 'default',
-        output_config: { effort: 'low' },
-        system: SYSTEM,
-        messages: [{ role: 'user', content: prompt }],
-      }, { signal: ctrl.signal, timeout: wait });
-      if (res.stop_reason === 'refusal') return null;
-      const text = res.content.filter(b => b.type === 'text').map(b => b.text).join(' ')
-        .split(/\r?\n/).map(s => s.trim()).filter(Boolean)[0] || '';
-      const clean = text.replace(/^["'“”]+|["'“”]+$/g, '').replace(/[*_#]/g, '').trim().slice(0, 200);
-      this.lastError = null;
-      return clean || null;
-    } catch (e) {
-      const Anthropic = require('@anthropic-ai/sdk').default;
-      const pause = ms => { this.aiPausedUntil = Date.now() + ms; };
-      if (e instanceof Anthropic.AuthenticationError) { this.lastError = `The API key was rejected. Fix ${KEY_FILE}, then tap AI again.`; pause(Infinity); }
-      else if (e instanceof Anthropic.PermissionDeniedError) { this.lastError = 'This API key is not allowed to use the model. Using classic lines.'; pause(Infinity); }
-      else if (e instanceof Anthropic.RateLimitError) { this.lastError = 'Rate limited (or out of API credit). Using classic lines for a minute.'; pause(60000); }
-      else if (e instanceof Anthropic.APIUserAbortError || ctrl.signal.aborted) this.lastError = null; // just slow this time
-      else if (e instanceof Anthropic.APIConnectionError) this.lastError = 'No internet connection to Claude. Using classic lines.';
-      else if (e instanceof Anthropic.APIError) this.lastError = `Claude error ${e.status}: ${String(e.message).slice(0, 120)}`;
-      else this.lastError = String(e.message || e).slice(0, 140);
-      if (this.lastError) console.warn(`Host voice: ${this.lastError}`);
-      return null;
+      const text = await claude.ask({ system: SYSTEM, prompt, wait });
+      if (!text) return null;
+      const line = text.split(/\r?\n/).map(x => x.trim()).filter(Boolean)[0] || '';
+      return line.replace(/^["'“”]+|["'“”]+$/g, '').replace(/[*_#]/g, '').trim().slice(0, 200) || null;
     } finally {
-      clearTimeout(timer);
       this.inFlight -= 1;
     }
   }
 }
 
-module.exports = { Announcer, LINES, KEY_FILE };
+module.exports = { Announcer, LINES };

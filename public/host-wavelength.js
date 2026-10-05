@@ -46,10 +46,11 @@
     sounds(a, b) {
       if (!a) return;
       if (b.phase === 'reveal' && a.phase !== 'reveal') {
-        const any = (b.result.guesses || []).some(g => g.pts > 0);
-        sfx[any ? 'right' : 'wrong']();
+        const gs = (b.result && b.result.guesses) || [];
+        sfx.drumroll(0.9);
+        setTimeout(() => sfx[gs.some(g => g.pts === 4) ? 'bullseye' : gs.some(g => g.pts > 0) ? 'right' : 'lose'](), 950);
       }
-      if (b.phase === 'guessing' && a.phase !== 'guessing') sfx.buzz();
+      if (b.phase === 'guessing' && a.phase !== 'guessing') sfx.start();
     },
   };
 })();

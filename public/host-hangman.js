@@ -69,8 +69,11 @@
     sounds(a, b) {
       if (!a) return;
       if (b.wrongCount > a.wrongCount) sfx.wrong();
-      if ((b.guessedLetters || []).length > (a.guessedLetters || []).length) sfx.right();
-      if (b.phase === 'reveal' && a.phase !== 'reveal') sfx[(b.awarded || {}).won ? 'fanfare' : 'buzz']();
+      else if ((b.guessedLetters || []).length > (a.guessedLetters || []).length) sfx.right();
+      if (b.phase === 'guessing' && a.phase !== 'guessing') sfx.start();
+      if (b.phase === 'reveal' && a.phase !== 'reveal') {
+        if ((b.awarded || {}).won) { sfx.kaching(); sfx.applause(1.6); } else sfx.lose();
+      }
     },
   };
 })();

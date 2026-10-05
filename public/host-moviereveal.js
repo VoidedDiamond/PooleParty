@@ -9,7 +9,7 @@
       ${bar(s.endsAt, s.windowMs)}
       <div class="main"><div class="mrow">
         <ol class="mclues">${(s.clues || []).map(c => `<li class="mclue">${esc(c)}</li>`).join('')}</ol>
-        <div class="mfeed"><div class="kicker">Guesses</div>${(s.guesses || []).slice(0, 10).map(g => `<div class="prow"><b>${esc(g.name)}</b> ${esc(g.text)}</div>`).join('') || '<div class="side-empty">No guesses yet</div>'}</div>
+        <div class="mfeed"><div class="kicker">Guesses</div>${(s.guesses || []).slice(0, 10).map(g => `<div class="prow"><b>${esc(g.name)}</b> ${esc(g.text)}${g.checking ? ' <span class="spin sm"></span>' : ''}</div>`).join('') || '<div class="side-empty">No guesses yet</div>'}</div>
       </div></div>${scoreboardHTML(s, { plain: true })}</div>`;
   }
 
@@ -28,9 +28,9 @@
     },
     sounds(a, b) {
       if (!a) return;
-      if ((b.clues || []).length > (a.clues || []).length) sfx.pop();
-      if (b.phase === 'reveal' && a.phase !== 'reveal') sfx.whoosh();
-      if (b.winnerName && !a.winnerName) sfx.right();
+      if ((b.clues || []).length > (a.clues || []).length) sfx.flip();
+      if (b.phase === 'reveal' && a.phase !== 'reveal') sfx[b.winnerName ? 'kaching' : 'lose']();
+      if (b.phase === 'clue' && a.phase !== 'clue') sfx.start();
     },
   };
 })();

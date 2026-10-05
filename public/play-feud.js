@@ -57,14 +57,16 @@
         break;
       }
       case 'play':
-        if (s.turnPid === me.id) out = { key: 'fturn', html: inputHTML('Your turn', 'Name something on the board.', s) };
+        if (s.checking && s.checking.pid === me.id) out = { key: 'fchecking', html: `<p class="say">Checking your answer</p>${q}${checkingHTML(`"${esc(s.checking.text)}"`)}` };
+        else if (s.turnPid === me.id) out = { key: 'fturn', html: inputHTML('Your turn', 'Name something on the board.', s) };
         else {
           const p = findPlayer(s, s.turnPid);
           out = { key: 'fwait', html: `<p class="say">${esc(p ? p.name : 'A teammate')} is answering</p>${q}` };
         }
         break;
       case 'steal':
-        if (s.stealPid === me.id) out = { key: 'fsteal', html: inputHTML('Steal!', 'One answer. Get it right to take the points.', s) };
+        if (s.checking && s.checking.pid === me.id) out = { key: 'fchecking', html: `<p class="say">Checking your answer</p>${q}${checkingHTML(`"${esc(s.checking.text)}"`)}` };
+        else if (s.stealPid === me.id) out = { key: 'fsteal', html: inputHTML('Steal!', 'One answer. Get it right to take the points.', s) };
         else out = { key: 'fsteal-wait', html: `<p class="say">Steal attempt</p>${q}<p class="note">Watch the TV.</p>` };
         break;
       case 'strikeout': out = { key: 'fstrikeout', html: '<p class="say">Three strikes!</p><p class="note">Watch the TV.</p>' }; break;

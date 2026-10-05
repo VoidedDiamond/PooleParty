@@ -69,7 +69,7 @@ function hostPickerHTML(s) {
       <button class="ghost big" id="menuBack">Back to games</button>`;
   }
   return `<p class="kicker">You're the host</p><p class="say">Pick a game</p>
-    ${rosterHTML(s)}${voiceHTML(s)}
+    ${rosterHTML(s)}${settingsRowHTML(s)}
     <div class="gamegrid">${GAME_MENU.map(g => {
       const ready = s.players.length >= g.min;
       return `<button class="gametile${ready ? '' : ' locked'}" data-open="${g.id}" ${ready ? '' : 'disabled'}>
@@ -78,18 +78,86 @@ function hostPickerHTML(s) {
     }).join('')}</div>`;
 }
 
-// Host voice settings (host's phone, lobby only). The API key itself lives on the laptop.
-function voiceHTML(s) {
+// ---- Sound & host settings (host's phone) ------------------------------------
+// A sheet over the screen, so screen re-renders don't interrupt a slider mid-drag. The API key
+// itself lives on the laptop; the phone only switches things on and off.
+function settingsRowHTML(s) {
+  const snd = s.sound || {};
+  const v = s.voice || { mode: 'off' };
+  const voice = { off: 'Host off', classic: 'Classic host', ai: 'AI host' }[v.mode] || '';
+  return `<button class="setrow" id="openSettings">${icon('sliders')}<span><b>Sound & host</b>
+    <small>Music ${snd.music ?? 0}% · Effects ${snd.sfx ?? 0}% · ${voice}${s.aiJudge ? ' · AI judge' : ''}</small></span>${icon('volume-2')}</button>`;
+}
+
+function settingsBodyHTML(s) {
   const v = s.voice || { mode: 'off', ai: false };
-  const opt = (mode, label) => `<button class="seg${v.mode === mode ? ' sel' : ''}" data-voice="${mode}">${label}</button>`;
-  const note = v.error ? `<span class="no">${esc(v.error)}</span>`
-    : v.mode === 'ai' ? 'Claude writes a fresh line for each big moment.'
-      : v.mode === 'classic' ? (v.ai ? 'Pre-written lines. Switch to AI for lines about what actually happened.' : 'Pre-written lines. Add an API key on the laptop to unlock the AI host.')
-        : 'The host is quiet.';
-  return `<div class="voicebox">
-    <div class="voicebox-head">${icon('mic')}<b>Host voice</b><button class="ghost voicetest" id="voiceTest" ${v.mode === 'off' ? 'disabled' : ''}>${icon('volume-2')} Test</button></div>
-    <div class="seggroup">${opt('off', 'Off')}${opt('classic', 'Classic')}${opt('ai', 'AI')}</div>
-    <p class="note">${note}</p></div>`;
+  const seg = (attr, val, cur, label) => `<button class="seg${cur === val ? ' sel' : ''}" data-${attr}="${val}">${label}</button>`;
+  const voiceNote = v.mode === 'ai' ? 'Claude writes a fresh line for each big moment.'
+    : v.mode === 'classic' ? (v.ai ? 'Pre-written lines. Switch to AI for lines about what actually happened.' : 'Pre-written lines. Add an API key on the laptop to unlock the AI host.')
+      : 'The host is quiet.';
+  const judgeNote = !v.ai ? 'Needs an API key on the laptop. Without it, answers are checked by spelling only.'
+    : s.aiJudge ? 'When an answer looks wrong, Claude checks if it means the same thing ("boot" for "Shoes").'
+      : 'Answers are checked by spelling only.';
+  return `<div class="voicebox-head">${icon('mic')}<b>Host voice</b><button class="ghost voicetest" id="voiceTest" ${v.mode === 'off' ? 'disabled' : ''}>${icon('volume-2')} Test</button></div>
+    <div class="seggroup">${seg('voice', 'off', v.mode, 'Off')}${seg('voice', 'classic', v.mode, 'Classic')}${seg('voice', 'ai', v.mode, 'AI')}</div>
+    <p class="note">${voiceNote}</p>
+    <div class="voicebox-head">${icon('sparkles')}<b>AI answer judge</b></div>
+    <div class="seggroup two">${seg('judge', 'off', s.aiJudge ? 'on' : 'off', 'Off')}${seg('judge', 'on', s.aiJudge ? 'on' : 'off', 'On')}</div>
+    <p class="note">${judgeNote}</p>
+    ${v.error ? `<p class="note no">${esc(v.error)}</p>` : ''}`;
+}
+
+const SLIDERS = [['music', 'music', 'Music'], ['sfx', 'bell', 'Sound effects'], ['voice', 'mic', 'Host voice']];
+
+function openSettings() {
+  if ($('#settingsSheet')) return;
+  const snd = (state && state.sound) || {};
+  const el = document.createElement('div');
+  el.className = 'sheet-backdrop';
+  el.id = 'settingsSheet';
+  el.innerHTML = `<div class="sheet settings" role="dialog" aria-modal="true"><p class="say">Sound & host</p>
+    <div class="sliders">${SLIDERS.map(([k, ic, label]) => `<label class="slider">${icon(ic)}<span>${label}</span>
+      <input type="range" min="0" max="100" step="5" data-vol="${k}" value="${snd[k] ?? 0}"><output>${snd[k] ?? 0}</output></label>`).join('')}</div>
+    <div id="settingsBody">${settingsBodyHTML(state)}</div>
+    <button class="primary" data-done>Done</button></div>`;
+  const close = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 180); };
+  // Volume changes go out a few times a second while dragging, and once more on release.
+  const timers = {};
+  el.querySelectorAll('[data-vol]').forEach(r => {
+    const out = r.nextElementSibling;
+    const push = () => act('sound', { [r.dataset.vol]: Number(r.value) });
+    r.oninput = () => {
+      out.textContent = r.value;
+      if (!timers[r.dataset.vol]) timers[r.dataset.vol] = setTimeout(() => { timers[r.dataset.vol] = null; push(); }, 150);
+    };
+    r.onchange = push;
+  });
+  el.onclick = e => {
+    const b = e.target.closest('button');
+    if (e.target === el || (b && b.hasAttribute('data-done'))) { close(); return; }
+    if (!b) return;
+    if (b.dataset.voice) act('voiceMode', { mode: b.dataset.voice });
+    else if (b.dataset.judge) act('aiJudge', { on: b.dataset.judge === 'on' });
+    else if (b.id === 'voiceTest') act('voiceTest');
+  };
+  document.body.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+}
+
+// Keep an open sheet in step with the server (another tap, an error), without touching a
+// slider that's being dragged.
+function refreshSettings(s) {
+  const el = $('#settingsSheet');
+  if (!el) return;
+  const amHost = !!(s.you && s.hostId && s.you === s.hostId);
+  if (!amHost) { el.remove(); return; }
+  const body = $('#settingsBody', el);
+  const html = settingsBodyHTML(s);
+  if (body.dataset.html !== html) { body.innerHTML = html; body.dataset.html = html; }
+  el.querySelectorAll('[data-vol]').forEach(r => {
+    const v = (s.sound || {})[r.dataset.vol];
+    if (v != null && document.activeElement !== r && Number(r.value) !== v) { r.value = v; r.nextElementSibling.textContent = v; }
+  });
 }
 
 function hubScreen(s, amHost) {
@@ -108,8 +176,7 @@ function wireHub(s) {
     b.onclick = () => act('hubMenu', { game: b.dataset.open });
   });
   if ($('#menuBack')) $('#menuBack').onclick = () => act('hubMenu', { game: null });
-  document.querySelectorAll('[data-voice]').forEach(b => { b.onclick = () => act('voiceMode', { mode: b.dataset.voice }); });
-  if ($('#voiceTest')) $('#voiceTest').onclick = () => act('voiceTest');
+  if ($('#openSettings')) $('#openSettings').onclick = openSettings;
   document.querySelectorAll('.choice[data-variant]').forEach(b => {
     b.onclick = () => {
       const entry = GAME_MENU.find(g => g.id === s.hubMenu);
@@ -135,6 +202,7 @@ function hostBarHTML(s) {
   return `<div class="hostbar">
     <button class="ghost" id="hostRestart">${icon('rotate-ccw')} Restart</button>
     <button class="ghost" id="hostMenu">${icon('house')} Menu</button>
+    <button class="ghost icononly" id="hostSound" aria-label="Sound and host settings">${icon('volume-2')}</button>
   </div>`;
 }
 // An in-app confirmation sheet (instead of the browser's confirm() box). Resolves true or false.
@@ -186,6 +254,7 @@ function wireRename(me) {
 function wireHostBar() {
   if ($('#hostMenu')) $('#hostMenu').onclick = async () => { if (await confirmSheet('End this game?', 'Everyone goes back to the game menu. Scores from this game are cleared.', 'End game')) act('toMenu'); };
   if ($('#hostRestart')) $('#hostRestart').onclick = async () => { if (await confirmSheet('Restart this game?', 'It starts over from round one with fresh content.', 'Restart')) act('reset'); };
+  if ($('#hostSound')) $('#hostSound').onclick = openSettings;
 }
 
 const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals'];
@@ -196,6 +265,7 @@ const headHTML = (me, score, editable = false) => `<div class="me" style="--colo
 function render() {
   const s = state;
   if (!s) return;
+  refreshSettings(s);
   document.documentElement.dataset.game = s.game;
   const me = findPlayer(s, s.you);
   if (!me) { if (lastScreen !== 'join') showJoin(); return; }

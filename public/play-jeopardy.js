@@ -34,6 +34,7 @@
             <button id="sendwager" class="primary">Lock in wager</button>` };
         }
         if (c.stage === 'answering') {
+          if (c.checking && c.checking.pid === me.id) return { key: 'checking', html: `<p class="say">Checking your answer</p>${clueLine}${checkingHTML(`"${esc(c.checking.guess)}"`)}` };
           if (c.buzzedId === me.id) {
             if (c.choices) return { key: 'choose', html: `${clueLine}${bar(c.endsAt, c.windowMs)}${choicesHTML(c.choices)}` };
             return { key: 'answer', html: `<p class="say">${c.dd ? 'Daily Double' : 'You buzzed in!'}</p>${clueLine}${bar(c.endsAt, c.windowMs)}

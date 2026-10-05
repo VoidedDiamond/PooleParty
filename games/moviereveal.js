@@ -1,5 +1,6 @@
 'use strict';
 const { judge } = require('./match');
+const ai = require('./judge');
 const { pickFresh } = require('./content');
 
 const ROUND_MS = 40000;
@@ -84,13 +85,12 @@ class MovieReveal {
         if (!text.trim()) return 'Empty guess';
         const player = this.players.get(pid);
         const result = judge(text, [this.movie.title]);
-        if (result.index === 0) {
-          const pts = Math.max(100, 400 - this.clueIndex * 100);
-          if (player) player.score += pts;
-          this.reveal(pid);
-        } else {
-          this.guesses.unshift({ name: player ? player.name : 'Someone', text });
+        if (result.index === 0) this.win(pid);
+        else {
+          const entry = { name: player ? player.name : 'Someone', text };
+          this.guesses.unshift(entry);
           this.guesses = this.guesses.slice(0, 20);
+          this.aiCheck(pid, entry);
         }
         return null;
       }
@@ -108,6 +108,28 @@ class MovieReveal {
       }
       default: return 'Unknown action';
     }
+  }
+
+  win(pid) {
+    const player = this.players.get(pid);
+    const pts = Math.max(100, 400 - this.clueIndex * 100);
+    if (player) player.score += pts;
+    this.reveal(pid);
+  }
+
+  // Alternate titles and nicknames ("Snow White" for "Snow White and the Seven Dwarfs") get a
+  // quick second look from Claude while the clues keep coming.
+  aiCheck(pid, entry) {
+    if (!ai.enabled() || entry.text.trim().length < 3 || (this.aiPending || 0) >= 4) return;
+    this.aiPending = (this.aiPending || 0) + 1;
+    entry.checking = true;
+    const movie = this.movie;
+    ai.ask(entry.text, [movie.title], { mode: 'exact', context: 'Name that Disney movie', wait: 5000 }).then(idx => {
+      this.aiPending -= 1;
+      entry.checking = false;
+      if (idx === 0 && this.phase === 'clue' && this.movie === movie) this.win(pid);
+      this.notify();
+    });
   }
 
   reveal(winnerId) {

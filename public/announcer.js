@@ -20,7 +20,7 @@ const Announcer = (() => {
         out.push({ kind: 'faceoff', name: nm(b, b.face.winner), fact: `${ques} Face-off: ${said}. ${nm(b, b.face.winner) || 'Nobody'} wins control.` });
       }
       const la = JSON.stringify(a.lastGuess), lb = b.lastGuess;
-      if (lb && JSON.stringify(lb) !== la && lb.pid) {
+      if (lb && JSON.stringify(lb) !== la && lb.pid && lb.kind !== 'dup') {
         const who = nm(b, lb.pid);
         const said = lb.text ? `${who} answered ${q(lb.text)}` : `${who} ran out of time`;
         const hit = lb.kind === 'hit' && b.answers[lb.idx];
@@ -244,9 +244,12 @@ const Announcer = (() => {
     speaking = true;
     caption(line.text);
     let finished = false;
-    const done = () => { if (finished) return; finished = true; speaking = false; caption(null); setTimeout(next, 250); };
-    if (!window.speechSynthesis) { setTimeout(done, 2500 + line.text.length * 45); return; }
+    const done = () => { if (finished) return; finished = true; speaking = false; Sound.duck(false); caption(null); setTimeout(next, 250); };
+    // Volume 0 on the host's phone: captions only.
+    if (!window.speechSynthesis || Sound.voiceVolume <= 0) { setTimeout(done, 2500 + line.text.length * 45); return; }
+    Sound.duck(true); // dip the music under the host
     const u = new SpeechSynthesisUtterance(line.text);
+    u.volume = Math.min(1, Sound.voiceVolume);
     if (voice) u.voice = voice;
     u.lang = voice ? voice.lang : 'en-US';
     u.rate = voice && /Natural/i.test(voice.name) ? 1.08 : 1.02;

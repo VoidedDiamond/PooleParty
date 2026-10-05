@@ -71,11 +71,16 @@
     },
     sounds(a, b) {
       if (!a) return;
-      if (b.phase === 'turn' && a.phase !== 'turn') sfx.buzz();
-      if (b.phase === 'turnEnd' && a.phase !== 'turnEnd') sfx.whoosh();
+      if (b.phase === 'turn' && a.phase !== 'turn') sfx.start();
+      if (b.phase === 'turnEnd' && a.phase !== 'turnEnd') sfx.timesup();
+      if (b.lastNo && (!a.lastNo || a.lastNo.at !== b.lastNo.at)) { sfx.no(); return; }
       const la = (a.log || []).length, lb = (b.log || []).length;
       const last = (b.log || [])[lb - 1];
-      if (lb > la || (last && a.log && a.log[lb - 1] && a.log[lb - 1].result !== last.result)) sfx[last && last.pts > 0 ? 'right' : 'wrong']();
+      if (lb > la || (last && a.log && a.log[lb - 1] && a.log[lb - 1].result !== last.result)) {
+        if (!last) return;
+        if (last.pts > 0) sfx[last.result === '3' ? 'kaching' : 'right']();
+        else if (last.result === 'skip') sfx.swoosh();
+      }
     },
   };
 })();

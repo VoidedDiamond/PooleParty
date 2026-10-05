@@ -49,7 +49,8 @@
     sounds(a, b) {
       if (!a) return;
       if (b.phase === 'choosing' && a.phase !== 'choosing') sfx.pop();
-      if (a.phase !== 'reveal' && b.phase === 'reveal') sfx.whoosh();
+      if (b.phase === 'drawing' && a.phase !== 'drawing') sfx.start();
+      if (a.phase !== 'reveal' && b.phase === 'reveal') sfx[b.correctCount ? 'whoosh' : 'lose']();
       const ca = (a.guesses || []).filter(g => g.correct).length;
       const cb = (b.guesses || []).filter(g => g.correct).length;
       if (cb > ca) sfx.right();
@@ -71,7 +72,7 @@
       $('#pword').innerHTML = `${wordBlanksHTML(s.wordShape)}${bar(s.endsAt, s.windowMs)}`;
       const feed = $('#pguesses');
       feed.innerHTML = (s.guesses || []).map(g => `<div class="prow ${g.correct ? 'ok' : ''}">
-        <b>${esc(g.name)}</b> ${g.correct ? 'got it!' : esc(g.text)}</div>`).join('') || '<div class="prow empty">Guesses show up here</div>';
+        <b>${esc(g.name)}</b> ${g.correct ? 'got it!' : esc(g.text)}${g.checking ? ' <span class="spin sm"></span>' : ''}</div>`).join('') || '<div class="prow empty">Guesses show up here</div>';
       $('#pscores').innerHTML = scoreboardHTML(s, { turnId: s.drawerId, plain: true });
     },
   };

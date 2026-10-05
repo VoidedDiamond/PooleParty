@@ -21,6 +21,8 @@ const { Hangman } = require('./games/hangman');
 const { Neanderthals } = require('./games/neanderthals');
 const content = require('./games/content');
 const { Announcer } = require('./games/announcer');
+const claude = require('./games/claude');
+const houseSettings = require('./games/settings');
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST_KEY = process.env.HOST_KEY || crypto.randomBytes(3).toString('hex');
@@ -114,7 +116,10 @@ const GAMES = {
   neanderthals: { min: 2, make: (opts) => new Neanderthals(players, broadcast, { source: sources.neanderthals, mode: opts.mode }) },
 };
 
-const announcer = new Announcer(__dirname);
+houseSettings.load(__dirname);
+claude.init(__dirname);
+const announcer = new Announcer();
+const { settings } = houseSettings;
 
 let game = null; // null means the menu (or a game's intro) is showing
 let lastStart = null;
@@ -227,11 +232,11 @@ function broadcast() {
     s.emit('state', {
       ...view, role, you: s.data.playerId || null, hostId, joinUrl: JOIN_URL,
       wifiSsid: WIFI_SSID || null, content: labels, now: Date.now(), voice: announcer.status(),
+      sound: { music: settings.music, sfx: settings.sfx, voice: settings.voice }, aiJudge: settings.aiJudge && claude.hasKey(),
     });
   }
 }
 
-let shownVoiceError = null;
 async function hostSay(ev) {
   const clip = (v, n) => (v == null ? undefined : String(v).slice(0, n));
   const safe = {
@@ -241,9 +246,13 @@ async function hostSay(ev) {
   try {
     const line = await announcer.lineFor(safe, [...players.values()].map(p => p.name));
     if (line) for (const s of io.sockets.sockets.values()) if (s.data.role === 'display') s.emit('hostSay', line);
-    if (announcer.lastError !== shownVoiceError) { shownVoiceError = announcer.lastError; broadcast(); } // show/clear it on the host's phone
   } catch (e) { console.error(e); }
 }
+
+// Show (or clear) a Claude problem on the host's phone as soon as it happens, whether it came
+// from the host voice or the answer judge.
+let shownAiError = null;
+setInterval(() => { if (claude.lastError !== shownAiError) { shownAiError = claude.lastError; broadcast(); } }, 1000);
 
 function uniqueName(raw, selfId = null) {
   const base = String(raw || '').trim().replace(/\s+/g, ' ').slice(0, 14) || 'Player';
@@ -307,18 +316,23 @@ io.on('connection', socket => {
     const r = socket.data.role;
     if (r !== 'console' && r !== 'player') return ack('Not allowed');
     const isHost = r === 'player' && !!socket.data.playerId && socket.data.playerId === currentHostId();
-    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest']);
+    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest', 'sound', 'aiJudge']);
     let err = null;
     try {
       if (HOST_ACTIONS.has(type) && r !== 'console' && !isHost) {
         err = 'Only the host can do that';
       } else if (type === 'voiceMode') {
         err = announcer.setMode(payload && payload.mode);
-        shownVoiceError = null;
         if (!err && announcer.mode !== 'off') hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'The host just switched you on. Say hi to the room and get them excited for game night.' });
       } else if (type === 'voiceTest') {
         if (announcer.mode === 'off') err = 'The host voice is off';
         else hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'Sound check before game night. Say hi to the room.' });
+      } else if (type === 'sound') {
+        houseSettings.update(payload || {});
+      } else if (type === 'aiJudge') {
+        const on = !!(payload && payload.on);
+        if (on) { claude.clearError(); if (!claude.load()) err = claude.lastError || `AI answer checking needs an API key: put it in ${claude.KEY_FILE} next to Poole Party.bat`; }
+        if (!err) houseSettings.update({ aiJudge: on });
       } else if (type === 'rename') {
         // Players fix their own name from the lobby; mid-game it would confuse score lists.
         const p = r === 'player' && players.get(socket.data.playerId);
@@ -413,7 +427,8 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Scattergories: ${sources.scattergories.label}`);
   console.log(`Hangman:       ${sources.hangman.label}`);
   console.log(`Neanderthals:  ${sources.neanderthals.label}`);
-  console.log(`Host voice:    ${announcer.client ? 'AI lines from Claude (classic lines as backup)' : 'classic lines (add anthropic-api-key.txt for the AI host)'}`);
+  console.log(`Host voice:    ${claude.hasKey() ? 'AI lines from Claude (classic lines as backup)' : 'classic lines (add anthropic-api-key.txt for the AI host)'}`);
+  console.log(`Answer check:  ${claude.hasKey() ? (settings.aiJudge ? 'built-in matcher + Claude for close calls' : 'built-in matcher (AI checking is off)') : 'built-in matcher (add anthropic-api-key.txt for AI checking)'}`);
   console.log(`Disney night:  ${['jeopardy', 'feud', 'wheel', 'pictionary'].filter(g => disneySources[g]).join(', ') || 'not loaded'}`);
   console.log(`TV display:    http://localhost:${PORT}/host`);
   console.log(`Host console:  http://localhost:${PORT}/console`);

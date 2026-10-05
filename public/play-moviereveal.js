@@ -3,7 +3,7 @@
   const mod = {};
   mod.inputScreens = new Set(['guess']);
 
-  const feedHTML = s => (s.guesses || []).slice(0, 6).map(g => `<div class="prow"><b>${esc(g.name)}</b> ${esc(g.text)}</div>`).join('');
+  const feedHTML = s => (s.guesses || []).slice(0, 6).map(g => `<div class="prow"><b>${esc(g.name)}</b> ${esc(g.text)}${g.checking ? ' <span class="spin sm"></span>' : ''}</div>`).join('');
 
   const cluesHTML = s => (s.clues || []).map(c => `<li class="mclue">${esc(c)}</li>`).join('');
 

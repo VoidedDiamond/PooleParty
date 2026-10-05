@@ -130,14 +130,32 @@ Based on the rules of Poetry for Neanderthals. Two ways to play: **Teams** (Team
 - Passing a fresh card costs 1 point. Breaking a rule earns a NO! (−1, card lost): in Teams the other team sees the card on their phones and smacks the NO! button; everyone for themselves, any guesser can call it. The Poet can also tap "I slipped". Penalties only ever cost the Poet's side, never the guesser.
 - Everyone for themselves: the Poet taps who said it, and both score. Cards live in `content/neanderthals/cards.json` (`{ "cards": [{ "one": "Fork", "three": "Pitchfork", "ban": ["eat", "spoon"] }] }`); `--neanderthals=file.json` loads your own.
 
+## Music and sound
+
+The TV plays background music: a laid-back theme on the menu, its own theme for every game (game
+show disco for Family Feud, spy jazz for Codenames, a whistled western for Hangman, cave drums for
+Neanderthals...), and a victory loop on the final scores. On top of that are sound effects for the
+big moments: buzz-ins, board reveals, strike buzzers, the wheel clicking past each wedge, Bankrupt,
+drumrolls before a reveal, applause, a ticking clock for the last five seconds. All of it is
+synthesized live in the browser, so it works offline, and every tune is original. The music dips
+while the host is talking.
+
+Browsers only allow sound after you interact with the page, so **click the TV screen once** (or
+press a key) after it opens. A banner at the top reminds you until you do.
+
+**Volumes:** the host's phone has a **Sound & host** button in the lobby (and a speaker button
+next to Menu / Restart during a game) with sliders for **Music**, **Sound effects** and **Host
+voice**. The settings are saved on the laptop (`data/settings.json`), so they stick between game
+nights.
+
 ## Host voice
 
 The TV has a game-show host who reacts out loud to the big moments: a wild Family Feud answer, a
 Bankrupt, a Wavelength bullseye, nobody getting a trivia question, the winner. The line is spoken
 by the TV browser's built-in voice and shown as a caption in the bottom corner.
 
-The host's phone picks the mode in the lobby (Host voice: **Off / Classic / AI**, plus a **Test**
-button):
+Pick the mode in **Sound & host** on the host's phone (Host voice: **Off / Classic / AI**, plus a
+**Test** button):
 
 - **Classic** - pre-written lines. Free, instant, works offline. This is the default without a key.
 - **AI** - Claude writes a fresh line about what actually happened ("Spaghetti? For a
@@ -145,22 +163,37 @@ button):
   few seconds, that moment falls back to a classic line, and the reason shows on the host's phone.
 - **Off** - silent.
 
-Browsers only allow sound after you interact with the page, so **click the TV screen once** (or
-press a key) after it opens. A banner at the top reminds you until you do.
+For the most natural voice, open the TV page in Microsoft Edge (its "Natural" voices sound far
+better than the older Windows ones); the host picks the best English voice the browser has.
 
-**Setting up the AI host.** You need a Claude API key from https://console.anthropic.com (API usage
-is billed separately from a Claude.ai subscription; add a little credit under Billing). Put the key
-in a file named `anthropic-api-key.txt` next to `Poole Party.bat`. In PowerShell:
+## AI answer judge
+
+Typed answers are first checked by the built-in matcher, which forgives typos, plurals and extra
+words but not different words. With an API key, answers it rejects get a second look from Claude,
+which accepts answers that mean the same thing: "boot" for **Shoes** on a Family Feud board,
+"sofa" for "couch" in Pictionary, "JFK" for "John F. Kennedy" in Jeopardy, an alternate movie
+title in Name That Disney Movie. The TV shows "Checking with the judges" while it decides (the
+turn clock stops), and marks answers it accepted ("The judges count it as Shoes").
+
+It covers Family Feud (face-offs, turns, steals, Fast Money), Jeopardy (including Final
+Jeopardy), Pictionary, and Name That Disney Movie. Password, Hangman and Wheel of Fortune still
+need the exact word, since that's the point of those games. If Claude is slow or offline, the
+answer is ruled by the built-in matcher alone. Turn it on or off under **AI answer judge** in
+**Sound & host**; Jeopardy's challenge vote still works either way.
+
+## Setting up the AI features (optional)
+
+Both the AI host and the AI judge need a Claude API key from https://console.anthropic.com (API
+usage is billed separately from a Claude.ai subscription; add a little credit under Billing). Put
+the key in a file named `anthropic-api-key.txt` next to `Poole Party.bat`. In PowerShell:
 
     Set-Content "$env:USERPROFILE\Documents\PooleParty\live\anthropic-api-key.txt" 'sk-ant-...'
 
 (or set the `ANTHROPIC_API_KEY` environment variable). Then start the game, or if it's already
-running, tap **AI** on the host's phone; it re-reads the file. The key stays on the laptop: phones
-never see it, and the file is in `.gitignore`. Each line is a tiny request, around a cent or less;
-set a monthly spend limit in the Console if you want a hard cap.
-
-For the most natural voice, open the TV page in Microsoft Edge (its "Natural" voices sound far
-better than the older Windows ones); the host picks the best English voice the browser has.
+running, tap **AI** under Host voice (or **On** under AI answer judge) on the host's phone; it
+re-reads the file. The key stays on the laptop: phones never see it, and the file is in
+`.gitignore`. Each host line or answer check is a tiny request, around a cent or less; set a
+monthly spend limit in the Console if you want a hard cap.
 
 ## Content
 
@@ -189,7 +222,7 @@ Custom content:
 
 ## How answers are judged
 
-`games/match.js` handles all typed answers, across Jeopardy, Family Feud, Pictionary guesses, and Movie Reveal guesses. It ignores case, punctuation, articles, "What is", plurals, and small typos. It accepts a part of a name ("Eisenhower" for "Dwight David Eisenhower") but not a lone generic word ("city" for "Kansas City"), and it never accepts a near-miss on numbers or roman numerals. It does not understand synonyms, so "sunblock" will not match "sunscreen". The Jeopardy challenge exists for those cases. `npm test` runs a few checks. If a ruling feels wrong, `ACCEPT` and the generic word list at the top of that file are the knobs.
+`games/match.js` handles all typed answers, across Jeopardy, Family Feud, Pictionary guesses, and Movie Reveal guesses. It ignores case, punctuation, articles, "What is", plurals, and small typos. It accepts a part of a name ("Eisenhower" for "Dwight David Eisenhower") but not a lone generic word ("city" for "Kansas City"), and it never accepts a near-miss on numbers or roman numerals. On its own it does not understand synonyms, so "sunblock" will not match "sunscreen"; with an API key, the AI answer judge (`games/judge.js`, above) takes a second look at those. Without one, the Jeopardy challenge exists for those cases. `npm test` runs a few checks. If a ruling feels wrong, `ACCEPT` and the generic word list at the top of that file are the knobs.
 
 ## Credits
 
@@ -220,12 +253,16 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     games/                  jeopardy.js, feud.js, wheel.js, wavelength.js,
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
                              match.js, content.js
-    games/announcer.js      host voice lines: classic lines and the Claude call
+    games/announcer.js      host voice lines (classic, or written by Claude)
+    games/judge.js          the AI answer judge (second look at rejected answers)
+    games/claude.js         the shared Claude client; reads anthropic-api-key.txt
+    games/settings.js       volumes and host settings, saved to data/settings.json
     tools/                  data download and build scripts, family filter
     content/                sample content and generated banks (jeopardy/, feud/, wheel/,
                              wavelength/, pictionary/, tshirt/, trivia/, movie/)
     public/host*.js         TV views          public/play*.js     phone views
     public/announcer.js     host voice on the TV: spots big moments, speaks, captions
+    public/audio.js         music themes and sound effects, synthesized with Web Audio
     public/console.js       host controls
     public/common.js        shared helpers: socket connection, scoreboard/timer HTML,
                              and the freehand drawing canvas (makeCanvas) used by
