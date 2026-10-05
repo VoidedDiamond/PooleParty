@@ -20,6 +20,7 @@ const { Scattergories } = require('./games/scattergories');
 const { Hangman } = require('./games/hangman');
 const { Neanderthals } = require('./games/neanderthals');
 const content = require('./games/content');
+const { Announcer } = require('./games/announcer');
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST_KEY = process.env.HOST_KEY || crypto.randomBytes(3).toString('hex');
@@ -112,6 +113,8 @@ const GAMES = {
   hangman: { min: 2, make: (opts) => new Hangman(players, broadcast, { source: sources.hangman }) },
   neanderthals: { min: 2, make: (opts) => new Neanderthals(players, broadcast, { source: sources.neanderthals, mode: opts.mode }) },
 };
+
+const announcer = new Announcer(__dirname);
 
 let game = null; // null means the menu (or a game's intro) is showing
 let lastStart = null;
@@ -223,9 +226,23 @@ function broadcast() {
     const view = game ? game.view(role, s.data.playerId || null) : intro ? introView() : hubView();
     s.emit('state', {
       ...view, role, you: s.data.playerId || null, hostId, joinUrl: JOIN_URL,
-      wifiSsid: WIFI_SSID || null, content: labels, now: Date.now(),
+      wifiSsid: WIFI_SSID || null, content: labels, now: Date.now(), voice: announcer.status(),
     });
   }
+}
+
+let shownVoiceError = null;
+async function hostSay(ev) {
+  const clip = (v, n) => (v == null ? undefined : String(v).slice(0, n));
+  const safe = {
+    key: clip(ev.key, 120), kind: clip(ev.kind, 20), game: clip(ev.game, 40), pri: Number(ev.pri) || 2,
+    name: clip(ev.name, 60), answer: clip(ev.answer, 80), fact: clip(ev.fact, 600),
+  };
+  try {
+    const line = await announcer.lineFor(safe, [...players.values()].map(p => p.name));
+    if (line) for (const s of io.sockets.sockets.values()) if (s.data.role === 'display') s.emit('hostSay', line);
+    if (announcer.lastError !== shownVoiceError) { shownVoiceError = announcer.lastError; broadcast(); } // show/clear it on the host's phone
+  } catch (e) { console.error(e); }
 }
 
 function uniqueName(raw, selfId = null) {
@@ -290,11 +307,18 @@ io.on('connection', socket => {
     const r = socket.data.role;
     if (r !== 'console' && r !== 'player') return ack('Not allowed');
     const isHost = r === 'player' && !!socket.data.playerId && socket.data.playerId === currentHostId();
-    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu']);
+    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest']);
     let err = null;
     try {
       if (HOST_ACTIONS.has(type) && r !== 'console' && !isHost) {
         err = 'Only the host can do that';
+      } else if (type === 'voiceMode') {
+        err = announcer.setMode(payload && payload.mode);
+        shownVoiceError = null;
+        if (!err && announcer.mode !== 'off') hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'The host just switched you on. Say hi to the room and get them excited for game night.' });
+      } else if (type === 'voiceTest') {
+        if (announcer.mode === 'off') err = 'The host voice is off';
+        else hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'Sound check before game night. Say hi to the room.' });
       } else if (type === 'rename') {
         // Players fix their own name from the lobby; mid-game it would confuse score lists.
         const p = r === 'player' && players.get(socket.data.playerId);
@@ -334,6 +358,13 @@ io.on('connection', socket => {
     }
     ack(err || null);
     broadcast();
+  });
+
+  // The TV reports big moments (a wild answer, a Bankrupt, the winner); the host voice answers
+  // with a line that every TV speaks and captions.
+  socket.on('hostEvent', ev => {
+    if (socket.data.role !== 'display' || !ev || typeof ev !== 'object') return;
+    hostSay(ev);
   });
 
   // Live drawing points (Pictionary). Bypasses the action/broadcast round trip: relayed straight
@@ -382,6 +413,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Scattergories: ${sources.scattergories.label}`);
   console.log(`Hangman:       ${sources.hangman.label}`);
   console.log(`Neanderthals:  ${sources.neanderthals.label}`);
+  console.log(`Host voice:    ${announcer.client ? 'AI lines from Claude (classic lines as backup)' : 'classic lines (add anthropic-api-key.txt for the AI host)'}`);
   console.log(`Disney night:  ${['jeopardy', 'feud', 'wheel', 'pictionary'].filter(g => disneySources[g]).join(', ') || 'not loaded'}`);
   console.log(`TV display:    http://localhost:${PORT}/host`);
   console.log(`Host console:  http://localhost:${PORT}/console`);

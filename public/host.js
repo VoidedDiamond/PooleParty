@@ -9,6 +9,22 @@ function unlockAudio() {
   if (audio && audio.state === 'suspended') audio.resume();
 }
 ['click', 'keydown', 'pointerdown'].forEach(ev => document.addEventListener(ev, unlockAudio));
+
+// Browsers keep a page silent (sound effects and the host voice) until someone clicks it or
+// presses a key once. Say so on the TV until that happens.
+function soundHint() {
+  const active = navigator.userActivation ? navigator.userActivation.hasBeenActive : false;
+  let el = $('#soundhint');
+  if (active) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'soundhint';
+    el.innerHTML = `${icon('volume-2')} Click anywhere or press a key to turn on sound and the host voice`;
+    document.body.appendChild(el);
+  }
+}
+['click', 'keydown', 'pointerdown'].forEach(ev => document.addEventListener(ev, () => setTimeout(soundHint, 0)));
+setTimeout(soundHint, 1500);
 function tone(freq, ms, type = 'square', vol = 0.07, delay = 0) {
   if (!audio || audio.state !== 'running') return;
   const t0 = audio.currentTime + delay / 1000;
@@ -123,7 +139,7 @@ function render(s) {
   if (s.phase === 'intro') {
     // prev is left alone on purpose: the game's first real state then renders as a fresh start.
     const key = `${s.game}:${s.endsAt}`;
-    if (app.dataset.intro !== key) { app.dataset.intro = key; app.innerHTML = introScreenHTML(s); sfx.pop(); }
+    if (app.dataset.intro !== key) { app.dataset.intro = key; app.innerHTML = introScreenHTML(s); sfx.pop(); Announcer.welcome(s); }
     return;
   }
   app.dataset.intro = '';
@@ -145,6 +161,7 @@ function render(s) {
     if (g.tv.update) g.tv.update(app, s, same ? prev : null);
     else app.innerHTML = g.tv.html(s);
     if (g.tv.sounds) g.tv.sounds(same ? prev : null, s);
+    Announcer.observe(same ? prev : null, s);
   }
   prev = s;
 }

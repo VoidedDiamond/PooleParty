@@ -2,8 +2,8 @@
 title Poole Party
 cd /d "%~dp0"
 
-if not exist "node_modules" (
-  echo First run - installing dependencies, this can take a minute...
+if not exist "node_modules\@anthropic-ai\sdk" (
+  echo Installing dependencies, this can take a minute...
   call npm install
   echo.
 )

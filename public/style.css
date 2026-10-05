@@ -284,6 +284,23 @@ body.tv { height: 100vh; overflow: hidden; cursor: none; font-size: min(2.5vh, 1
 .intro-foot { width: min(72vw, 64em); }
 .intro-hint { display: flex; align-items: center; justify-content: center; gap: .5em; margin-top: 1.6vh; color: var(--ink-dim); font-size: 1.15em; }
 
+/* host voice caption + "turn on sound" hint */
+#hostcap {
+  position: fixed; left: 2.4vw; bottom: 3vh; z-index: 15; max-width: min(46vw, 34em); display: flex; align-items: center; gap: .8em;
+  padding: .8em 1.2em .8em .8em; background: var(--card); color: var(--card-ink); border-radius: 2.2vmin; box-shadow: 0 1vmin 3vmin rgba(0, 0, 0, .35);
+  font-family: var(--font-display); font-weight: 600; font-size: 1.35em; line-height: 1.25;
+  opacity: 0; transform: translateY(1.5vh) scale(.97); transition: opacity .25s ease, transform .25s ease; pointer-events: none;
+}
+#hostcap.show { opacity: 1; transform: none; }
+.hostcap-mic { flex-shrink: 0; width: 2.2em; height: 2.2em; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--accent); color: var(--accent-ink); }
+.hostcap-mic .icn { width: 55%; height: 55%; }
+#hostcap.show .hostcap-mic { animation: hostpulse 1s ease-in-out infinite; }
+@keyframes hostpulse { 50% { transform: scale(1.12); } }
+#soundhint {
+  position: fixed; top: 1.6vh; left: 50%; transform: translateX(-50%); z-index: 16; display: flex; align-items: center; gap: .5em;
+  padding: .45em 1.1em; border-radius: 999px; background: rgba(6, 12, 40, .92); color: #fff; font-weight: 800; font-size: .95em; box-shadow: 0 .6vmin 2vmin rgba(0, 0, 0, .35);
+}
+
 /* ==========================================================================
    Phone
    ========================================================================== */
@@ -313,6 +330,16 @@ body.phone { font-size: 17px; -webkit-tap-highlight-color: transparent; -webkit-
 .hero-check .icn { width: 40px; height: 40px; stroke-width: 3; }
 
 .guessform { display: grid; gap: 12px; margin: 0; }
+
+/* host voice settings on the host's phone */
+.voicebox { background: var(--surface); border-radius: var(--r); padding: 12px; display: grid; gap: 10px; box-shadow: var(--lift); }
+.voicebox-head { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); }
+.voicebox-head > .icn { color: var(--accent); width: 1.2em; height: 1.2em; }
+.voicebox-head .voicetest { margin-left: auto; padding: 6px 12px; font-size: .9rem; box-shadow: none; }
+.voicebox .note { margin: 0; font-size: .9rem; }
+.seggroup { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: rgba(0, 0, 0, .25); border-radius: var(--r-sm); }
+.seg { padding: 9px 0; border: 0; border-radius: 8px; background: transparent; color: var(--ink-dim); font-family: var(--font-display); font-weight: 600; }
+.seg.sel { background: var(--accent); color: var(--accent-ink); }
 
 /* the screen between the player header and the host bar */
 .phone .screen { flex: 1 0 auto; display: flex; flex-direction: column; gap: 12px; }

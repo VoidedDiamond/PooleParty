@@ -130,6 +130,38 @@ Based on the rules of Poetry for Neanderthals. Two ways to play: **Teams** (Team
 - Passing a fresh card costs 1 point. Breaking a rule earns a NO! (−1, card lost): in Teams the other team sees the card on their phones and smacks the NO! button; everyone for themselves, any guesser can call it. The Poet can also tap "I slipped". Penalties only ever cost the Poet's side, never the guesser.
 - Everyone for themselves: the Poet taps who said it, and both score. Cards live in `content/neanderthals/cards.json` (`{ "cards": [{ "one": "Fork", "three": "Pitchfork", "ban": ["eat", "spoon"] }] }`); `--neanderthals=file.json` loads your own.
 
+## Host voice
+
+The TV has a game-show host who reacts out loud to the big moments: a wild Family Feud answer, a
+Bankrupt, a Wavelength bullseye, nobody getting a trivia question, the winner. The line is spoken
+by the TV browser's built-in voice and shown as a caption in the bottom corner.
+
+The host's phone picks the mode in the lobby (Host voice: **Off / Classic / AI**, plus a **Test**
+button):
+
+- **Classic** - pre-written lines. Free, instant, works offline. This is the default without a key.
+- **AI** - Claude writes a fresh line about what actually happened ("Spaghetti? For a
+  Shakespeare character?"). If the internet drops, the key is wrong, or Claude takes more than a
+  few seconds, that moment falls back to a classic line, and the reason shows on the host's phone.
+- **Off** - silent.
+
+Browsers only allow sound after you interact with the page, so **click the TV screen once** (or
+press a key) after it opens. A banner at the top reminds you until you do.
+
+**Setting up the AI host.** You need a Claude API key from https://console.anthropic.com (API usage
+is billed separately from a Claude.ai subscription; add a little credit under Billing). Put the key
+in a file named `anthropic-api-key.txt` next to `Poole Party.bat`. In PowerShell:
+
+    Set-Content "$env:USERPROFILE\Documents\PooleParty\live\anthropic-api-key.txt" 'sk-ant-...'
+
+(or set the `ANTHROPIC_API_KEY` environment variable). Then start the game, or if it's already
+running, tap **AI** on the host's phone; it re-reads the file. The key stays on the laptop: phones
+never see it, and the file is in `.gitignore`. Each line is a tiny request, around a cent or less;
+set a monthly spend limit in the Console if you want a hard cap.
+
+For the most natural voice, open the TV page in Microsoft Edge (its "Natural" voices sound far
+better than the older Windows ones); the host picks the best English voice the browser has.
+
 ## Content
 
 `npm run fetch-data` downloads two public datasets into `data/raw/` and builds banks in `content/`:
@@ -188,10 +220,12 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     games/                  jeopardy.js, feud.js, wheel.js, wavelength.js,
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
                              match.js, content.js
+    games/announcer.js      host voice lines: classic lines and the Claude call
     tools/                  data download and build scripts, family filter
     content/                sample content and generated banks (jeopardy/, feud/, wheel/,
                              wavelength/, pictionary/, tshirt/, trivia/, movie/)
     public/host*.js         TV views          public/play*.js     phone views
+    public/announcer.js     host voice on the TV: spots big moments, speaks, captions
     public/console.js       host controls
     public/common.js        shared helpers: socket connection, scoreboard/timer HTML,
                              and the freehand drawing canvas (makeCanvas) used by

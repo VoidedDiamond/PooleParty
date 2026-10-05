@@ -39,6 +39,8 @@ const GLYPHS = {
   pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>',
   'trash-2': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
   plus: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+  mic: '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+  'volume-2': '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>',
   tv: '<rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>',
   smartphone: '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
   wifi: '<path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.859a10 10 0 0 1 14 0"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/>',
@@ -245,11 +247,13 @@ const serverNow = () => Date.now() + clockSkew;
 
 let mainSocket = null;
 const queuedStrokeHandlers = [];
+const queuedHostSayHandlers = [];
 
 function connect(auth, onState) {
   const socket = io({ auth });
   mainSocket = socket;
   queuedStrokeHandlers.forEach(h => socket.on('stroke', h));
+  queuedHostSayHandlers.forEach(h => socket.on('hostSay', h));
   socket.on('state', s => { clockSkew = s.now - Date.now(); onState(s); });
   return socket;
 }
@@ -260,6 +264,11 @@ function connect(auth, onState) {
 function onStroke(handler) {
   if (mainSocket) mainSocket.on('stroke', handler);
   else queuedStrokeHandlers.push(handler);
+}
+// Lines from the host voice (TV only), same queue-until-connected pattern as onStroke.
+function onHostSay(handler) {
+  if (mainSocket) mainSocket.on('hostSay', handler);
+  else queuedHostSayHandlers.push(handler);
 }
 function sendStroke(kind, point, color) {
   if (mainSocket) mainSocket.emit('stroke', { kind, point: point ? [point.x, point.y, point.p] : undefined, color });

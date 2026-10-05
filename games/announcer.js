@@ -1,0 +1,198 @@
+'use strict';
+// The host voice: one short spoken line for each big game moment (a wild Feud answer, a
+// Bankrupt, a bullseye, the winner). The TV spots the moments and speaks the lines; this module
+// decides what to say.
+//   classic - a pre-written line for that kind of moment (instant, offline, free)
+//   ai      - Claude writes a line about what actually happened ("A GIRAFFE?"), falling back
+//             to a classic line if the internet is down, the key is wrong, or it's too slow
+//   off     - silent
+// The API key stays on this laptop: ANTHROPIC_API_KEY, or the first line of
+// anthropic-api-key.txt next to server.js. Phones never see it.
+const fs = require('fs');
+const path = require('path');
+
+const MODEL = 'claude-opus-5';
+const AI_WAIT_MS = 5000;     // longer than this and the moment has passed: say a classic line instead
+const AI_WAIT_BIG_MS = 9000; // welcome / game over can wait a little longer
+const QUIET_MS = 3500;       // minor moments are skipped if the host spoke this recently
+const KEY_FILE = 'anthropic-api-key.txt';
+
+const SYSTEM = `You are the host of Poole Party, a family game night played on a TV with phones as controllers.
+Your style: a big-hearted, loud, quick-witted TV game-show host. Playful disbelief at wild answers, big hype for great ones, warm sympathy for bad luck.
+You react to the moment described with ONE short spoken line.
+Rules:
+- One sentence, at most 16 words. It is read aloud by a text-to-speech voice: no emojis, stage directions, hashtags, or quotes around the line.
+- Family friendly. Tease the answer, never the person.
+- Use the player's name when one is given.
+- Never reveal an answer the moment says is still secret.
+- If a player's answer is rude or inappropriate, don't repeat it; react to it vaguely.
+Reply with only the line.`;
+
+// Classic lines by kind of moment. {name}, {answer}, {game} are filled in.
+const LINES = {
+  welcome: ['Welcome, welcome, welcome to {game}!', "Alright everybody, it's time for {game}! Let's go!", 'Phones out, game faces on. This is {game}!', "Get comfortable, folks. {game} starts now!"],
+  test: ["Testing, testing. Your host is warmed up and ready to go!", "Can everybody hear me? Good. Let's play some games!"],
+  right: ['{name}, yes! That is what I am talking about!', 'Oh, look at {name} go!', 'Nailed it, {name}! High fives all around!', '{name} came to play tonight!', 'Big brain energy from {name}!'],
+  wrong: ['{name}... I love you, but no.', 'Oh {name}, what were you thinking?', 'Hmm. I respect the confidence, {name}.', 'Bold choice, {name}. Wrong, but bold.', 'I had to read that twice, {name}.'],
+  faceoff: ['{name} takes control!', 'Fastest fingers in the house: {name}!', '{name} wins the face-off. Play or pass?'],
+  strike3: ['Three strikes! Ohhh, that hurts.', "That's three! Other team, here's your shot to steal it.", 'Strike three. Somebody hold me.'],
+  steal: ['{name} steals it! Oh, that is cold!', 'Stolen! {name}, you thief!', 'And {name} takes the whole bank. Wow!'],
+  stealfail: ['No steal! The points stay put.', 'Ohh, so close on the steal.', "The steal falls short. Sorry, {name}."],
+  bankrupt: ['Bankrupt! Oh no, {name}!', "{name}, I'm so sorry. Bankrupt.", 'There goes the money! Bankrupt!'],
+  loseturn: ['Lose a turn. Better luck next spin, {name}.', 'Oof. That wheel did not like you, {name}.'],
+  solved: ['{name} solved it! Beautiful!', 'And {name} gets it! Pay that player!', 'Look at {name}, reading minds and puzzles!'],
+  nobody: ['Nobody? Not a single one of you?', 'Wow. That one stumped the whole room!', 'Not one of you! I need a minute.', "The answer was {answer}. I'll give you a minute to be embarrassed.", 'Tough one! It was {answer}.', 'Stumped the whole room. It was {answer}.'],
+  dailydouble: ["It's a Daily Double! {name}, how brave are you feeling?", 'Daily Double! Bet big or go home, {name}!'],
+  no: ['NO! {name}, that was not one syllable!', 'Bonk! Caveman rules, {name}!', 'Ooh, {name} slipped. That costs you!'],
+  assassin: ['The assassin! Oh, that is the worst word on the board!', "{name} found the assassin. That's game!", 'Of all the words... the assassin!'],
+  miss: ['Ooh. Nobody was even close!', 'Way off, everybody! {name}, I think that clue needs work.', 'Not a single point on the board. Wow.'],
+  bullseye: ['Bullseye! {name} is on the same wavelength!', '{name}, are you a mind reader?', 'Dead center! Unbelievable, {name}!'],
+  thrownout: ['The group says no to {name}. Tough crowd!', "Thrown out! Sorry {name}, they didn't buy it."],
+  roundwin: ['Big round for {name}!', '{name} is heating up!', 'Somebody stop {name}!'],
+  gameover: ['And the winner is... {name}! Congratulations!', "That's the game! {name}, take a bow!", '{name} wins it all tonight! Give it up!', 'Game over! {name}, you are the champion!'],
+  tie: ["It's a tie! {name}, you share the crown!", 'We have a tie! Give it up for {name}!', 'Nobody could break the tie. Congratulations, {name}!'],
+};
+// Extra lines that only make sense in one game.
+const GAME_LINES = {
+  'Family Feud': {
+    right: ['Survey says... {name} is a genius!', 'Good answer, {name}! Good answer!'],
+    wrong: ['{name}, the people did not say that. Not one of them.', 'Somewhere out there, {name}, a survey taker is laughing.'],
+  },
+};
+const BIG = new Set(['welcome', 'gameover', 'tie', 'test']);
+
+class Announcer {
+  constructor(root) {
+    this.root = root;
+    this.client = null;
+    this.lastError = null;
+    this.aiPausedUntil = 0; // after a bad key or rate limit, use classic lines for a while
+    this.lastSaidAt = 0;
+    this.inFlight = 0;
+    this.recentEvents = new Map(); // event key -> time, so two TVs don't double up
+    this.recentLines = [];
+    this.lastPick = {};
+    this.loadKey();
+    this.mode = this.client ? 'ai' : 'classic';
+  }
+
+  loadKey() {
+    let key = process.env.ANTHROPIC_API_KEY || '';
+    if (!key) {
+      try { key = fs.readFileSync(path.join(this.root, KEY_FILE), 'utf8').split(/\r?\n/)[0].trim(); } catch { /* no file */ }
+    }
+    if (!key) { this.client = null; return false; }
+    try {
+      const Anthropic = require('@anthropic-ai/sdk').default;
+      this.client = new Anthropic({ apiKey: key, maxRetries: 0 });
+      return true;
+    } catch (e) {
+      this.client = null;
+      this.lastError = `Could not load the Claude SDK (${e.message}). Run the Update shortcut.`;
+      return false;
+    }
+  }
+
+  status() { return { mode: this.mode, ai: !!this.client, error: this.mode === 'ai' ? this.lastError : null }; }
+
+  setMode(mode) {
+    if (!['off', 'classic', 'ai'].includes(mode)) return 'Unknown host mode';
+    // Re-read the key every time AI is picked, so a fixed key file works without a restart.
+    if (mode === 'ai') {
+      this.lastError = null;
+      if (!this.loadKey()) return this.lastError || `AI host needs an API key: put it in ${KEY_FILE} next to Poole Party.bat`;
+    }
+    this.mode = mode;
+    this.lastError = null;
+    this.aiPausedUntil = 0;
+    return null;
+  }
+
+  // ev: { key, kind, game, pri (1 minor, 2 normal, 3 big), name, answer, fact }
+  // Resolves to { text, kind } to speak, or null to stay quiet.
+  async lineFor(ev, players) {
+    if (this.mode === 'off' || !ev || !LINES[ev.kind]) return null;
+    const now = Date.now();
+    for (const [k, t] of this.recentEvents) if (now - t > 60000) this.recentEvents.delete(k);
+    if (ev.key && this.recentEvents.has(ev.key)) return null;
+    if (ev.key) this.recentEvents.set(ev.key, now);
+    const pri = ev.pri || 2;
+    if (pri < 2 && (now - this.lastSaidAt < QUIET_MS || this.inFlight)) return null;
+
+    let text = null;
+    const ai = this.mode === 'ai' && this.client && ev.fact && now >= this.aiPausedUntil && !(this.inFlight && pri < 3);
+    if (ai) text = await this.aiLine(ev, players, pri);
+    if (!text) text = this.classic(ev);
+    this.lastSaidAt = Date.now();
+    this.recentLines = [text, ...this.recentLines].slice(0, 4);
+    return { text, kind: ev.kind };
+  }
+
+  classic(ev) {
+    let list = [...LINES[ev.kind], ...((GAME_LINES[ev.game] || {})[ev.kind] || [])];
+    // Read an answer out only when it's short enough to sound natural, and skip lines that need
+    // a name or answer the moment doesn't have.
+    let answer = String(ev.answer || '').trim().replace(/[.!?]+$/, '');
+    if (answer.length > 28 || answer.split(/\s+/).length > 4) answer = '';
+    if (answer && !/[a-z]/.test(answer)) { // PLAYING HIDE AND SEEK -> Playing Hide and Seek
+      answer = answer.toLowerCase().replace(/\b[a-z]+/g, (w, at) => (at && /^(a|an|and|the|of|in|on|to|for|or)$/.test(w) ? w : w[0].toUpperCase() + w.slice(1)));
+    }
+    const usable = list.filter(l => (ev.name || !l.includes('{name}')) && (answer || !l.includes('{answer}')));
+    if (usable.length) list = usable;
+    const key = `${ev.game}:${ev.kind}`;
+    let i = Math.floor(Math.random() * list.length);
+    if (list.length > 1 && list[i] === this.lastPick[key]) i = (i + 1) % list.length; // no back-to-back repeats
+    this.lastPick[key] = list[i];
+    return list[i]
+      .replace(/\{name\}/g, ev.name || 'my friend')
+      .replace(/\{answer\}/g, answer || 'that')
+      .replace(/\{game\}/g, ev.game || 'Poole Party');
+  }
+
+  async aiLine(ev, players, pri) {
+    const wait = BIG.has(ev.kind) || pri >= 3 ? AI_WAIT_BIG_MS : AI_WAIT_MS;
+    const prompt = [
+      `Game: ${ev.game || 'Poole Party'}`,
+      players && players.length ? `Players: ${players.join(', ')}` : '',
+      `What just happened: ${ev.fact}`,
+      this.recentLines.length ? `Your last few lines (don't reuse their jokes): ${this.recentLines.map(l => `"${l}"`).join(' ')}` : '',
+    ].filter(Boolean).join('\n');
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), wait);
+    this.inFlight += 1;
+    try {
+      const res = await this.client.beta.messages.create({
+        model: MODEL,
+        max_tokens: 1024,
+        betas: ['server-side-fallback-2026-07-01'],
+        fallbacks: 'default',
+        output_config: { effort: 'low' },
+        system: SYSTEM,
+        messages: [{ role: 'user', content: prompt }],
+      }, { signal: ctrl.signal, timeout: wait });
+      if (res.stop_reason === 'refusal') return null;
+      const text = res.content.filter(b => b.type === 'text').map(b => b.text).join(' ')
+        .split(/\r?\n/).map(s => s.trim()).filter(Boolean)[0] || '';
+      const clean = text.replace(/^["'“”]+|["'“”]+$/g, '').replace(/[*_#]/g, '').trim().slice(0, 200);
+      this.lastError = null;
+      return clean || null;
+    } catch (e) {
+      const Anthropic = require('@anthropic-ai/sdk').default;
+      const pause = ms => { this.aiPausedUntil = Date.now() + ms; };
+      if (e instanceof Anthropic.AuthenticationError) { this.lastError = `The API key was rejected. Fix ${KEY_FILE}, then tap AI again.`; pause(Infinity); }
+      else if (e instanceof Anthropic.PermissionDeniedError) { this.lastError = 'This API key is not allowed to use the model. Using classic lines.'; pause(Infinity); }
+      else if (e instanceof Anthropic.RateLimitError) { this.lastError = 'Rate limited (or out of API credit). Using classic lines for a minute.'; pause(60000); }
+      else if (e instanceof Anthropic.APIUserAbortError || ctrl.signal.aborted) this.lastError = null; // just slow this time
+      else if (e instanceof Anthropic.APIConnectionError) this.lastError = 'No internet connection to Claude. Using classic lines.';
+      else if (e instanceof Anthropic.APIError) this.lastError = `Claude error ${e.status}: ${String(e.message).slice(0, 120)}`;
+      else this.lastError = String(e.message || e).slice(0, 140);
+      if (this.lastError) console.warn(`Host voice: ${this.lastError}`);
+      return null;
+    } finally {
+      clearTimeout(timer);
+      this.inFlight -= 1;
+    }
+  }
+}
+
+module.exports = { Announcer, LINES, KEY_FILE };

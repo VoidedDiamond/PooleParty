@@ -69,13 +69,27 @@ function hostPickerHTML(s) {
       <button class="ghost big" id="menuBack">Back to games</button>`;
   }
   return `<p class="kicker">You're the host</p><p class="say">Pick a game</p>
-    ${rosterHTML(s)}
+    ${rosterHTML(s)}${voiceHTML(s)}
     <div class="gamegrid">${GAME_MENU.map(g => {
       const ready = s.players.length >= g.min;
       return `<button class="gametile${ready ? '' : ' locked'}" data-open="${g.id}" ${ready ? '' : 'disabled'}>
         ${gameBadge(g.id)}<span class="gtile-name">${esc(g.name)}</span>
         <span class="gtile-meta">${ready ? esc(g.tagline) : `Needs ${g.min}+ players`}</span></button>`;
     }).join('')}</div>`;
+}
+
+// Host voice settings (host's phone, lobby only). The API key itself lives on the laptop.
+function voiceHTML(s) {
+  const v = s.voice || { mode: 'off', ai: false };
+  const opt = (mode, label) => `<button class="seg${v.mode === mode ? ' sel' : ''}" data-voice="${mode}">${label}</button>`;
+  const note = v.error ? `<span class="no">${esc(v.error)}</span>`
+    : v.mode === 'ai' ? 'Claude writes a fresh line for each big moment.'
+      : v.mode === 'classic' ? (v.ai ? 'Pre-written lines. Switch to AI for lines about what actually happened.' : 'Pre-written lines. Add an API key on the laptop to unlock the AI host.')
+        : 'The host is quiet.';
+  return `<div class="voicebox">
+    <div class="voicebox-head">${icon('mic')}<b>Host voice</b><button class="ghost voicetest" id="voiceTest" ${v.mode === 'off' ? 'disabled' : ''}>${icon('volume-2')} Test</button></div>
+    <div class="seggroup">${opt('off', 'Off')}${opt('classic', 'Classic')}${opt('ai', 'AI')}</div>
+    <p class="note">${note}</p></div>`;
 }
 
 function hubScreen(s, amHost) {
@@ -94,6 +108,8 @@ function wireHub(s) {
     b.onclick = () => act('hubMenu', { game: b.dataset.open });
   });
   if ($('#menuBack')) $('#menuBack').onclick = () => act('hubMenu', { game: null });
+  document.querySelectorAll('[data-voice]').forEach(b => { b.onclick = () => act('voiceMode', { mode: b.dataset.voice }); });
+  if ($('#voiceTest')) $('#voiceTest').onclick = () => act('voiceTest');
   document.querySelectorAll('.choice[data-variant]').forEach(b => {
     b.onclick = () => {
       const entry = GAME_MENU.find(g => g.id === s.hubMenu);
