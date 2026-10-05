@@ -118,6 +118,7 @@ const GAMES = {
 
 houseSettings.load(__dirname);
 claude.init(__dirname);
+claude.setBudget(houseSettings.settings.aiBudget);
 const announcer = new Announcer();
 const { settings } = houseSettings;
 
@@ -233,6 +234,7 @@ function broadcast() {
       ...view, role, you: s.data.playerId || null, hostId, joinUrl: JOIN_URL,
       wifiSsid: WIFI_SSID || null, content: labels, now: Date.now(), voice: announcer.status(),
       sound: { music: settings.music, sfx: settings.sfx, voice: settings.voice }, aiJudge: settings.aiJudge && claude.hasKey(),
+      ai: claude.hasKey() ? { ...claude.usage(), budget: settings.aiBudget, byFeature: undefined } : null,
     });
   }
 }
@@ -251,8 +253,13 @@ async function hostSay(ev) {
 
 // Show (or clear) a Claude problem on the host's phone as soon as it happens, whether it came
 // from the host voice or the answer judge.
+// The spending meter on the host's phone updates the same way.
 let shownAiError = null;
-setInterval(() => { if (claude.lastError !== shownAiError) { shownAiError = claude.lastError; broadcast(); } }, 1000);
+let shownAiRequests = 0;
+setInterval(() => {
+  const n = claude.usage().requests;
+  if (claude.lastError !== shownAiError || n !== shownAiRequests) { shownAiError = claude.lastError; shownAiRequests = n; broadcast(); }
+}, 1000);
 
 function uniqueName(raw, selfId = null) {
   const base = String(raw || '').trim().replace(/\s+/g, ' ').slice(0, 14) || 'Player';
@@ -316,7 +323,7 @@ io.on('connection', socket => {
     const r = socket.data.role;
     if (r !== 'console' && r !== 'player') return ack('Not allowed');
     const isHost = r === 'player' && !!socket.data.playerId && socket.data.playerId === currentHostId();
-    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest', 'sound', 'aiJudge']);
+    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest', 'sound', 'aiJudge', 'aiBudget']);
     let err = null;
     try {
       if (HOST_ACTIONS.has(type) && r !== 'console' && !isHost) {
@@ -329,6 +336,9 @@ io.on('connection', socket => {
         else hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'Sound check before game night. Say hi to the room.' });
       } else if (type === 'sound') {
         houseSettings.update(payload || {});
+      } else if (type === 'aiBudget') {
+        houseSettings.update({ aiBudget: Number(payload && payload.budget) });
+        claude.setBudget(settings.aiBudget);
       } else if (type === 'aiJudge') {
         const on = !!(payload && payload.on);
         if (on) { claude.clearError(); if (!claude.load()) err = claude.lastError || claude.NO_KEY; }
@@ -428,6 +438,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Hangman:       ${sources.hangman.label}`);
   console.log(`Neanderthals:  ${sources.neanderthals.label}`);
   console.log(`Claude key:    ${claude.hasKey() ? `found on ${claude.keyWhere} (${claude.keyHint})` : `none (save ${claude.KEY_FILE} on your Desktop to turn on the AI host and AI answers)`}`);
+  if (claude.hasKey()) console.log(`AI budget:     ${settings.aiBudget ? `$${settings.aiBudget.toFixed(2)} per session` : 'no limit'} (this month so far: $${claude.usage().month.toFixed(2)})`);
   console.log(`Host voice:    ${claude.hasKey() ? 'AI lines from Claude (classic lines as backup)' : 'classic lines'}`);
   console.log(`Answer check:  ${claude.hasKey() ? (settings.aiJudge ? 'built-in matcher + Claude for close calls' : 'built-in matcher (AI answers are off)') : 'built-in matcher'}`);
   console.log(`Disney night:  ${['jeopardy', 'feud', 'wheel', 'pictionary'].filter(g => disneySources[g]).join(', ') || 'not loaded'}`);

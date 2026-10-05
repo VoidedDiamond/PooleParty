@@ -5,7 +5,9 @@
 // fit the clue, so you have to actually know it.
 //   wrongOptions(clues, boardAnswers) -> Promise<Map<id, string[]> | null>
 //     clues: [{ id, category, clue, answer }]
+// Options are remembered on disk per clue (aicache.js), so a clue seen again costs nothing.
 const claude = require('./claude');
+const cache = require('./aicache');
 const ai = require('./judge');
 
 const SYSTEM = `You write the wrong options for multiple-choice questions in a family quiz game built from Jeopardy clues.
@@ -35,22 +37,29 @@ const SCHEMA = {
   additionalProperties: false,
 };
 
+const keyOf = c => JSON.stringify([c.category, c.clue, c.answer]);
+
 async function wrongOptions(clues, boardAnswers = []) {
-  if (!ai.enabled() || !clues.length) return null;
+  const out = new Map();
+  for (const c of clues) { const known = cache.get('quiz', keyOf(c)); if (known) out.set(c.id, known); }
+  const todo = clues.filter(c => !out.has(c.id));
+  if (!todo.length || !ai.enabled()) return out.size ? out : null;
   const prompt = [
-    ...clues.map(c => `Clue ${c.id}\nCategory: ${c.category}\nClue: ${c.clue}\nCorrect answer: ${c.answer}`),
+    ...todo.map(c => `Clue ${c.id}\nCategory: ${c.category}\nClue: ${c.clue}\nCorrect answer: ${c.answer}`),
     `Correct answers elsewhere on the board (don't use these): ${boardAnswers.join('; ')}`,
   ].join('\n\n');
-  const text = await claude.ask({ system: SYSTEM, prompt, wait: 40000, schema: SCHEMA });
-  if (!text) return null;
+  const text = await claude.ask({ system: SYSTEM, prompt, wait: 40000, schema: SCHEMA, feature: 'quiz' });
+  if (!text) return out.size ? out : null;
   try {
-    const out = new Map();
     for (const it of JSON.parse(text).items || []) {
-      if (!Number.isInteger(it.id) || !Array.isArray(it.wrong)) continue;
-      out.set(it.id, it.wrong.filter(w => typeof w === 'string').map(w => w.trim()).filter(Boolean).slice(0, 5));
+      const c = todo.find(x => x.id === it.id);
+      if (!c || !Array.isArray(it.wrong)) continue;
+      const wrong = it.wrong.filter(w => typeof w === 'string').map(w => w.trim()).filter(Boolean).slice(0, 5);
+      out.set(c.id, wrong);
+      if (wrong.length >= 3) cache.set('quiz', keyOf(c), wrong);
     }
-    return out;
-  } catch { return null; }
+  } catch { /* keep whatever was cached */ }
+  return out.size ? out : null;
 }
 
 module.exports = { wrongOptions };

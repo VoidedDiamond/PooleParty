@@ -104,7 +104,23 @@ function settingsBodyHTML(s) {
     <div class="voicebox-head">${icon('sparkles')}<b>AI answers</b></div>
     <div class="seggroup two">${seg('judge', 'off', s.aiJudge ? 'on' : 'off', 'Off')}${seg('judge', 'on', s.aiJudge ? 'on' : 'off', 'On')}</div>
     <p class="note">${judgeNote}</p>
+    ${aiSpendHTML(s)}
     ${v.error ? `<p class="note no">${esc(v.error)}</p>` : v.ai && v.keyWhere ? `<p class="note">${icon('check')} API key found on ${esc(v.keyWhere.replace('your ', "the laptop's "))}.</p>` : ''}`;
+}
+
+// What Claude has cost so far, and the cap after which the free offline host and judge take over.
+const dollars = n => `$${(n || 0) < 10 ? (n || 0).toFixed(2) : Math.round(n)}`;
+function aiSpendHTML(s) {
+  const a = s.ai;
+  if (!a) return '';
+  const cap = a.budget || 0;
+  const pct = cap ? Math.min(100, Math.round((a.session / cap) * 100)) : 0;
+  const opt = (val, label) => `<button class="seg${cap === val ? ' sel' : ''}" data-budget="${val}">${label}</button>`;
+  return `<div class="voicebox-head">${icon('timer')}<b>AI spending</b></div>
+    <div class="spend"><b>${dollars(a.session)}</b> this session${cap ? ` of ${dollars(cap)}` : ''} · ${a.requests} request${a.requests === 1 ? '' : 's'} · ${dollars(a.month)} this month</div>
+    ${cap ? `<div class="spendbar"><i style="width:${pct}%"></i></div>` : ''}
+    <div class="seggroup five">${opt(0.5, '$0.50')}${opt(1, '$1')}${opt(2, '$2')}${opt(5, '$5')}${opt(0, 'No cap')}</div>
+    <p class="note">The most one session can spend on AI. After that the free offline host and judge take over.</p>`;
 }
 
 const SLIDERS = [['music', 'music', 'Music'], ['sfx', 'bell', 'Sound effects'], ['voice', 'mic', 'Host voice']];
@@ -138,6 +154,7 @@ function openSettings() {
     if (!b) return;
     if (b.dataset.voice) act('voiceMode', { mode: b.dataset.voice });
     else if (b.dataset.judge) act('aiJudge', { on: b.dataset.judge === 'on' });
+    else if (b.dataset.budget !== undefined) act('aiBudget', { budget: Number(b.dataset.budget) });
     else if (b.id === 'voiceTest') act('voiceTest');
   };
   document.body.appendChild(el);

@@ -963,3 +963,9 @@ button.tile:active, button.tile:focus-visible { background: var(--surface-hi); }
 .sg-challenge { padding: 8px 12px; }
 .sg-challenge.sel { background: var(--bad); border-color: var(--bad); color: #fff; opacity: 1; }
 .sheet.settings .voicebox-head { margin-top: 6px; }
+.seggroup.five { grid-template-columns: repeat(5, 1fr); }
+.seggroup.five .seg { font-size: .85rem; }
+.spend { font-size: .92rem; color: var(--ink-dim); }
+.spend b { color: var(--ink); font-family: var(--font-display); font-size: 1.1rem; }
+.spendbar { height: 8px; border-radius: 99px; background: rgba(0, 0, 0, .3); overflow: hidden; }
+.spendbar i { display: block; height: 100%; background: var(--accent); border-radius: inherit; }

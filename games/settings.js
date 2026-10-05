@@ -10,7 +10,9 @@ const DEFAULTS = {
   voice: 90,        // 0-100, the host voice
   voiceMode: null,  // 'off' | 'classic' | 'ai'; null = AI when there's a key, else classic
   aiJudge: true,    // let Claude accept answers the built-in matcher misses (needs a key)
+  aiBudget: 1,      // dollars of Claude use per session before the offline host and judge take over; 0 = no limit
 };
+const BUDGETS = [0.5, 1, 2, 5, 0];
 
 const settings = { ...DEFAULTS };
 let file = null;
@@ -29,6 +31,7 @@ function sanitize(p) {
   for (const k of ['music', 'sfx', 'voice']) if (Number.isFinite(Number(p[k])) && p[k] !== null && p[k] !== '') out[k] = vol(p[k]);
   if (['off', 'classic', 'ai', null].includes(p.voiceMode)) out.voiceMode = p.voiceMode;
   if (typeof p.aiJudge === 'boolean') out.aiJudge = p.aiJudge;
+  if (BUDGETS.includes(Number(p.aiBudget)) && p.aiBudget !== null && p.aiBudget !== '') out.aiBudget = Number(p.aiBudget);
   return out;
 }
 
@@ -47,4 +50,4 @@ function update(patch) {
   return settings;
 }
 
-module.exports = { settings, load, update, DEFAULTS };
+module.exports = { settings, load, update, DEFAULTS, BUDGETS };

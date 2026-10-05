@@ -97,7 +97,9 @@ class Announcer {
     if (pri < 2 && (now - this.lastSaidAt < QUIET_MS || this.inFlight)) return null;
 
     let text = null;
-    const ai = this.mode === 'ai' && claude.ready() && ev.fact && !(this.inFlight && pri < 3);
+    // Claude writes lines for the moments that matter (pri 2-3); quick, frequent ones (a right
+    // Feud answer, a Pictionary guess) get a free classic line, which keeps a game night cheap.
+    const ai = this.mode === 'ai' && claude.ready() && ev.fact && pri >= 2 && !(this.inFlight && pri < 3);
     if (ai) text = await this.aiLine(ev, players, pri);
     if (!text) text = this.classic(ev);
     this.lastSaidAt = Date.now();
@@ -136,7 +138,7 @@ class Announcer {
     ].filter(Boolean).join('\n');
     this.inFlight += 1;
     try {
-      const text = await claude.ask({ system: SYSTEM, prompt, wait });
+      const text = await claude.ask({ system: SYSTEM, prompt, wait, feature: 'host' });
       if (!text) return null;
       const line = text.split(/\r?\n/).map(x => x.trim()).filter(Boolean)[0] || '';
       return line.replace(/^["'“”]+|["'“”]+$/g, '').replace(/[*_#]/g, '').trim().slice(0, 200) || null;

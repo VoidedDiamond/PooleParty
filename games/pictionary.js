@@ -70,6 +70,7 @@ class Pictionary {
   }
 
   chooseWord(word) {
+    if (this.batcher) this.batcher.reset();
     this.word = this.choices.includes(word) ? word : this.choices[0];
     this.used.add(this.word);
     this.phase = 'drawing';
@@ -134,22 +135,24 @@ class Pictionary {
     if (guessers > 0 && this.correctIds.size >= guessers) this.endRound();
   }
 
-  // A wrong-looking guess gets a quick second look from Claude ("sofa" for "couch") while
-  // the round keeps going. A few at a time, so a flurry of guesses doesn't pile up.
+  // A wrong-looking guess gets a second look from Claude ("sofa" for "couch") while the round
+  // keeps going. Guesses that arrive together are judged in one request, a few per round.
   aiCheck(pid, entry) {
-    if (!ai.enabled() || entry.text.trim().length < 3 || (this.aiPending || 0) >= 4) return;
-    this.aiPending = (this.aiPending || 0) + 1;
-    entry.checking = true;
+    if (entry.text.trim().length < 3) return;
+    if (!this.batcher) this.batcher = new ai.GuessBatcher({ maxRequests: 6 });
     const seq = this.roundSeq;
-    ai.ask(entry.text, [this.word], { mode: 'word', context: 'Pictionary: what is being drawn?', wait: 5000 }).then(idx => {
-      this.aiPending -= 1;
-      entry.checking = false;
-      if (idx === 0 && this.phase === 'drawing' && this.roundSeq === seq && !this.correctIds.has(pid)) {
-        entry.correct = true;
-        this.markCorrect(pid);
-      }
-      this.notify();
+    const queued = this.batcher.add({
+      text: entry.text, answers: [this.word], opts: { mode: 'word', context: 'Pictionary: what is being drawn?' },
+      done: idx => {
+        entry.checking = false;
+        if (idx === 0 && this.phase === 'drawing' && this.roundSeq === seq && !this.correctIds.has(pid)) {
+          entry.correct = true;
+          this.markCorrect(pid);
+        }
+        this.notify();
+      },
     });
+    if (queued) entry.checking = true;
   }
 
   // ---- drawing relay hooks: called directly by server.js's 'stroke' socket

@@ -3,6 +3,9 @@ node_modules/
 data/recent-usage.json
 # Volumes and host settings picked on the host's phone.
 data/settings.json
+# Claude spending meter and remembered AI rulings (per laptop).
+data/ai-usage.json
+data/ai-cache.json
 # Raw OpenTriviaQA files; the built pack is content/trivia/general.json (npm run fetch-data -- trivia).
 data/raw/opentriviaqa/
 # The host voice's Claude API key stays on this laptop only.

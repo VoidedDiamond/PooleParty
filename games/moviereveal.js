@@ -49,6 +49,7 @@ class MovieReveal {
     this.roundNum += 1;
     const m = this.pickMovie();
     this.used.add(m.title);
+    if (this.batcher) this.batcher.reset();
     this.movie = m;
     this.clueIndex = 0;
     this.phase = 'clue';
@@ -118,18 +119,20 @@ class MovieReveal {
   }
 
   // Alternate titles and nicknames ("Snow White" for "Snow White and the Seven Dwarfs") get a
-  // quick second look from Claude while the clues keep coming.
+  // second look from Claude while the clues keep coming, batched like Pictionary guesses.
   aiCheck(pid, entry) {
-    if (!ai.enabled() || entry.text.trim().length < 3 || (this.aiPending || 0) >= 4) return;
-    this.aiPending = (this.aiPending || 0) + 1;
-    entry.checking = true;
+    if (entry.text.trim().length < 3) return;
+    if (!this.batcher) this.batcher = new ai.GuessBatcher({ maxRequests: 5 });
     const movie = this.movie;
-    ai.ask(entry.text, [movie.title], { mode: 'exact', context: 'Name that Disney movie', wait: 5000 }).then(idx => {
-      this.aiPending -= 1;
-      entry.checking = false;
-      if (idx === 0 && this.phase === 'clue' && this.movie === movie) this.win(pid);
-      this.notify();
+    const queued = this.batcher.add({
+      text: entry.text, answers: [movie.title], opts: { mode: 'exact', context: 'Name that Disney movie' },
+      done: idx => {
+        entry.checking = false;
+        if (idx === 0 && this.phase === 'clue' && this.movie === movie) this.win(pid);
+        this.notify();
+      },
     });
+    if (queued) entry.checking = true;
   }
 
   reveal(winnerId) {
