@@ -86,7 +86,7 @@ function settingsRowHTML(s) {
   const v = s.voice || { mode: 'off' };
   const voice = { off: 'Host off', classic: 'Classic host', ai: 'AI host' }[v.mode] || '';
   return `<button class="setrow" id="openSettings">${icon('sliders')}<span><b>Sound & host</b>
-    <small>Music ${snd.music ?? 0}% · Effects ${snd.sfx ?? 0}% · ${voice}${s.aiJudge ? ' · AI judge' : ''}</small></span>${icon('volume-2')}</button>`;
+    <small>Music ${snd.music ?? 0}% · Effects ${snd.sfx ?? 0}% · ${voice}${s.aiJudge ? ' · AI answers' : ''}</small></span>${icon('volume-2')}</button>`;
 }
 
 function settingsBodyHTML(s) {
@@ -96,12 +96,12 @@ function settingsBodyHTML(s) {
     : v.mode === 'classic' ? (v.ai ? 'Pre-written lines. Switch to AI for lines about what actually happened.' : 'Pre-written lines. Add an API key on the laptop to unlock the AI host.')
       : 'The host is quiet.';
   const judgeNote = !v.ai ? 'Needs an API key on the laptop. Without it, answers are checked by spelling only.'
-    : s.aiJudge ? 'When an answer looks wrong, Claude checks if it means the same thing ("boot" for "Shoes").'
-      : 'Answers are checked by spelling only.';
+    : s.aiJudge ? 'Claude checks answers that look wrong ("boot" for "Shoes") and writes tougher multiple-choice options for Jeopardy.'
+      : 'Answers are checked by spelling only, and Jeopardy options come from the clue bank.';
   return `<div class="voicebox-head">${icon('mic')}<b>Host voice</b><button class="ghost voicetest" id="voiceTest" ${v.mode === 'off' ? 'disabled' : ''}>${icon('volume-2')} Test</button></div>
     <div class="seggroup">${seg('voice', 'off', v.mode, 'Off')}${seg('voice', 'classic', v.mode, 'Classic')}${seg('voice', 'ai', v.mode, 'AI')}</div>
     <p class="note">${voiceNote}</p>
-    <div class="voicebox-head">${icon('sparkles')}<b>AI answer judge</b></div>
+    <div class="voicebox-head">${icon('sparkles')}<b>AI answers</b></div>
     <div class="seggroup two">${seg('judge', 'off', s.aiJudge ? 'on' : 'off', 'Off')}${seg('judge', 'on', s.aiJudge ? 'on' : 'off', 'On')}</div>
     <p class="note">${judgeNote}</p>
     ${v.error ? `<p class="note no">${esc(v.error)}</p>` : ''}`;

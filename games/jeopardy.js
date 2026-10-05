@@ -1,6 +1,7 @@
 'use strict';
 const { judge } = require('./match');
 const ai = require('./judge');
+const quiz = require('./quizmaker');
 const { buildBoard, makeChoices } = require('./content');
 
 const READ_BASE_MS = 1500;
@@ -37,6 +38,10 @@ class Jeopardy {
       clues: cat.clues.map(cl => ({ ...cl, used: false })),
     }));
     this.finalClue = b.final;
+    // Every correct answer in this game: Claude's wrong options must not reuse them.
+    this.boardAnswers = [...this.board.flatMap(c => c.clues.map(cl => cl.answer)), ...(b.final ? [b.final.answer] : [])];
+    this.aiWrong = new Map(); // 'ci:ri' or 'final' -> wrong options written by Claude
+    if (this.mode === 'choice') this.requestWrongOptions();
     this.boardMax = Math.max(...this.board.flatMap(c => c.clues.map(cl => cl.value)));
     this.ensureDailyDouble();
 
@@ -58,7 +63,48 @@ class Jeopardy {
     });
   }
 
-  dispose() { clearTimeout(this.timer); }
+  dispose() { clearTimeout(this.timer); this.disposed = true; }
+
+  // Multiple choice: ask Claude for believable wrong options for the whole board up front (one
+  // request per category, in parallel), so they're usually ready before a clue is picked. A clue
+  // picked before its options arrive starts with options from the clue bank and is upgraded if
+  // they land before anyone answers.
+  requestWrongOptions() {
+    if (!ai.enabled()) return;
+    const others = answers => this.boardAnswers.filter(a => !answers.includes(a));
+    const take = (key, wrong) => { this.aiWrong.set(key, wrong); this.upgradeChoices(key); };
+    this.board.forEach((cat, ci) => {
+      const clues = cat.clues.map((cl, ri) => ({ id: ri, category: cat.name, clue: cl.clue, answer: cl.answer }));
+      quiz.wrongOptions(clues, others(clues.map(c => c.answer))).then(m => {
+        if (m && !this.disposed) for (const [ri, wrong] of m) if (cat.clues[ri]) take(`${ci}:${ri}`, wrong);
+      });
+    });
+    const f = this.finalClue;
+    if (f) {
+      quiz.wrongOptions([{ id: 0, category: f.category, clue: f.clue, answer: f.answer }], others([f.answer])).then(m => {
+        if (m && m.get(0) && !this.disposed) take('final', m.get(0));
+      });
+    }
+  }
+
+  choicesFor(answer, category, clue, key) {
+    return makeChoices(this.source.pool, answer, category, {
+      clue, wrong: this.aiWrong.get(key), exclude: this.boardAnswers.filter(a => a !== answer),
+    });
+  }
+
+  upgradeChoices(key) {
+    const c = this.current;
+    if (c && key === `${c.ci}:${c.ri}` && c.answerMode === 'choice' && !c.rulings.length && ['reading', 'open', 'wager'].includes(c.stage)) {
+      const ch = this.choicesFor(c.clue.answer, this.board[c.ci].name, c.clue.clue, key);
+      if (ch) { c.choices = ch.choices; c.correctIdx = ch.correctIdx; this.notify(); }
+    }
+    const f = this.final;
+    if (key === 'final' && f && f.mode === 'choice' && this.phase === 'final_wager') {
+      const ch = this.choicesFor(f.answer, f.category, f.clue, 'final');
+      if (ch) { f.choices = ch.choices; f.correctIdx = ch.correctIdx; this.notify(); }
+    }
+  }
 
   ensureDailyDouble() {
     if (this.board.some(c => c.clues.some(cl => cl.dd))) return;
@@ -126,7 +172,7 @@ class Jeopardy {
     const cl = cat && cat.clues[ri];
     if (!cl || cl.used) return 'That clue is gone';
     this.ensureController();
-    const ch = this.mode === 'choice' ? makeChoices(this.source.pool, cl.answer, cat.name) : null;
+    const ch = this.mode === 'choice' ? this.choicesFor(cl.answer, cat.name, cl.clue, `${ci}:${ri}`) : null;
     const c = {
       ci, ri, clue: cl, value: cl.value, dd: cl.dd, stage: null,
       answerMode: ch ? 'choice' : 'typed', choices: ch && ch.choices, correctIdx: ch ? ch.correctIdx : -1,
@@ -360,7 +406,7 @@ class Jeopardy {
     const f = this.finalClue;
     const eligible = [...this.players.values()].filter(p => p.score > 0).map(p => p.id);
     if (!f || !eligible.length) { this.phase = 'end'; this.final = null; return null; }
-    const ch = this.mode === 'choice' ? makeChoices(this.source.pool, f.answer, f.category) : null;
+    const ch = this.mode === 'choice' ? this.choicesFor(f.answer, f.category, f.clue, 'final') : null;
     this.final = {
       category: f.category, clue: f.clue, answer: f.answer,
       mode: ch ? 'choice' : 'typed', choices: ch && ch.choices, correctIdx: ch ? ch.correctIdx : -1,
@@ -490,7 +536,7 @@ class Jeopardy {
         answerMode: c.answerMode,
         clue: c.stage === 'wager' && !priv ? null : c.clue.clue,
         answer: priv || c.stage === 'revealed' ? c.clue.answer : null,
-        choices: role === 'player' && c.stage === 'answering' && c.buzzedId === pid && c.answerMode === 'choice' ? c.choices : null,
+        choices: c.answerMode === 'choice' && (priv || (role === 'player' && c.stage === 'answering' && c.buzzedId === pid)) ? c.choices : null,
         buzzedId: c.buzzedId,
         lockedOut: [...c.lockedOut],
         rulings: c.rulings.map(r => ({ pid: r.pid, guess: r.guess, correct: r.correct, overruled: !!r.overruled, ai: !!r.ai })),

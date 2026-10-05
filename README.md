@@ -166,7 +166,7 @@ Pick the mode in **Sound & host** on the host's phone (Host voice: **Off / Class
 For the most natural voice, open the TV page in Microsoft Edge (its "Natural" voices sound far
 better than the older Windows ones); the host picks the best English voice the browser has.
 
-## AI answer judge
+## AI answers
 
 Typed answers are first checked by the built-in matcher, which forgives typos, plurals and extra
 words but not different words. With an API key, answers it rejects get a second look from Claude,
@@ -178,8 +178,17 @@ turn clock stops), and marks answers it accepted ("The judges count it as Shoes"
 It covers Family Feud (face-offs, turns, steals, Fast Money), Jeopardy (including Final
 Jeopardy), Pictionary, and Name That Disney Movie. Password, Hangman and Wheel of Fortune still
 need the exact word, since that's the point of those games. If Claude is slow or offline, the
-answer is ruled by the built-in matcher alone. Turn it on or off under **AI answer judge** in
-**Sound & host**; Jeopardy's challenge vote still works either way.
+answer is ruled by the built-in matcher alone. Jeopardy's challenge vote still works either way.
+
+**Tougher multiple-choice Jeopardy.** Without the API, a clue's wrong options come from the clue
+bank (mostly the other answers in the same column, plus answers to related clues from other
+boards), so a sharp player can solve some clues by elimination. With the API, Claude writes three
+believable wrong options for every clue on the board as the game starts: the same kind of thing
+as the right answer, fitting the clue, and never another answer from the board. A clue picked
+before its options arrive starts with clue-bank options and switches over if Claude's arrive
+before anyone answers.
+
+Both are under **AI answers** in **Sound & host** on the host's phone.
 
 ## Setting up the AI features (optional)
 
@@ -190,9 +199,10 @@ the key in a file named `anthropic-api-key.txt` next to `Poole Party.bat`. In Po
     Set-Content "$env:USERPROFILE\Documents\PooleParty\live\anthropic-api-key.txt" 'sk-ant-...'
 
 (or set the `ANTHROPIC_API_KEY` environment variable). Then start the game, or if it's already
-running, tap **AI** under Host voice (or **On** under AI answer judge) on the host's phone; it
+running, tap **AI** under Host voice (or **On** under AI answers) on the host's phone; it
 re-reads the file. The key stays on the laptop: phones never see it, and the file is in
-`.gitignore`. Each host line or answer check is a tiny request, around a cent or less; set a
+`.gitignore`. Each host line or answer check is a tiny request, around a cent or less (a multiple-choice
+Jeopardy game adds six slightly bigger ones at the start); set a
 monthly spend limit in the Console if you want a hard cap.
 
 ## Content
@@ -255,6 +265,7 @@ Everywhere else in this app, an action goes through the same round trip: a playe
                              match.js, content.js
     games/announcer.js      host voice lines (classic, or written by Claude)
     games/judge.js          the AI answer judge (second look at rejected answers)
+    games/quizmaker.js      Claude-written wrong options for multiple-choice Jeopardy
     games/claude.js         the shared Claude client; reads anthropic-api-key.txt
     games/settings.js       volumes and host settings, saved to data/settings.json
     tools/                  data download and build scripts, family filter
