@@ -218,8 +218,8 @@ ever gets out, delete the key in the Console and make a new one. The game also a
 `ANTHROPIC_API_KEY` environment variable, or `anthropic-api-key.txt` inside the game folder (it's
 in `.gitignore`).
 
-**Keeping it cheap.** Each host line or answer check is a tiny request, around half a cent, and
-the game is built to make as few as possible:
+**Keeping it cheap.** Each host line is a tiny request (around half a cent) and each answer check
+is tinier still, and the game is built to make as few as possible:
 
 - **A spending cap per session.** Under **AI spending** in **Sound & host** on the host's phone:
   $0.50, $1 (the default), $2, $5, or no cap. Once a session reaches it, the free offline host and
@@ -234,8 +234,9 @@ the game is built to make as few as possible:
 - **AI lines only for the big moments.** Quick, frequent moments (a right Feud answer, a Wheel
   letter) get a free pre-written line; Claude writes lines for wrong answers, steals, Bankrupts,
   winners and the like.
-- **Quick thinking.** Every request runs at the lowest effort setting, which is plenty for one
-  sentence or a yes/no ruling.
+- **The right model for each job.** Answer checking is a quick yes/no ruling, so it runs on
+  Claude Haiku 4.5, the fast, low-cost model (a quarter of the price). Host lines and Jeopardy
+  options, where wit and judgment show, use Claude Opus 5.5 at its lowest effort setting.
 
 ## Content
 

@@ -12,7 +12,10 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+// Host lines and Jeopardy options use the most capable model at its lowest effort. Answer
+// checking is a quick yes/no ruling, so it runs on the fast, low-cost model (a quarter the price).
 const MODEL = 'claude-opus-5-5';
+const JUDGE_MODEL = 'claude-haiku-4-5';
 const KEY_FILE = 'anthropic-api-key.txt';
 
 // Dollars per million tokens, from https://platform.claude.com/docs/en/about-claude/pricing
@@ -140,23 +143,33 @@ const hasKey = () => !!state.client;
 // Usable right now: a key, not paused after a bad key or a rate limit, and under budget.
 const ready = () => !!state.client && Date.now() >= state.pausedUntil && !overBudget();
 
+// The request for each model. Opus 5.5 always thinks, so it runs at its lowest effort, with the
+// server-side fallback for the rare declined request. Haiku 4.5 doesn't take an effort setting
+// and doesn't think unless asked, so its request is just the prompt and the reply format.
+function send(model, { system, prompt, schema, maxTokens }, reqOpts) {
+  const base = { model, system, messages: [{ role: 'user', content: prompt }] };
+  const format = schema ? { format: { type: 'json_schema', schema } } : {};
+  if (model === JUDGE_MODEL) {
+    return state.client.messages.create({ ...base, max_tokens: maxTokens || 512, ...(schema ? { output_config: format } : {}) }, reqOpts);
+  }
+  return state.client.beta.messages.create({
+    ...base,
+    max_tokens: maxTokens || 2048,
+    betas: ['server-side-fallback-2026-07-01'],
+    fallbacks: 'default',
+    output_config: { effort: 'low', ...format },
+  }, reqOpts);
+}
+
 // opts: { system, prompt, wait (ms), schema (JSON schema for a structured reply, optional),
-//         feature ('host' | 'judge' | 'quiz', for the spending meter) }
+//         feature ('host' | 'judge' | 'quiz', for the spending meter), model, maxTokens }
 // Resolves to the reply text (JSON text when a schema is given), or null.
-async function ask({ system, prompt, wait = 5000, schema = null, feature = 'other' }) {
+async function ask({ system, prompt, wait = 5000, schema = null, feature = 'other', model = MODEL, maxTokens }) {
   if (!ready()) return null;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), wait);
   try {
-    const res = await state.client.beta.messages.create({
-      model: MODEL,
-      max_tokens: 2048,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-      output_config: schema ? { effort: 'low', format: { type: 'json_schema', schema } } : { effort: 'low' },
-      system,
-      messages: [{ role: 'user', content: prompt }],
-    }, { signal: ctrl.signal, timeout: wait });
+    const res = await send(model, { system, prompt, schema, maxTokens }, { signal: ctrl.signal, timeout: wait });
     state.lastError = null;
     record(feature, res); // may set the over-budget message
     if (res.stop_reason === 'refusal') return null;
@@ -181,7 +194,7 @@ async function ask({ system, prompt, wait = 5000, schema = null, feature = 'othe
 const NO_KEY = `No API key found. Save it as ${KEY_FILE} on your Desktop, then tap again.`;
 
 module.exports = {
-  MODEL, KEY_FILE, NO_KEY, init, load, hasKey, ready, ask, usage, setBudget,
+  MODEL, JUDGE_MODEL, KEY_FILE, NO_KEY, init, load, hasKey, ready, ask, usage, setBudget,
   get lastError() { return state.lastError; },
   get keyWhere() { return state.keyWhere; },
   get keyHint() { return state.keyHint; },

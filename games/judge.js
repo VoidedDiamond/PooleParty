@@ -2,6 +2,7 @@
 // The AI answer judge. The built-in fuzzy matcher (match.js) handles typos, plurals and spacing
 // instantly and offline. When it says "no" and AI checking is on, Claude gets a quick look and
 // can accept an answer that means the same thing ("boot" for "Shoes", "sofa" for "couch").
+// It runs on Claude Haiku 4.5 (claude.JUDGE_MODEL): fast and cheap, and a ruling is a small job.
 //   ask(guess, answers, { mode, context, wait }) -> Promise<index | -1 | null>
 //     index: which accepted answer it matches, -1: no match, null: no ruling (offline, slow,
 //     no key, AI checking off, over budget). Callers treat null like -1.
@@ -63,7 +64,7 @@ async function ask(guess, answers, { mode = 'exact', context = '', wait = 4500 }
   if (!enabled()) return null;
   const prompt = [...head(mode, context, answers), `Player's answer: <answer>${g}</answer>`,
     'Reply with JSON: {"match": the accepted answer number, or -1 for no match}'].filter(Boolean).join('\n\n');
-  const text = await claude.ask({ system: SYSTEM, prompt, wait, schema: SCHEMA, feature: 'judge' });
+  const text = await claude.ask({ system: SYSTEM, prompt, wait, schema: SCHEMA, feature: 'judge', model: claude.JUDGE_MODEL, maxTokens: 256 });
   if (text == null) return null;
   let idx;
   try { idx = valid(JSON.parse(text).match, answers); } catch { return null; }
@@ -83,7 +84,7 @@ async function askMany(guesses, answers, { mode = 'exact', context = '', wait = 
   const prompt = [...head(mode, context, answers),
     `Judge each player answer on its own:\n${todo.map((g, i) => `${i + 1}. <answer>${g}</answer>`).join('\n')}`,
     'Reply with JSON: {"results": [{"n": answer number, "match": accepted answer number or -1}]}'].filter(Boolean).join('\n\n');
-  const text = await claude.ask({ system: SYSTEM, prompt, wait, schema: MANY_SCHEMA, feature: 'judge' });
+  const text = await claude.ask({ system: SYSTEM, prompt, wait, schema: MANY_SCHEMA, feature: 'judge', model: claude.JUDGE_MODEL, maxTokens: 512 });
   const ruled = new Map();
   try {
     for (const r of JSON.parse(text || 'null').results || []) {
