@@ -93,9 +93,9 @@ function settingsBodyHTML(s) {
   const v = s.voice || { mode: 'off', ai: false };
   const seg = (attr, val, cur, label) => `<button class="seg${cur === val ? ' sel' : ''}" data-${attr}="${val}">${label}</button>`;
   const voiceNote = v.mode === 'ai' ? 'Claude writes a fresh line for each big moment.'
-    : v.mode === 'classic' ? (v.ai ? 'Pre-written lines. Switch to AI for lines about what actually happened.' : 'Pre-written lines. Add an API key on the laptop to unlock the AI host.')
+    : v.mode === 'classic' ? (v.ai ? 'Pre-written lines. Switch to AI for lines about what actually happened.' : 'Pre-written lines. Save anthropic-api-key.txt on the laptop\'s Desktop to unlock the AI host.')
       : 'The host is quiet.';
-  const judgeNote = !v.ai ? 'Needs an API key on the laptop. Without it, answers are checked by spelling only.'
+  const judgeNote = !v.ai ? 'Needs anthropic-api-key.txt on the laptop\'s Desktop. Without it, answers are checked by spelling only.'
     : s.aiJudge ? 'Claude checks answers that look wrong ("boot" for "Shoes") and writes tougher multiple-choice options for Jeopardy.'
       : 'Answers are checked by spelling only, and Jeopardy options come from the clue bank.';
   return `<div class="voicebox-head">${icon('mic')}<b>Host voice</b><button class="ghost voicetest" id="voiceTest" ${v.mode === 'off' ? 'disabled' : ''}>${icon('volume-2')} Test</button></div>
@@ -104,7 +104,7 @@ function settingsBodyHTML(s) {
     <div class="voicebox-head">${icon('sparkles')}<b>AI answers</b></div>
     <div class="seggroup two">${seg('judge', 'off', s.aiJudge ? 'on' : 'off', 'Off')}${seg('judge', 'on', s.aiJudge ? 'on' : 'off', 'On')}</div>
     <p class="note">${judgeNote}</p>
-    ${v.error ? `<p class="note no">${esc(v.error)}</p>` : ''}`;
+    ${v.error ? `<p class="note no">${esc(v.error)}</p>` : v.ai && v.keyWhere ? `<p class="note">${icon('check')} API key found on ${esc(v.keyWhere.replace('your ', "the laptop's "))}.</p>` : ''}`;
 }
 
 const SLIDERS = [['music', 'music', 'Music'], ['sfx', 'bell', 'Sound effects'], ['voice', 'mic', 'Host voice']];

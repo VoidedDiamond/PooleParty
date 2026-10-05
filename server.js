@@ -331,7 +331,7 @@ io.on('connection', socket => {
         houseSettings.update(payload || {});
       } else if (type === 'aiJudge') {
         const on = !!(payload && payload.on);
-        if (on) { claude.clearError(); if (!claude.load()) err = claude.lastError || `AI answer checking needs an API key: put it in ${claude.KEY_FILE} next to Poole Party.bat`; }
+        if (on) { claude.clearError(); if (!claude.load()) err = claude.lastError || claude.NO_KEY; }
         if (!err) houseSettings.update({ aiJudge: on });
       } else if (type === 'rename') {
         // Players fix their own name from the lobby; mid-game it would confuse score lists.
@@ -427,8 +427,9 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Scattergories: ${sources.scattergories.label}`);
   console.log(`Hangman:       ${sources.hangman.label}`);
   console.log(`Neanderthals:  ${sources.neanderthals.label}`);
-  console.log(`Host voice:    ${claude.hasKey() ? 'AI lines from Claude (classic lines as backup)' : 'classic lines (add anthropic-api-key.txt for the AI host)'}`);
-  console.log(`Answer check:  ${claude.hasKey() ? (settings.aiJudge ? 'built-in matcher + Claude for close calls' : 'built-in matcher (AI checking is off)') : 'built-in matcher (add anthropic-api-key.txt for AI checking)'}`);
+  console.log(`Claude key:    ${claude.hasKey() ? `found on ${claude.keyWhere} (${claude.keyHint})` : `none (save ${claude.KEY_FILE} on your Desktop to turn on the AI host and AI answers)`}`);
+  console.log(`Host voice:    ${claude.hasKey() ? 'AI lines from Claude (classic lines as backup)' : 'classic lines'}`);
+  console.log(`Answer check:  ${claude.hasKey() ? (settings.aiJudge ? 'built-in matcher + Claude for close calls' : 'built-in matcher (AI answers are off)') : 'built-in matcher'}`);
   console.log(`Disney night:  ${['jeopardy', 'feud', 'wheel', 'pictionary'].filter(g => disneySources[g]).join(', ') || 'not loaded'}`);
   console.log(`TV display:    http://localhost:${PORT}/host`);
   console.log(`Host console:  http://localhost:${PORT}/console`);

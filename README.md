@@ -192,18 +192,34 @@ Both are under **AI answers** in **Sound & host** on the host's phone.
 
 ## Setting up the AI features (optional)
 
-Both the AI host and the AI judge need a Claude API key from https://console.anthropic.com (API
-usage is billed separately from a Claude.ai subscription; add a little credit under Billing). Put
-the key in a file named `anthropic-api-key.txt` next to `Poole Party.bat`. In PowerShell:
+The AI host and AI answers need a Claude API key. The game looks for it in a text file named
+`anthropic-api-key.txt` **on the Desktop** of the laptop running the game (a OneDrive Desktop
+works too). Keeping it on the Desktop, outside the game folder, means updates and GitHub never
+touch it, and anyone else who downloads Poole Party sets it up the same way with their own key.
 
-    Set-Content "$env:USERPROFILE\Documents\PooleParty\live\anthropic-api-key.txt" 'sk-ant-...'
+1. Go to https://platform.claude.com (the Claude Console) and sign in or make an account. The API
+   is billed separately from a Claude.ai subscription: add a few dollars of credit under
+   **Billing**, and set a monthly spend limit there if you want a hard cap.
+2. Open **API Keys**, click **Create Key**, name it "Poole Party", and copy it. It starts with
+   `sk-ant-` and is only shown once.
+3. Save it on the Desktop. Easiest is PowerShell, which finds the right Desktop even when OneDrive
+   moved it:
 
-(or set the `ANTHROPIC_API_KEY` environment variable). Then start the game, or if it's already
-running, tap **AI** under Host voice (or **On** under AI answers) on the host's phone; it
-re-reads the file. The key stays on the laptop: phones never see it, and the file is in
-`.gitignore`. Each host line or answer check is a tiny request, around a cent or less (a multiple-choice
-Jeopardy game adds six slightly bigger ones at the start); set a
-monthly spend limit in the Console if you want a hard cap.
+       Set-Content "$([Environment]::GetFolderPath('Desktop'))\anthropic-api-key.txt" 'sk-ant-...paste-your-key...'
+
+   Or open Notepad, paste the key, and **Save As** `anthropic-api-key.txt` on the Desktop.
+4. Start Poole Party. The game window says `Claude key: found on your Desktop (…abcd)` with the
+   last four characters, so you can tell which key it picked up. If the game is already running,
+   tap **AI** under Host voice (or **On** under AI answers) on the host's phone; it re-reads the file.
+
+The key never leaves the laptop: phones and the TV only ever see "AI on/off" and error messages,
+never the key. Treat the file like a password (anyone using that laptop can open it), and if it
+ever gets out, delete the key in the Console and make a new one. The game also accepts the
+`ANTHROPIC_API_KEY` environment variable, or `anthropic-api-key.txt` inside the game folder (it's
+in `.gitignore`).
+
+Each host line or answer check is a tiny request, around a cent or less (a multiple-choice
+Jeopardy game adds six slightly bigger ones at the start).
 
 ## Content
 
@@ -266,7 +282,7 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     games/announcer.js      host voice lines (classic, or written by Claude)
     games/judge.js          the AI answer judge (second look at rejected answers)
     games/quizmaker.js      Claude-written wrong options for multiple-choice Jeopardy
-    games/claude.js         the shared Claude client; reads anthropic-api-key.txt
+    games/claude.js         the shared Claude client; finds anthropic-api-key.txt on the Desktop
     games/settings.js       volumes and host settings, saved to data/settings.json
     tools/                  data download and build scripts, family filter
     content/                sample content and generated banks (jeopardy/, feud/, wheel/,

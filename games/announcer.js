@@ -72,14 +72,14 @@ class Announcer {
     return m === 'ai' && !claude.hasKey() ? 'classic' : m;
   }
 
-  status() { return { mode: this.mode, ai: claude.hasKey(), error: claude.lastError }; }
+  status() { return { mode: this.mode, ai: claude.hasKey(), keyWhere: claude.keyWhere, error: claude.lastError }; }
 
   setMode(mode) {
     if (!['off', 'classic', 'ai'].includes(mode)) return 'Unknown host mode';
     // Re-read the key every time AI is picked, so a fixed key file works without a restart.
     if (mode === 'ai') {
       claude.clearError();
-      if (!claude.load()) return claude.lastError || `AI host needs an API key: put it in ${claude.KEY_FILE} next to Poole Party.bat`;
+      if (!claude.load()) return claude.lastError || claude.NO_KEY;
     }
     update({ voiceMode: mode });
     return null;
