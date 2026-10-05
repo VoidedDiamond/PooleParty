@@ -218,8 +218,24 @@ ever gets out, delete the key in the Console and make a new one. The game also a
 `ANTHROPIC_API_KEY` environment variable, or `anthropic-api-key.txt` inside the game folder (it's
 in `.gitignore`).
 
-Each host line or answer check is a tiny request, around a cent or less (a multiple-choice
-Jeopardy game adds six slightly bigger ones at the start).
+**Keeping it cheap.** Each host line or answer check is a tiny request, around half a cent, and
+the game is built to make as few as possible:
+
+- **A spending cap per session.** Under **AI spending** in **Sound & host** on the host's phone:
+  $0.50, $1 (the default), $2, $5, or no cap. Once a session reaches it, the free offline host and
+  judge take over until you raise the cap or restart the game. The same panel shows what this
+  session and this month have cost, and the game window prints the month total at startup. These
+  are estimates from the published prices; the real bill is in the Claude Console, where you
+  can also set a monthly spend limit as a hard backstop.
+- **Never paying twice.** Every answer ruling and every set of Jeopardy options Claude writes is
+  saved on the laptop (`data/ai-cache.json`), so the same guess or clue is free on later nights.
+- **Batching.** Pictionary and Name That Disney Movie guesses that arrive together are checked
+  in one request, with a few requests per round at most.
+- **AI lines only for the big moments.** Quick, frequent moments (a right Feud answer, a Wheel
+  letter) get a free pre-written line; Claude writes lines for wrong answers, steals, Bankrupts,
+  winners and the like.
+- **Quick thinking.** Every request runs at the lowest effort setting, which is plenty for one
+  sentence or a yes/no ruling.
 
 ## Content
 
@@ -282,7 +298,8 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     games/announcer.js      host voice lines (classic, or written by Claude)
     games/judge.js          the AI answer judge (second look at rejected answers)
     games/quizmaker.js      Claude-written wrong options for multiple-choice Jeopardy
-    games/claude.js         the shared Claude client; finds anthropic-api-key.txt on the Desktop
+    games/claude.js         the shared Claude client: finds the key on the Desktop, meters spending
+    games/aicache.js        remembered AI rulings and options (data/ai-cache.json)
     games/settings.js       volumes and host settings, saved to data/settings.json
     tools/                  data download and build scripts, family filter
     content/                sample content and generated banks (jeopardy/, feud/, wheel/,
