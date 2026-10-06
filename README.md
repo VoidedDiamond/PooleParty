@@ -202,10 +202,11 @@ touch it, and anyone else who downloads Poole Party sets it up the same way with
    **Billing**, and set a monthly spend limit there if you want a hard cap.
 2. Open **API Keys**, click **Create Key**, name it "Poole Party", and copy it. It starts with
    `sk-ant-` and is only shown once.
-3. Save it on the Desktop. Easiest is PowerShell, which finds the right Desktop even when OneDrive
-   moved it:
+3. Save it on the Desktop. Easiest is PowerShell: with the key copied (Ctrl+C), run this. It
+   reads the key from the clipboard, so the key never lands in PowerShell's command history, and
+   it finds the right Desktop even when OneDrive moved it:
 
-       Set-Content "$([Environment]::GetFolderPath('Desktop'))\anthropic-api-key.txt" 'sk-ant-...paste-your-key...'
+       [IO.File]::WriteAllText("$([Environment]::GetFolderPath('Desktop'))\anthropic-api-key.txt", (Get-Clipboard -Raw).Trim())
 
    Or open Notepad, paste the key, and **Save As** `anthropic-api-key.txt` on the Desktop.
 4. Optional: run `npm run check-key` in the game folder. It says where it found the key and
