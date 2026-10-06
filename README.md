@@ -136,9 +136,13 @@ The TV plays background music: a laid-back theme on the menu, its own theme for 
 show disco for Family Feud, spy jazz for Codenames, a whistled western for Hangman, cave drums for
 Neanderthals...), and a victory loop on the final scores. On top of that are sound effects for the
 big moments: buzz-ins, board reveals, strike buzzers, the wheel clicking past each wedge, Bankrupt,
-drumrolls before a reveal, applause, a ticking clock for the last five seconds. All of it is
-synthesized live in the browser, so it works offline, and every tune is original. The music dips
-while the host is talking.
+drumrolls before a reveal, applause, a ticking clock for the last five seconds. Every tune is
+original, composed in code (`public/audio.js`) and pre-rendered to small MP3 files in
+`public/audio`, so the TV just plays recordings: smooth even on an old laptop, and offline. The
+music dips while the host is talking. After changing a song or effect in `audio.js`, run
+`node tools/render-audio.js` to re-render the files (it needs `npm install --no-save playwright
+lamejs`); a song without a file is rendered in the browser instead, which is fine on a fast
+machine but can crackle on a slow one.
 
 Browsers only allow sound after you interact with the page, so **click the TV screen once** (or
 press a key) after it opens. A banner at the top reminds you until you do.
@@ -311,7 +315,9 @@ Everywhere else in this app, an action goes through the same round trip: a playe
                              wavelength/, pictionary/, tshirt/, trivia/, movie/)
     public/host*.js         TV views          public/play*.js     phone views
     public/announcer.js     host voice on the TV: spots big moments, speaks, captions
-    public/audio.js         music themes and sound effects, synthesized with Web Audio
+    public/audio.js         music themes and sound effects (composed in code) and their player
+    public/audio/           the songs and effects pre-rendered to MP3, plus manifest.json
+    tools/render-audio.js   re-renders public/audio after a change to audio.js
     public/console.js       host controls
     public/common.js        shared helpers: socket connection, scoreboard/timer HTML,
                              and the freehand drawing canvas (makeCanvas) used by
