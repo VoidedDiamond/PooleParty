@@ -105,6 +105,7 @@ function introScreenHTML(s) {
 function render(s) {
   document.documentElement.dataset.game = s.game;
   Sound.setVolumes(s.sound);
+  Announcer.configure(s.voice);
   Sound.music(musicFor(s));
   if (s.phase === 'intro') {
     // prev is left alone on purpose: the game's first real state then renders as a fresh start.

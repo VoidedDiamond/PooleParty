@@ -16,7 +16,8 @@ Without `fetch-data` the games still work, using the small sample content that s
 
 **Desktop shortcut (Windows):** double-click `Poole Party.bat` (or the "Poole Party" shortcut it
 creates on the Desktop) instead of the commands above — it installs dependencies the first time,
-starts the server, and opens the TV screen in your browser automatically after a few seconds.
+starts the server, and opens the TV screen in Microsoft Edge (for its lifelike host voices; your
+default browser if Edge isn't there) automatically after a few seconds.
 Leave its console window open while you play; closing it stops the game. Re-run
 `node tools/make-icon.js` if you ever want to regenerate `Poole Party.ico`.
 
@@ -167,8 +168,27 @@ Pick the mode in **Sound & host** on the host's phone (Host voice: **Off / Class
   few seconds, that moment falls back to a classic line, and the reason shows on the host's phone.
 - **Off** - silent.
 
-For the most natural voice, open the TV page in Microsoft Edge (its "Natural" voices sound far
-better than the older Windows ones); the host picks the best English voice the browser has.
+**Host character** sets who's hosting, in both Classic and AI mode: the lines they say, how they
+say them, and the voice they get:
+
+- **Game show** - a big-hearted classic game show host.
+- **Sports** - a play-by-play announcer calling the action.
+- **Trailer** - a dramatic movie-trailer narrator ("In a world... where the answer was 'spoon'").
+- **Grandma** - a sweet, sassy grandma.
+- **Pirate** - a jolly pirate captain.
+- **Mix** - a different one for every game.
+
+**Voice** lists the voices the TV's browser has. On **Auto** each character gets one that suits it
+(a deep narrator for the trailer, a British voice for the pirate). The lifelike ones are the
+"Natural" voices in **Microsoft Edge**; Chrome and Firefox on Windows only have the old robotic
+ones. That's why the desktop shortcut opens the TV in Edge. If the list on your phone says the
+voices sound robotic, the TV page is open in another browser: open
+`http://localhost:3000/host` in Edge instead. Natural voices need the internet.
+
+**Read questions aloud** (on by default) has the host read out each question, clue and category
+like a real game show: the Family Feud survey question, the Jeopardy clue, the trivia question, the
+Wheel category, the Scattergories letter, the Codenames clue, and so on. Jeopardy waits a few
+seconds longer before opening the buzzers so the host can finish.
 
 ## AI answers
 

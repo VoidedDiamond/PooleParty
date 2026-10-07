@@ -132,6 +132,7 @@ const INTRO_MS = 25000;
 let intro = null; // { type, opts, endsAt, timer }
 
 function startGame(type, opts = {}, { skipIntro = false } = {}) {
+  announcer.newGame(); // 'mix' host: a new character for each game
   const def = GAMES[type];
   if (!def) return 'Unknown game';
   if (players.size < def.min) return `Need at least ${def.min} player${def.min > 1 ? 's' : ''} for this game`;
@@ -235,6 +236,7 @@ function broadcast() {
       wifiSsid: WIFI_SSID || null, content: labels, now: Date.now(), voice: announcer.status(),
       sound: { music: settings.music, sfx: settings.sfx, voice: settings.voice }, aiJudge: settings.aiJudge && claude.hasKey(),
       ai: claude.hasKey() ? { ...claude.usage(), budget: settings.aiBudget, byFeature: undefined } : null,
+      tvVoices,
     });
   }
 }
@@ -254,6 +256,7 @@ async function hostSay(ev) {
 // Show (or clear) a Claude problem on the host's phone as soon as it happens, whether it came
 // from the host voice or the answer judge.
 // The spending meter on the host's phone updates the same way.
+let tvVoices = []; // English voices the TV's browser offers ({ name, lang, natural })
 let shownAiError = null;
 let shownAiRequests = 0;
 setInterval(() => {
@@ -323,7 +326,7 @@ io.on('connection', socket => {
     const r = socket.data.role;
     if (r !== 'console' && r !== 'player') return ack('Not allowed');
     const isHost = r === 'player' && !!socket.data.playerId && socket.data.playerId === currentHostId();
-    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest', 'sound', 'aiJudge', 'aiBudget']);
+    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest', 'sound', 'aiJudge', 'aiBudget', 'hostStyle', 'voiceName', 'readAloud']);
     let err = null;
     try {
       if (HOST_ACTIONS.has(type) && r !== 'console' && !isHost) {
@@ -336,6 +339,15 @@ io.on('connection', socket => {
         else hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'Sound check before game night. Say hi to the room.' });
       } else if (type === 'sound') {
         houseSettings.update(payload || {});
+      } else if (type === 'hostStyle') {
+        houseSettings.update({ hostStyle: payload && payload.style });
+        announcer.newGame();
+        if (announcer.mode !== 'off') hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'You were just picked as tonight\'s host. Introduce yourself to the room in character.' });
+      } else if (type === 'voiceName') {
+        houseSettings.update({ voiceName: (payload && payload.name) || null });
+        if (announcer.mode !== 'off') hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'The host just got a new voice. Say hi to the room in character.' });
+      } else if (type === 'readAloud') {
+        houseSettings.update({ readAloud: !!(payload && payload.on) });
       } else if (type === 'aiBudget') {
         houseSettings.update({ aiBudget: Number(payload && payload.budget) });
         claude.setBudget(settings.aiBudget);
@@ -386,6 +398,17 @@ io.on('connection', socket => {
 
   // The TV reports big moments (a wild answer, a Bankrupt, the winner); the host voice answers
   // with a line that every TV speaks and captions.
+  // The TV says which voices its browser has, so the host's phone can offer them.
+  socket.on('tvVoices', list => {
+    if (socket.data.role !== 'display' || !Array.isArray(list)) return;
+    const clean = list.slice(0, 80).filter(v => v && typeof v.name === 'string').map(v => ({
+      name: v.name.slice(0, 120), lang: String(v.lang || '').slice(0, 20), natural: !!v.natural,
+    }));
+    if (JSON.stringify(clean) === JSON.stringify(tvVoices)) return;
+    tvVoices = clean;
+    broadcast();
+  });
+
   socket.on('hostEvent', ev => {
     if (socket.data.role !== 'display' || !ev || typeof ev !== 'object') return;
     hostSay(ev);

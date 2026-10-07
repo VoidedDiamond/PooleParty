@@ -174,6 +174,46 @@ const Announcer = (() => {
     },
   };
 
+  // ---- read-aloud: what a real host reads out (questions, clues, categories) --------------------
+  // (a = previous state of the same game, or {} for its first state; b = new state) -> text or null.
+  // Only things already on the TV; never a secret answer.
+  const R = {
+    feud(a, b) {
+      if (b.phase === 'faceoff' && (a.phase !== 'faceoff' || a.round !== b.round)) return `Round ${b.round}. We surveyed 100 people. ${b.question}`;
+      return null;
+    },
+    jeopardy(a, b) {
+      const c = b.current, ca = a.current;
+      if (c && !c.dd && c.clue && (!ca || ca.ci !== c.ci || ca.ri !== c.ri)) return c.clue;
+      if (c && c.dd && c.clue && c.stage === 'answering' && !(ca && ca.ci === c.ci && ca.ri === c.ri && ca.stage === 'answering')) return c.clue;
+      const f = b.final, fa = a.final;
+      if (f && b.phase === 'final_wager' && a.phase !== 'final_wager') return `Final Jeopardy. The category is ${f.category}. Make your wagers.`;
+      if (f && f.clue && b.phase === 'final_answer' && a.phase !== 'final_answer') return f.clue;
+      return null;
+    },
+    trivia(a, b) { return b.phase === 'question' && (a.phase !== 'question' || a.qIndex !== b.qIndex) ? b.question : null; },
+    wheel(a, b) {
+      const fresh = a.category !== b.category || a.round !== b.round;
+      return b.phase === 'turn' && b.category && fresh ? `The category is ${b.category}.` : null;
+    },
+    wavelength(a, b) {
+      return b.phase === 'clue' && (a.phase !== 'clue' || a.round !== b.round) ? `${nm(b, b.psychicId) || 'Psychic'}, give us a clue between ${b.left} and ${b.right}.` : null;
+    },
+    hangman(a, b) { return b.phase === 'guessing' && a.phase !== 'guessing' && b.theme ? `The theme is ${b.theme}.` : null; },
+    moviereveal(a, b) {
+      const cb = b.clues || [], ca = a.clues || [];
+      if (b.phase !== 'clue' || !cb.length) return null;
+      if (a.roundNum !== b.roundNum) return `Name that movie. ${cb[cb.length - 1]}`;
+      return cb.length > ca.length ? cb[cb.length - 1] : null;
+    },
+    codenames(a, b) {
+      const c = b.clue, ca = a.clue;
+      return c && c.word && (!ca || ca.word !== c.word || ca.number !== c.number) ? `${(b.teams && b.teams[b.turn] || {}).name || 'Next team'}: ${c.word}, ${c.number}.` : null;
+    },
+    scattergories(a, b) { return b.phase === 'writing' && a.phase !== 'writing' && b.letter ? `The letter is ${b.letter}.` : null; },
+    tshirt(a, b) { return b.phase === 'drawing' && a.phase !== 'drawing' && b.prompt ? `Your prompt: ${b.prompt}` : null; },
+  };
+
   // Whoever is on top at the end, by player score or by team.
   function winners(s) {
     if (s.game === 'codenames' && s.winner != null && s.teams) return [s.teams[s.winner].name];
@@ -192,7 +232,11 @@ const Announcer = (() => {
   }
 
   function observe(a, b) {
-    if (!a || a.game !== b.game || b.game === 'hub') return;
+    if (b.game === 'hub') return;
+    if (prefs.readAloud && prefs.mode !== 'off' && R[b.game]) {
+      try { const text = R[b.game](a && a.game === b.game ? a : {}, b); if (text) read(text); } catch (e) { console.warn('host read-aloud', e); }
+    }
+    if (!a || a.game !== b.game) return;
     if (b.phase === 'end' && a.phase !== 'end') {
       const ws = winners(b), w = list(ws);
       report({ kind: ws.length > 1 ? 'tie' : 'gameover', name: w, pri: 3, fact: `${title(b)} just ended. ${ws.length > 1 ? `It's a tie between ${w}` : `Winner: ${w}`}. Final scores: ${(b.teams && b.teams.every && b.teams.every(t => typeof t.score === 'number') ? b.teams : b.players).map(p => `${p.name} ${p.score ?? ''}`).join(', ')}.` }, b);
@@ -208,20 +252,67 @@ const Announcer = (() => {
     report({ kind: 'welcome', pri: 3, key: `welcome:${s.game}:${s.endsAt}`, fact: `A new game of ${title(s)} is about to start with ${list(s.players.map(p => p.name))}. Welcome everyone and hype it up.` }, s);
   }
 
+  // ---- voices -----------------------------------------------------------------------------------
+  // The voice comes from the TV's browser. Microsoft Edge has lifelike "Natural" voices; Chrome on
+  // Windows mostly has older robotic ones. The host's phone can pick any of them by name; on Auto,
+  // each character gets a voice that suits it.
+  const prefs = { mode: 'classic', style: 'gameshow', voiceName: null, readAloud: true };
+  const isNatural = v => /\b(Natural|Neural)\b/i.test(v.name);
+  const STYLE_VOICES = {
+    gameshow: [/(Andrew|Guy|Brian|Christopher|Eric)\b.*Natural/i],
+    sports: [/(Guy|Eric|Brian|Andrew|Davis)\b.*Natural/i],
+    trailer: [/(Christopher|Davis|Roger|Steffan|Guy)\b.*Natural/i],
+    grandma: [/(Jenny|Aria|Michelle|Nancy|Jane|Ava|Emma)\b.*Natural/i, /Google US English/i, /Zira/i],
+    pirate: [/(Ryan|Thomas|William|Guy|Davis)\b.*Natural/i, /Google UK English Male/i],
+  };
+  const FALLBACK = [/Natural.*English \(United States\)/i, /Natural/i, /Google US English/i, /Microsoft (Mark|David)/i];
+  // How each character talks (natural voices sound wrong when pitched far, so keep it subtle).
+  const DELIVERY = {
+    gameshow: { rate: 1.08, pitch: 1 }, sports: { rate: 1.2, pitch: 1.03 }, trailer: { rate: 0.86, pitch: 0.86 },
+    grandma: { rate: 0.96, pitch: 1.05 }, pirate: { rate: 1, pitch: 0.94 },
+  };
+  let voices = [];
+  let voice = null;
+  const english = () => (window.speechSynthesis ? speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang)) : []);
+  function pickVoice() {
+    voices = english();
+    voice = null;
+    if (prefs.voiceName) voice = voices.find(v => v.name === prefs.voiceName) || null;
+    if (!voice) {
+      for (const re of [...(STYLE_VOICES[prefs.style] || []), ...FALLBACK]) { voice = voices.find(v => re.test(v.name)); if (voice) break; }
+    }
+    if (!voice) voice = voices.find(v => /en-US/i.test(v.lang)) || voices[0] || null;
+  }
+  // Tell the server which voices this TV has, natural ones first.
+  let sentVoices = '';
+  function reportVoices() {
+    if (typeof mainSocket === 'undefined' || !mainSocket) return;
+    const list = english().map(v => ({ name: v.name, lang: v.lang, natural: isNatural(v) }))
+      .sort((x, y) => (y.natural - x.natural) || x.name.localeCompare(y.name));
+    const sig = JSON.stringify(list);
+    if (sig === sentVoices && mainSocket.connected) return;
+    sentVoices = sig;
+    mainSocket.emit('tvVoices', list);
+  }
+  if (window.speechSynthesis) {
+    pickVoice();
+    speechSynthesis.onvoiceschanged = () => { pickVoice(); reportVoices(); };
+  }
+
+  // Called with every state: the host's choices from the phone.
+  function configure(v) {
+    if (!v) return;
+    const changed = v.style !== prefs.style || v.voiceName !== prefs.voiceName;
+    Object.assign(prefs, { mode: v.mode, style: v.style || 'gameshow', voiceName: v.voiceName || null, readAloud: v.readAloud !== false });
+    if (changed) pickVoice();
+    if (!sentVoices) reportVoices();
+  }
+  setTimeout(reportVoices, 1500);
+  setInterval(() => { if (typeof mainSocket !== 'undefined' && mainSocket && !mainSocket.connected) sentVoices = ''; else if (!sentVoices) reportVoices(); }, 5000);
+
   // ---- speech + caption -----------------------------------------------------------------------
   const queue = [];
   let speaking = false;
-  let voice = null;
-  // The most natural-sounding English voices commonly installed on Windows / in Edge and Chrome.
-  const PREFERRED = [/Andrew.*Natural/i, /Guy.*Natural/i, /Christopher.*Natural/i, /Eric.*Natural/i, /Davis.*Natural/i,
-    /Brian.*Natural/i, /Natural.*en-US/i, /Google US English/i, /Microsoft (Mark|David)/i];
-  function pickVoice() {
-    if (!window.speechSynthesis) return;
-    const vs = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
-    for (const re of PREFERRED) { const v = vs.find(x => re.test(x.name)); if (v) { voice = v; return; } }
-    voice = vs.find(v => /en-US/i.test(v.lang)) || vs[0] || null;
-  }
-  if (window.speechSynthesis) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 
   function caption(text) {
     let el = $('#hostcap');
@@ -240,35 +331,44 @@ const Announcer = (() => {
   function next() {
     if (speaking || !queue.length) return;
     const line = queue.shift();
-    if (Date.now() - line.at > 9000) { next(); return; } // the moment has passed
+    if (Date.now() - line.at > (line.read ? 20000 : 9000)) { next(); return; } // the moment has passed
     speaking = true;
-    caption(line.text);
+    if (!line.read) caption(line.text); // a question being read is already on the screen
     let finished = false;
-    const done = () => { if (finished) return; finished = true; speaking = false; Sound.duck(false); caption(null); setTimeout(next, 250); };
+    const done = () => { if (finished) return; finished = true; speaking = false; Sound.duck(false); if (!line.read) caption(null); setTimeout(next, 250); };
     // Volume 0 on the host's phone: captions only.
-    if (!window.speechSynthesis || Sound.voiceVolume <= 0) { setTimeout(done, 2500 + line.text.length * 45); return; }
+    if (!window.speechSynthesis || Sound.voiceVolume <= 0) { setTimeout(done, line.read ? 0 : 2500 + line.text.length * 45); return; }
     Sound.duck(true); // dip the music under the host
     const u = new SpeechSynthesisUtterance(line.text);
     u.volume = Math.min(1, Sound.voiceVolume);
     if (voice) u.voice = voice;
     u.lang = voice ? voice.lang : 'en-US';
-    u.rate = voice && /Natural/i.test(voice.name) ? 1.08 : 1.02;
-    u.pitch = voice && /Natural/i.test(voice.name) ? 1 : 0.92;
+    const d = DELIVERY[prefs.style] || DELIVERY.gameshow;
+    const natural = voice && isNatural(voice);
+    u.rate = line.read ? Math.min(1.05, Math.max(0.9, d.rate)) : d.rate;
+    u.pitch = natural ? d.pitch : d.pitch * 0.94;
     u.onend = done;
     u.onerror = done;
     speechSynthesis.speak(u);
     // Some browsers drop onend; never let the queue jam.
-    setTimeout(done, 2000 + line.text.length * 110);
+    setTimeout(done, 2500 + line.text.length * 120);
+  }
+
+  // A question or clue to read out: it waits for the current line, and older chatter is dropped.
+  function read(text) {
+    for (let i = queue.length - 1; i >= 0; i--) if (!queue[i].read) queue.splice(i, 1);
+    queue.push({ text: String(text).slice(0, 400), at: Date.now(), read: true });
+    next();
   }
 
   onHostSay(line => {
     if (!line || !line.text) return;
     const big = ['welcome', 'gameover', 'tie', 'test', 'assassin'].includes(line.kind);
-    if (big) queue.length = 0;            // the big moment wins
+    if (big) { for (let i = queue.length - 1; i >= 0; i--) if (!queue[i].read) queue.splice(i, 1); } // the big moment wins
     else if (queue.length >= 1) return;   // don't build up a backlog of stale reactions
     queue.push({ text: line.text, at: Date.now() });
     next();
   });
 
-  return { observe, welcome };
+  return { observe, welcome, configure, get voiceName() { return voice ? voice.name : null; } };
 })();

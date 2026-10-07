@@ -2,6 +2,7 @@
 const { judge } = require('./match');
 const ai = require('./judge');
 const quiz = require('./quizmaker');
+const { settings } = require('./settings');
 const { buildBoard, makeChoices } = require('./content');
 
 const READ_BASE_MS = 1500;
@@ -20,7 +21,9 @@ const DD_WAGER_MS = 30000;
 const FINAL_WAGER_MS = 45000;
 const ANSWER_MS = { typed: 20000, choice: 12000 };
 
-const readTime = text => Math.min(READ_MAX_MS, READ_BASE_MS + text.split(/\s+/).length * READ_PER_WORD_MS);
+// When the host reads clues aloud, give them time to finish before the buzzers open.
+const reading = () => settings.readAloud && settings.voiceMode !== 'off';
+const readTime = text => Math.min(READ_MAX_MS + (reading() ? 3000 : 0), READ_BASE_MS + text.split(/\s+/).length * (reading() ? 380 : READ_PER_WORD_MS));
 
 class Jeopardy {
   // opts: { source, mode: 'typed' | 'choice' }

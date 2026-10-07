@@ -89,20 +89,58 @@ function settingsRowHTML(s) {
     <small>Music ${snd.music ?? 0}% · Effects ${snd.sfx ?? 0}% · ${voice}${s.aiJudge ? ' · AI answers' : ''}</small></span>${icon('volume-2')}</button>`;
 }
 
-function settingsBodyHTML(s) {
+const STYLE_CHOICES = [['gameshow', 'Game show'], ['sports', 'Sports'], ['trailer', 'Trailer'], ['grandma', 'Grandma'], ['pirate', 'Pirate'], ['mix', 'Mix']];
+const STYLE_NOTES = {
+  gameshow: 'A big-hearted game show host.', sports: 'A play-by-play sports announcer.', trailer: 'A dramatic movie-trailer narrator.',
+  grandma: 'A sweet, sassy grandma.', pirate: 'A jolly pirate captain.', mix: 'A different host every game.',
+};
+const COUNTRY = { 'United States': 'US', 'United Kingdom': 'UK', Australia: 'Australia', Canada: 'Canada', India: 'India', Ireland: 'Ireland', 'New Zealand': 'NZ', 'South Africa': 'South Africa' };
+// "Microsoft Andrew Online (Natural) - English (United States)" -> "Andrew (US)"
+function voiceLabel(name) {
+  const m = /^Microsoft (\w+)(?: Online)?(?: \(Natural\))? - English \(([^)]+)\)/.exec(name);
+  return m ? `${m[1]} (${COUNTRY[m[2]] || m[2]})` : name.replace(/^Microsoft /, '');
+}
+const segBtn = (attr, val, cur, label) => `<button class="seg${cur === val ? ' sel' : ''}" data-${attr}="${val}">${label}</button>`;
+
+// The host: on/off and AI, character, voice, reading aloud.
+function hostSettingsHTML(s) {
   const v = s.voice || { mode: 'off', ai: false };
-  const seg = (attr, val, cur, label) => `<button class="seg${cur === val ? ' sel' : ''}" data-${attr}="${val}">${label}</button>`;
   const voiceNote = v.mode === 'ai' ? 'Claude writes a fresh line for each big moment.'
     : v.mode === 'classic' ? (v.ai ? 'Pre-written lines. Switch to AI for lines about what actually happened.' : 'Pre-written lines. Save anthropic-api-key.txt on the laptop\'s Desktop to unlock the AI host.')
       : 'The host is quiet.';
+  const voices = s.tvVoices || [];
+  const natural = voices.filter(x => x.natural);
+  const other = voices.filter(x => !x.natural);
+  const opt = x => `<option value="${esc(x.name)}"${v.voiceName === x.name ? ' selected' : ''}>${esc(voiceLabel(x.name))}</option>`;
+  const voiceNoteText = !voices.length ? "The TV hasn't listed its voices yet. Open the TV page and click it once."
+    : natural.length ? 'Natural voices sound most lifelike.'
+      : 'These voices sound robotic. For lifelike ones, open the TV page in Microsoft Edge.';
+  const choice = v.styleChoice || 'gameshow';
+  return `<div class="voicebox-head">${icon('mic')}<b>Host voice</b><button class="ghost voicetest" id="voiceTest" ${v.mode === 'off' ? 'disabled' : ''}>${icon('volume-2')} Test</button></div>
+    <div class="seggroup">${segBtn('voice', 'off', v.mode, 'Off')}${segBtn('voice', 'classic', v.mode, 'Classic')}${segBtn('voice', 'ai', v.mode, 'AI')}</div>
+    <p class="note">${voiceNote}</p>
+    <div class="voicebox-head">${icon('users')}<b>Host character</b></div>
+    <div class="seggroup">${STYLE_CHOICES.map(([id, label]) => segBtn('style', id, choice, label)).join('')}</div>
+    <p class="note">${STYLE_NOTES[choice] || ''}${choice === 'mix' && v.style ? ` This game: ${esc((STYLE_CHOICES.find(x => x[0] === v.style) || [])[1] || '')}.` : ''}</p>
+    <label class="voicepick">${icon('volume-2')}<select id="voiceSel">
+      <option value="">Auto: best voice for the character</option>
+      ${natural.length ? `<optgroup label="Natural voices">${natural.map(opt).join('')}</optgroup>` : ''}
+      ${other.length ? `<optgroup label="${natural.length ? 'Other voices' : 'Voices on this TV'}">${other.map(opt).join('')}</optgroup>` : ''}
+    </select></label>
+    <p class="note">${voiceNoteText}</p>
+    <div class="voicebox-head">${icon('list-checks')}<b>Read questions aloud</b></div>
+    <div class="seggroup two">${segBtn('read', 'off', v.readAloud === false ? 'off' : 'on', 'Off')}${segBtn('read', 'on', v.readAloud === false ? 'off' : 'on', 'On')}</div>
+    <p class="note">The host reads out questions, clues and categories, like a real game show.</p>`;
+}
+
+// AI answers, spending, and any Claude problem.
+function aiSettingsHTML(s) {
+  const v = s.voice || { mode: 'off', ai: false };
   const judgeNote = !v.ai ? 'Needs anthropic-api-key.txt on the laptop\'s Desktop. Without it, answers are checked by spelling only.'
     : s.aiJudge ? 'Claude checks answers that look wrong ("boot" for "Shoes") and writes tougher multiple-choice options for Jeopardy.'
       : 'Answers are checked by spelling only, and Jeopardy options come from the clue bank.';
-  return `<div class="voicebox-head">${icon('mic')}<b>Host voice</b><button class="ghost voicetest" id="voiceTest" ${v.mode === 'off' ? 'disabled' : ''}>${icon('volume-2')} Test</button></div>
-    <div class="seggroup">${seg('voice', 'off', v.mode, 'Off')}${seg('voice', 'classic', v.mode, 'Classic')}${seg('voice', 'ai', v.mode, 'AI')}</div>
-    <p class="note">${voiceNote}</p>
-    <div class="voicebox-head">${icon('sparkles')}<b>AI answers</b></div>
-    <div class="seggroup two">${seg('judge', 'off', s.aiJudge ? 'on' : 'off', 'Off')}${seg('judge', 'on', s.aiJudge ? 'on' : 'off', 'On')}</div>
+  return `<div class="voicebox-head">${icon('sparkles')}<b>AI answers</b></div>
+    <div class="seggroup two">${segBtn('judge', 'off', s.aiJudge ? 'on' : 'off', 'Off')}${segBtn('judge', 'on', s.aiJudge ? 'on' : 'off', 'On')}</div>
     <p class="note">${judgeNote}</p>
     ${aiSpendHTML(s)}
     ${v.error ? `<p class="note no">${esc(v.error)}</p>` : v.ai && v.keyWhere ? `<p class="note">${icon('check')} API key found on ${esc(v.keyWhere.replace('your ', "the laptop's "))}.</p>` : ''}`;
@@ -134,7 +172,8 @@ function openSettings() {
   el.innerHTML = `<div class="sheet settings" role="dialog" aria-modal="true"><p class="say">Sound & host</p>
     <div class="sliders">${SLIDERS.map(([k, ic, label]) => `<label class="slider">${icon(ic)}<span>${label}</span>
       <input type="range" min="0" max="100" step="5" data-vol="${k}" value="${snd[k] ?? 0}"><output>${snd[k] ?? 0}</output></label>`).join('')}</div>
-    <div id="settingsBody">${settingsBodyHTML(state)}</div>
+    <div id="setHost" class="setpart">${hostSettingsHTML(state)}</div>
+    <div id="setAi" class="setpart">${aiSettingsHTML(state)}</div>
     <button class="primary" data-done>Done</button></div>`;
   const close = () => { el.classList.remove('show'); setTimeout(() => el.remove(), 180); };
   // Volume changes go out a few times a second while dragging, and once more on release.
@@ -148,11 +187,14 @@ function openSettings() {
     };
     r.onchange = push;
   });
+  el.addEventListener('change', e => { if (e.target.id === 'voiceSel') act('voiceName', { name: e.target.value || null }); });
   el.onclick = e => {
     const b = e.target.closest('button');
     if (e.target === el || (b && b.hasAttribute('data-done'))) { close(); return; }
     if (!b) return;
     if (b.dataset.voice) act('voiceMode', { mode: b.dataset.voice });
+    else if (b.dataset.style) act('hostStyle', { style: b.dataset.style });
+    else if (b.dataset.read) act('readAloud', { on: b.dataset.read === 'on' });
     else if (b.dataset.judge) act('aiJudge', { on: b.dataset.judge === 'on' });
     else if (b.dataset.budget !== undefined) act('aiBudget', { budget: Number(b.dataset.budget) });
     else if (b.id === 'voiceTest') act('voiceTest');
@@ -168,9 +210,12 @@ function refreshSettings(s) {
   if (!el) return;
   const amHost = !!(s.you && s.hostId && s.you === s.hostId);
   if (!amHost) { el.remove(); return; }
-  const body = $('#settingsBody', el);
-  const html = settingsBodyHTML(s);
-  if (body.dataset.html !== html) { body.innerHTML = html; body.dataset.html = html; }
+  // Each part redraws only when it changed, so an open voice list isn't closed by the spending meter.
+  for (const [id, fn] of [['setHost', hostSettingsHTML], ['setAi', aiSettingsHTML]]) {
+    const part = $(`#${id}`, el);
+    const html = fn(s);
+    if (part.dataset.html !== html && !(id === 'setHost' && document.activeElement && document.activeElement.id === 'voiceSel')) { part.innerHTML = html; part.dataset.html = html; }
+  }
   el.querySelectorAll('[data-vol]').forEach(r => {
     const v = (s.sound || {})[r.dataset.vol];
     if (v != null && document.activeElement !== r && Number(r.value) !== v) { r.value = v; r.nextElementSibling.textContent = v; }
@@ -230,7 +275,8 @@ function confirmSheet(title, note, okLabel) {
     el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><p class="say">${esc(title)}</p><p class="note">${esc(note)}</p>
       <button class="primary" data-ok>${esc(okLabel)}</button><button class="ghost big" data-cancel>Keep playing</button></div>`;
     const done = ok => { el.classList.remove('show'); setTimeout(() => el.remove(), 180); resolve(ok); };
-    el.onclick = e => {
+    el.addEventListener('change', e => { if (e.target.id === 'voiceSel') act('voiceName', { name: e.target.value || null }); });
+  el.onclick = e => {
       if (e.target.closest('[data-ok]')) done(true);
       else if (e.target === el || e.target.closest('[data-cancel]')) done(false);
     };
@@ -258,7 +304,8 @@ function wireRename(me) {
       localStorage.setItem(LS_NAME, name);
       close();
     };
-    el.onclick = e => {
+    el.addEventListener('change', e => { if (e.target.id === 'voiceSel') act('voiceName', { name: e.target.value || null }); });
+  el.onclick = e => {
       if (e.target.closest('[data-ok]')) save();
       else if (e.target === el || e.target.closest('[data-cancel]')) close();
     };

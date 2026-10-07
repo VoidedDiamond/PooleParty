@@ -11,7 +11,11 @@ const DEFAULTS = {
   voiceMode: null,  // 'off' | 'classic' | 'ai'; null = AI when there's a key, else classic
   aiJudge: true,    // let Claude accept answers the built-in matcher misses (needs a key)
   aiBudget: 1,      // dollars of Claude use per session before the offline host and judge take over; 0 = no limit
+  hostStyle: 'gameshow', // the host's character (see STYLES in announcer.js), or 'mix' for a new one each game
+  voiceName: null,  // a TV browser voice by name; null = the best one for the character
+  readAloud: true,  // the host reads questions and clues out loud
 };
+const STYLE_IDS = ['gameshow', 'sports', 'trailer', 'grandma', 'pirate', 'mix'];
 const BUDGETS = [0.5, 1, 2, 5, 0];
 
 const settings = { ...DEFAULTS };
@@ -32,6 +36,9 @@ function sanitize(p) {
   if (['off', 'classic', 'ai', null].includes(p.voiceMode)) out.voiceMode = p.voiceMode;
   if (typeof p.aiJudge === 'boolean') out.aiJudge = p.aiJudge;
   if (BUDGETS.includes(Number(p.aiBudget)) && p.aiBudget !== null && p.aiBudget !== '') out.aiBudget = Number(p.aiBudget);
+  if (STYLE_IDS.includes(p.hostStyle)) out.hostStyle = p.hostStyle;
+  if (p.voiceName === null || (typeof p.voiceName === 'string' && p.voiceName.length <= 120)) out.voiceName = p.voiceName || null;
+  if (typeof p.readAloud === 'boolean') out.readAloud = p.readAloud;
   return out;
 }
 
