@@ -836,6 +836,25 @@ const Sound = (() => {
       },
       form: ['A', 'B'],
     },
+    // Count the Cubes: a bright, ticking puzzle groove (marimba and woodblocks).
+    cubes: {
+      bpm: 116, swing: 0.05, key: 67, scale: 'major', bassKey: 43, bassStyle: 'round', level: 0.85, mix: { drums: 0.75, bass: 0.85, comp: 0.75, arp: 0.85, lead: 0.8 },
+      sections: {
+        A: {
+          chords: ['I', 'iii', 'IV', 'V'],
+          drums: { k: 'x.......x.......', s: '....x.......x...', b: 'x..x..x...x..x..', h: '..x...x...x...x.' },
+          bass: 'R...R.5.R...R.5.', comp: { inst: 'stab', pat: '..x...x...x...x.' },
+          arp: { inst: 'marimba', pat: '1358531358531358' },
+        },
+        B: {
+          chords: ['vi', 'IV', 'I', 'V', 'vi', 'IV', 'ii7', 'V7'],
+          drums: { k: 'x.......x.x.....', s: '....x.......x...', b: 'x..x..x...x..x..', h: 'x.x.x.x.x.x.x.x.' },
+          bass: 'R...R.5.R...8.5.', comp: { inst: 'stab', pat: '..x...x...x...x.' },
+          lead: { inst: 'vibes', notes: '0:4:2 2:5:2 4:4:2 6:2:2 8:4:8 16:3:2 18:4:2 20:3:2 22:1:2 24:3:8 32:2:2 34:3:2 36:4:2 38:5:2 40:7:4 44:6:4 48:4:8 56:5:8 64:4:2 66:5:2 68:4:2 70:2:2 72:4:8 80:3:2 82:4:2 84:5:2 86:6:2 88:7:8 96:6:4 100:5:4 104:4:4 108:3:4 112:4:16' },
+        },
+      },
+      form: ['A', 'A', 'B'],
+    },
     // The results screen.
     victory: {
       bpm: 120, swing: 0, key: 60, scale: 'major', bassKey: 36, bassStyle: 'synth', level: 0.96, mix: { drums: 0.8, bass: 0.85, comp: 0.8, arp: 0.7, lead: 0.85 },

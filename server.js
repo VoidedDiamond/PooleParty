@@ -18,6 +18,7 @@ const { Codenames } = require('./games/codenames');
 const { Password } = require('./games/password');
 const { Scattergories } = require('./games/scattergories');
 const { Hangman } = require('./games/hangman');
+const { Cubes } = require('./games/cubes');
 const { Neanderthals } = require('./games/neanderthals');
 const content = require('./games/content');
 const { Announcer } = require('./games/announcer');
@@ -114,6 +115,7 @@ const GAMES = {
   scattergories: { min: 1, make: (opts) => new Scattergories(players, broadcast, { source: sources.scattergories }) },
   hangman: { min: 2, make: (opts) => new Hangman(players, broadcast, { source: sources.hangman }) },
   neanderthals: { min: 2, make: (opts) => new Neanderthals(players, broadcast, { source: sources.neanderthals, mode: opts.mode }) },
+  cubes: { min: 1, make: (opts) => new Cubes(players, broadcast, { level: opts.level }) },
 };
 
 houseSettings.load(__dirname);

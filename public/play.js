@@ -275,8 +275,7 @@ function confirmSheet(title, note, okLabel) {
     el.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><p class="say">${esc(title)}</p><p class="note">${esc(note)}</p>
       <button class="primary" data-ok>${esc(okLabel)}</button><button class="ghost big" data-cancel>Keep playing</button></div>`;
     const done = ok => { el.classList.remove('show'); setTimeout(() => el.remove(), 180); resolve(ok); };
-    el.addEventListener('change', e => { if (e.target.id === 'voiceSel') act('voiceName', { name: e.target.value || null }); });
-  el.onclick = e => {
+    el.onclick = e => {
       if (e.target.closest('[data-ok]')) done(true);
       else if (e.target === el || e.target.closest('[data-cancel]')) done(false);
     };
@@ -304,8 +303,7 @@ function wireRename(me) {
       localStorage.setItem(LS_NAME, name);
       close();
     };
-    el.addEventListener('change', e => { if (e.target.id === 'voiceSel') act('voiceName', { name: e.target.value || null }); });
-  el.onclick = e => {
+    el.onclick = e => {
       if (e.target.closest('[data-ok]')) save();
       else if (e.target === el || e.target.closest('[data-cancel]')) close();
     };
@@ -321,7 +319,7 @@ function wireHostBar() {
   if ($('#hostSound')) $('#hostSound').onclick = openSettings;
 }
 
-const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals'];
+const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes'];
 const headHTML = (me, score, editable = false) => `<div class="me" style="--color:${me.color}"><b>${esc(me.name)}</b>${editable
   ? `<button class="ghost me-edit" id="renameBtn">${icon('pencil')} Change name</button>`
   : score == null ? '' : `<span class="${score.neg ? 'neg' : ''}">${score.text}</span>`}</div>`;

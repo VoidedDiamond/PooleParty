@@ -123,6 +123,17 @@ const Announcer = (() => {
       return [{ kind: 'right', name: list(right), pri: 1, fact }];
     },
 
+    cubes(a, b) {
+      if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
+      const rs = b.results || [];
+      const exact = rs.filter(r => r.off === 0).map(r => nm(b, r.id)).filter(Boolean);
+      const said = rs.map(r => `${nm(b, r.id)} said ${r.n}`).join(', ');
+      const fact = `Count the Cubes: a stack of cubes flashed on the TV and there were ${b.count}. ${said || 'Nobody answered'}. ${exact.length ? `Exactly right: ${list(exact)}.` : 'Nobody got it exactly.'}`;
+      if (exact.length) return [{ kind: 'right', name: list(exact), pri: 1, fact }];
+      const close = rs.slice().sort((x, y) => x.off - y.off)[0];
+      return [close && close.pts ? { kind: 'right', name: nm(b, close.id), pri: 1, fact: `${fact} Closest: ${nm(b, close.id)}, off by ${close.off}.` } : { kind: 'nobody', answer: String(b.count), fact }];
+    },
+
     moviereveal(a, b) {
       if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
       return [b.winnerName ? { kind: 'right', name: b.winnerName, fact: `Name That Disney Movie: ${b.winnerName} guessed ${q(b.movie)} after ${(b.clues || []).length} clue(s).` }
@@ -210,6 +221,7 @@ const Announcer = (() => {
       const c = b.clue, ca = a.clue;
       return c && c.word && (!ca || ca.word !== c.word || ca.number !== c.number) ? `${(b.teams && b.teams[b.turn] || {}).name || 'Next team'}: ${c.word}, ${c.number}.` : null;
     },
+    cubes(a, b) { return b.phase === 'show' && (a.phase !== 'show' || a.round !== b.round) ? `Round ${b.round}. Count the cubes!` : null; },
     scattergories(a, b) { return b.phase === 'writing' && a.phase !== 'writing' && b.letter ? `The letter is ${b.letter}.` : null; },
     tshirt(a, b) { return b.phase === 'drawing' && a.phase !== 'drawing' && b.prompt ? `Your prompt: ${b.prompt}` : null; },
   };

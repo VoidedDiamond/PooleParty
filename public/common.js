@@ -2,7 +2,7 @@
 // Per-game client modules register here: GAMES.<name>.tv, .phone, .console
 const GAMES = {
   jeopardy: {}, feud: {}, wheel: {}, wavelength: {}, pictionary: {}, tshirt: {}, trivia: {}, moviereveal: {},
-  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {},
+  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {},
 };
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
@@ -27,6 +27,7 @@ const GLYPHS = {
   'list-checks': '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
   bone: '<path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/>',
   gallows: '<path d="M3 21h8"/><path d="M7 21V3h9v3"/><circle cx="16" cy="8.5" r="2.5"/><path d="M16 11v5"/><path d="m13.5 14.5 2.5-2 2.5 2"/><path d="m14 19.5 2-3.5 2 3.5"/>',
+  box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
   crown: '<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>',
   timer: '<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
   play: '<polygon points="6 3 20 12 6 21 6 3"/>',
@@ -67,6 +68,7 @@ const GAME_META = {
   scattergories: { glyph: 'list-checks', color: '#74b816' },
   hangman: { glyph: 'gallows', color: '#1c7ed6' },
   neanderthals: { glyph: 'bone', color: '#c2410c' },
+  cubes: { glyph: 'box', color: '#343a40' },
 };
 
 // icon('crown') -> a stroke glyph that inherits the surrounding text color; icon('jeopardy') ->
@@ -151,6 +153,9 @@ const GAME_MENU = [
   { id: 'hangman', name: 'Hangman', tagline: 'Crack the word letter by letter', min: 2 },
   { id: 'neanderthals', name: 'Neanderthals', tagline: 'Hint in one syllable. Ugh.', min: 2, dynamic: s =>
     s.players.length >= 4 ? [{ key: 'teams', label: 'Teams: Glad vs Mad', opts: { mode: 'teams' } }, { key: 'solo', label: 'Everyone for themselves', opts: { mode: 'solo' } }] : null },
+  { id: 'cubes', name: 'Count the Cubes', tagline: 'A stack flashes up. How many?', min: 1, dynamic: () => [
+    { key: 'normal', label: 'Normal', opts: { level: 'normal' } }, { key: 'hard', label: 'Hard', opts: { level: 'hard' } },
+  ] },
 ];
 const gameVariants = (entry, s) => (entry.dynamic ? entry.dynamic(s) : null);
 
@@ -227,6 +232,12 @@ const GAME_INSTRUCTIONS = {
     'Six wrong guesses and the hangman is complete — the round ends either way.',
     'Guessers score per correct letter, plus a bonus for solving. A wrong letter costs you 10 points, a wrong solve 25.',
     'The theme giver scores more the longer it takes and the more wrong guesses happen.',
+  ] },
+  cubes: { title: 'Count the Cubes', rules: [
+    'A stack of cubes flashes up on the TV for a few seconds, then disappears.',
+    'Type how many cubes there were on your phone. Count the hidden ones too: every cube sits on the floor or on another cube.',
+    'Exactly right scores 100, plus up to 50 for answering fast. Off by one scores 50, off by two scores 20.',
+    'Ten rounds. The stacks get bigger and the flashes get shorter.',
   ] },
   neanderthals: { title: 'Neanderthals', rules: [
     'Take turns as the Poet: 90 seconds to get through as many cards as you can. Everyone is the Poet equally often.',

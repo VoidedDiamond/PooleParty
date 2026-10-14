@@ -2,7 +2,7 @@
 
 Jackbox-style game night on your own network. One laptop runs the server and shows the game on the TV. Everyone else plays from their phone browser. No account, no app, no internet needed once it is set up.
 
-Thirteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, and Neanderthals. No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
+Fourteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, and Count the Cubes. No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
 
 ## Run it
 
@@ -122,6 +122,14 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 ### Hangman
 - One player per round picks a theme (from 3 choices) and a secret word from it is drawn automatically. Everyone else taps letters on their phone or types a guess for the whole thing.
 - Six misses completes the figure and ends the round. Guessers score for each letter they found, plus a bonus for solving, and lose 10 points for a wrong letter (25 for a wrong solve); the theme picker scores more the longer the group struggles.
+
+### Count the Cubes
+Inspired by the block-counting puzzle in Big Brain Academy. **Normal** or **Hard**.
+- A stack of cubes on a 5x5 grid flashes up on the TV for a few seconds, then disappears. Everyone types how many cubes there were on a keypad on their phone.
+- Every cube sits on the floor or on another cube, so count the ones hidden underneath too.
+- Exactly right scores 100, plus up to 50 for answering fast. Off by one scores 50, off by two scores 20.
+- The TV then rebuilds the stack layer by layer, counting up, before showing who was closest.
+- Ten rounds. Stacks grow from about 5 cubes to 26 (10 to 38 on Hard) and the flashes get shorter (7 seconds down to 4; 5 down to 2.5 on Hard). The phones never get the stack, only the TV shows it.
 
 ### Neanderthals
 Based on the rules of Poetry for Neanderthals. Two ways to play: **Teams** (Team Glad vs Team Mad, 4+ players) or **Everyone for themselves**.
@@ -323,7 +331,7 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     server.js               sockets, players, game menu, reconnect tokens, live-stroke relay
     games/                  jeopardy.js, feud.js, wheel.js, wavelength.js,
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
-                             match.js, content.js
+                             cubes.js (makes the stacks itself, no content), match.js, content.js
     games/announcer.js      host voice lines (classic, or written by Claude)
     games/judge.js          the AI answer judge (second look at rejected answers)
     games/quizmaker.js      Claude-written wrong options for multiple-choice Jeopardy

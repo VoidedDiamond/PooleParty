@@ -89,6 +89,12 @@
       "loopStart": 1,
       "loopEnd": 17,
       "gain": 1.3685
+    },
+    "cubes": {
+      "file": "music/cubes.mp3",
+      "loopStart": 1,
+      "loopEnd": 34.10344671201814,
+      "gain": 1.3443
     }
   },
   "sfx": {
@@ -233,5 +239,5 @@
       "gain": 1
     }
   },
-  "generated": "2026-10-06T23:33:25.466Z"
+  "generated": "2026-10-14T23:39:05.695Z"
 }
