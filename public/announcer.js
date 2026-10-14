@@ -134,6 +134,13 @@ const Announcer = (() => {
       return [close && close.pts ? { kind: 'right', name: nm(b, close.id), pri: 1, fact: `${fact} Closest: ${nm(b, close.id)}, off by ${close.off}.` } : { kind: 'nobody', answer: String(b.count), fact }];
     },
 
+    scales(a, b) {
+      if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
+      const right = (b.results || []).filter(r => r.correct).map(r => nm(b, r.id)).filter(Boolean);
+      const fact = `Tip the Scales: seesaws compared shapes and the question was which is the ${b.ask}. It was the ${b.answer}. ${right.length ? `Got it: ${list(right)}.` : 'Nobody got it.'}`;
+      return [right.length ? { kind: 'right', name: list(right), pri: 1, fact } : { kind: 'nobody', answer: `the ${b.answer}`, fact }];
+    },
+
     moviereveal(a, b) {
       if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
       return [b.winnerName ? { kind: 'right', name: b.winnerName, fact: `Name That Disney Movie: ${b.winnerName} guessed ${q(b.movie)} after ${(b.clues || []).length} clue(s).` }
@@ -221,6 +228,7 @@ const Announcer = (() => {
       const c = b.clue, ca = a.clue;
       return c && c.word && (!ca || ca.word !== c.word || ca.number !== c.number) ? `${(b.teams && b.teams[b.turn] || {}).name || 'Next team'}: ${c.word}, ${c.number}.` : null;
     },
+    scales(a, b) { return b.phase === 'question' && (a.phase !== 'question' || a.round !== b.round) ? `Round ${b.round}. Which is the ${b.ask}?` : null; },
     cubes(a, b) { return b.phase === 'show' && (a.phase !== 'show' || a.round !== b.round) ? `Round ${b.round}. Count the cubes!` : null; },
     scattergories(a, b) { return b.phase === 'writing' && a.phase !== 'writing' && b.letter ? `The letter is ${b.letter}.` : null; },
     tshirt(a, b) { return b.phase === 'drawing' && a.phase !== 'drawing' && b.prompt ? `Your prompt: ${b.prompt}` : null; },

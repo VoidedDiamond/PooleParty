@@ -2,7 +2,7 @@
 
 Jackbox-style game night on your own network. One laptop runs the server and shows the game on the TV. Everyone else plays from their phone browser. No account, no app, no internet needed once it is set up.
 
-Fourteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, and Count the Cubes. No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
+Fifteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, Count the Cubes, and Tip the Scales. No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
 
 ## Run it
 
@@ -130,6 +130,13 @@ Inspired by the block-counting puzzle in Big Brain Academy. **Normal** or **Hard
 - Exactly right scores 100, plus up to 50 for answering fast. Off by one scores 50, off by two scores 20.
 - The TV then rebuilds the stack layer by layer, counting up, before showing who was closest.
 - Ten rounds. Stacks grow from about 5 cubes to 26 (10 to 38 on Hard) and the flashes get shorter (7 seconds down to 4; 5 down to 2.5 on Hard). The phones never get the stack, only the TV shows it.
+
+### Tip the Scales
+Inspired by the balance puzzles in Big Brain Academy.
+- Seesaws on the TV each compare two shapes; the heavier side goes down. Tap the shape you think is the heaviest on your phone. From round 4, some rounds ask for the lightest instead.
+- The seesaws always point to exactly one answer, but you often have to chain them ("the star beats the triangle, the triangle beats the diamond...").
+- Right answers score 100, plus up to 50 for answering fast. The reveal shows every shape from heaviest to lightest.
+- Ten rounds: 3 shapes at first, then 4, then 5, with less time as you go (20 seconds down to 13).
 
 ### Neanderthals
 Based on the rules of Poetry for Neanderthals. Two ways to play: **Teams** (Team Glad vs Team Mad, 4+ players) or **Everyone for themselves**.
@@ -331,7 +338,7 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     server.js               sockets, players, game menu, reconnect tokens, live-stroke relay
     games/                  jeopardy.js, feud.js, wheel.js, wavelength.js,
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
-                             cubes.js (makes the stacks itself, no content), match.js, content.js
+                             cubes.js and scales.js (make their own puzzles, no content), match.js, content.js
     games/announcer.js      host voice lines (classic, or written by Claude)
     games/judge.js          the AI answer judge (second look at rejected answers)
     games/quizmaker.js      Claude-written wrong options for multiple-choice Jeopardy

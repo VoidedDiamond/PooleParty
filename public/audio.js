@@ -855,6 +855,25 @@ const Sound = (() => {
       },
       form: ['A', 'A', 'B'],
     },
+    // Tip the Scales: a light, bouncy see-saw waltz feel (in 4) with pizzicato and bells.
+    scales: {
+      bpm: 104, swing: 0.12, key: 63, scale: 'major', bassKey: 39, bassStyle: 'upright', level: 0.9, mix: { drums: 0.65, bass: 0.85, comp: 0.8, arp: 0.75, lead: 0.85 },
+      sections: {
+        A: {
+          chords: ['I', 'V7', 'I', 'IV'],
+          drums: { k: 'x.......x.......', r: '....x.......x...', p: '..x...x...x...x.' },
+          bass: 'R.......5.......', comp: { inst: 'strings', pat: '....x.x.....x.x.' },
+          arp: { inst: 'pluck', pat: '1.3.5.3.1.3.5.3.' },
+        },
+        B: {
+          chords: ['vi', 'ii7', 'V7', 'I', 'vi', 'ii7', 'V7', 'V7'],
+          drums: { k: 'x.......x.......', r: '....x.......x...', p: '..x...x...x...x.' },
+          bass: 'R.......5...3...', comp: { inst: 'strings', pat: '....x.x.....x.x.' },
+          lead: { inst: 'bell', notes: '0:5:4 4:4:2 6:5:2 8:7:8 16:6:4 20:5:2 22:4:2 24:3:8 32:4:4 36:3:2 38:2:2 40:1:8 48:4:4 52:3:4 56:2:8 64:5:4 68:4:2 70:5:2 72:7:8 80:8:4 84:7:2 86:6:2 88:5:8 96:4:4 100:3:4 104:2:4 108:1:4 112:4:16' },
+        },
+      },
+      form: ['A', 'A', 'B'],
+    },
     // The results screen.
     victory: {
       bpm: 120, swing: 0, key: 60, scale: 'major', bassKey: 36, bassStyle: 'synth', level: 0.96, mix: { drums: 0.8, bass: 0.85, comp: 0.8, arp: 0.7, lead: 0.85 },

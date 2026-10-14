@@ -95,6 +95,12 @@
       "loopStart": 1,
       "loopEnd": 34.10344671201814,
       "gain": 1.3443
+    },
+    "scales": {
+      "file": "music/scales.mp3",
+      "loopStart": 1,
+      "loopEnd": 37.92308390022676,
+      "gain": 1.1046
     }
   },
   "sfx": {
@@ -239,5 +245,5 @@
       "gain": 1
     }
   },
-  "generated": "2026-10-14T23:39:05.695Z"
+  "generated": "2026-10-14T23:52:03.080Z"
 }

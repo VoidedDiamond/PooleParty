@@ -2,7 +2,7 @@
 // Per-game client modules register here: GAMES.<name>.tv, .phone, .console
 const GAMES = {
   jeopardy: {}, feud: {}, wheel: {}, wavelength: {}, pictionary: {}, tshirt: {}, trivia: {}, moviereveal: {},
-  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {},
+  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {}, scales: {},
 };
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
@@ -28,6 +28,8 @@ const GLYPHS = {
   bone: '<path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/>',
   gallows: '<path d="M3 21h8"/><path d="M7 21V3h9v3"/><circle cx="16" cy="8.5" r="2.5"/><path d="M16 11v5"/><path d="m13.5 14.5 2.5-2 2.5 2"/><path d="m14 19.5 2-3.5 2 3.5"/>',
   box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  scale: '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+  'chevron-right': '<path d="m9 18 6-6-6-6"/>',
   crown: '<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>',
   timer: '<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>',
   play: '<polygon points="6 3 20 12 6 21 6 3"/>',
@@ -69,6 +71,7 @@ const GAME_META = {
   hangman: { glyph: 'gallows', color: '#1c7ed6' },
   neanderthals: { glyph: 'bone', color: '#c2410c' },
   cubes: { glyph: 'box', color: '#343a40' },
+  scales: { glyph: 'scale', color: '#a61e4d' },
 };
 
 // icon('crown') -> a stroke glyph that inherits the surrounding text color; icon('jeopardy') ->
@@ -156,6 +159,7 @@ const GAME_MENU = [
   { id: 'cubes', name: 'Count the Cubes', tagline: 'A stack flashes up. How many?', min: 1, dynamic: () => [
     { key: 'normal', label: 'Normal', opts: { level: 'normal' } }, { key: 'hard', label: 'Hard', opts: { level: 'hard' } },
   ] },
+  { id: 'scales', name: 'Tip the Scales', tagline: 'Which shape is heaviest?', min: 1 },
 ];
 const gameVariants = (entry, s) => (entry.dynamic ? entry.dynamic(s) : null);
 
@@ -239,6 +243,12 @@ const GAME_INSTRUCTIONS = {
     'Exactly right scores 100, plus up to 50 for answering fast. Off by one scores 50, off by two scores 20.',
     'Ten rounds. The stacks get bigger and the flashes get shorter.',
   ] },
+  scales: { title: 'Tip the Scales', rules: [
+    'Seesaws on the TV show which shape outweighs which. The heavier side goes down.',
+    'Work out which shape is the heaviest and tap it on your phone. You may need to chain the seesaws together.',
+    'Read the question: from round 4, some rounds ask for the lightest instead.',
+    'Right answers score 100, plus up to 50 for answering fast. Ten rounds, with more shapes as you go.',
+  ] },
   neanderthals: { title: 'Neanderthals', rules: [
     'Take turns as the Poet: 90 seconds to get through as many cards as you can. Everyone is the Poet equally often.',
     'Each card has a 1-point word and a 3-point phrase. Get the word, then go for the phrase or move on.',
@@ -294,6 +304,30 @@ function send(socket, type, payload) {
 }
 
 // Draining timer bar. Animation restarts on each render with the true remaining time.
+// Tip the Scales shapes, drawn in a 100x100 box (shared by the TV and phones).
+const SCALE_SHAPES = (() => {
+  const star = Array.from({ length: 10 }, (_, i) => { const r = i % 2 ? 19 : 46, a = -Math.PI / 2 + i * Math.PI / 5; return `${(50 + r * Math.cos(a)).toFixed(1)},${(53 + r * Math.sin(a)).toFixed(1)}`; }).join(' ');
+  const hex = Array.from({ length: 6 }, (_, i) => { const a = Math.PI / 6 + i * Math.PI / 3; return `${(50 + 44 * Math.cos(a)).toFixed(1)},${(50 + 44 * Math.sin(a)).toFixed(1)}`; }).join(' ');
+  return {
+    circle: '<circle cx="50" cy="50" r="42"/>',
+    square: '<rect x="11" y="11" width="78" height="78" rx="9"/>',
+    triangle: '<polygon points="50,8 93,88 7,88" stroke-linejoin="round"/>',
+    star: `<polygon points="${star}" stroke-linejoin="round"/>`,
+    heart: '<path d="M50 90C22 68 6 52 9 32 12 13 37 8 50 27 63 8 88 13 91 32 94 52 78 68 50 90Z"/>',
+    diamond: '<polygon points="50,5 91,50 50,95 9,50" stroke-linejoin="round"/>',
+    moon: '<path d="M60 7A44 44 0 1 0 93 66 34 34 0 1 1 60 7Z" stroke-linejoin="round"/>',
+    hexagon: `<polygon points="${hex}" stroke-linejoin="round"/>`,
+  };
+})();
+const shapeName = id => id.charAt(0).toUpperCase() + id.slice(1);
+// The shape's SVG content in its 100x100 box: the shape, plus two little eyes.
+function shapeInner(id, color) {
+  const ey = id === 'triangle' ? 62 : 50;
+  return `<g fill="${color}" stroke="rgba(0,0,0,.45)" stroke-width="4">${SCALE_SHAPES[id] || ''}</g>
+    <circle cx="40" cy="${ey}" r="4.5" fill="#1b1b1b"/><circle cx="60" cy="${ey}" r="4.5" fill="#1b1b1b"/>`;
+}
+const shapeSVG = (id, color, cls = '') => `<svg class="shape ${cls}" viewBox="0 0 100 100" role="img" aria-label="${shapeName(id)}">${shapeInner(id, color)}</svg>`;
+
 function bar(endsAt, totalMs) {
   if (!endsAt) return '';
   const left = Math.max(0, endsAt - serverNow());
