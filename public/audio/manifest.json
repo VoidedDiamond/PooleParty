@@ -107,6 +107,12 @@
       "loopStart": 1,
       "loopEnd": 31,
       "gain": 1.1395
+    },
+    "flip7": {
+      "file": "music/flip7.mp3",
+      "loopStart": 1,
+      "loopEnd": 33,
+      "gain": 1.3425
     }
   },
   "sfx": {
@@ -251,5 +257,5 @@
       "gain": 1
     }
   },
-  "generated": "2026-10-15T00:46:53.103Z"
+  "generated": "2026-10-15T01:08:11.445Z"
 }

@@ -2,7 +2,7 @@
 
 Jackbox-style game night on your own network. One laptop runs the server and shows the game on the TV. Everyone else plays from their phone browser. No account, no app, no internet needed once it is set up.
 
-Eighteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, and Brain Games (Count the Cubes, Tip the Scales, Memory Flash, Quick Math, Pop in Order). No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
+Nineteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, Flip 7 (and Flip 7: With a Vengeance), and Brain Games (Count the Cubes, Tip the Scales, Memory Flash, Quick Math, Pop in Order). No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
 
 ## Run it
 
@@ -126,6 +126,15 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 ### Hangman
 - One player per round picks a theme (from 3 choices) and a secret word from it is drawn automatically. Everyone else taps letters on their phone or types a guess for the whole thing.
 - Six misses completes the figure and ends the round. Guessers score for each letter they found, plus a bonus for solving, and lose 10 points for a wrong letter (25 for a wrong solve); the theme picker scores more the longer the group struggles.
+
+### Flip 7 / Flip 7: With a Vengeance
+Based on the card games by The Op. Pick **Flip 7** or **With a Vengeance**, to 200 points or a quick game to 100. The TV shows everyone's cards; your phone is your hand.
+- On your turn, **Hit** (flip a card) or **Stay** (bank your points). A number you already have **busts** you: no points that round. Seven number cards is a **Flip 7**: +15, and the round ends for everyone.
+- **Flip 7** deck (94 cards): numbers 0-12 (one 0, one 1, two 2s ... twelve 12s), bonus cards +2 to +10 and x2 (doubles your numbers, then the bonuses are added), and three each of Freeze (you pick who banks and sits out), Flip Three (you pick who flips three in a row) and Second Chance (saves you from one duplicate; a second one has to go to another player). Action cards flipped during a Flip Three are played after the three flips.
+- **With a Vengeance** deck (108 cards): numbers 1-13 (n copies of n) where one 7 is **Unlucky 7** (throw away your numbers and modifiers, keeping only it) and one 13 is **Lucky 13** (you can hold two 13s), plus **The Zero** (your round scores 0 unless you Flip 7). Modifiers −2 to −10 and ÷2 go on any player still in the round, chosen by whoever flipped them. Two each of Just One More (that player flips one card, then must stay), Flip Four, Steal (take any card from another player), Discard (bin any card on the table) and Swap (trade two cards between two players; a swapped-in duplicate busts). These can hit players who already stayed.
+- Scoring: Flip 7 adds up your numbers, doubles them for x2, then adds bonuses. Vengeance halves for ÷2, then subtracts, never below 0. First to the target after a round wins.
+- The printed Vengeance rulebook wasn't available to check, so a few details are best guesses: The Zero doesn't force you to keep hitting, stolen or swapped duplicates bust, and a player who busts before playing a card they flipped loses it.
+- Turns time out after 30 seconds (the player stays) and choices after 25 (picked at random), so an absent player never holds up the table.
 
 ### Brain Games
 One tile on the menu holds the quick puzzle games, inspired by Big Brain Academy. Pick one from the host's phone: Count the Cubes (Normal or Hard), Tip the Scales, Memory Flash, Quick Math, or Pop in Order.
@@ -358,7 +367,7 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     games/                  jeopardy.js, feud.js, wheel.js, wavelength.js,
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
                              cubes.js, scales.js, memory.js, quickmath.js, popinorder.js
-                             (brain games; race.js is the shared race engine), match.js, content.js
+                             (brain games; race.js is the shared race engine), flip7.js, match.js, content.js
     games/announcer.js      host voice lines (classic, or written by Claude)
     games/judge.js          the AI answer judge (second look at rejected answers)
     games/quizmaker.js      Claude-written wrong options for multiple-choice Jeopardy

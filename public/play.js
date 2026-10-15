@@ -255,7 +255,7 @@ function introScreen(s, amHost) {
   const action = amHost
     ? `<button class="primary" id="startNow">${icon('play')} Start the game</button>`
     : `<p class="note">Get ready. ${host ? esc(host.name) : 'The host'} will start it any second.</p>`;
-  return `${introHTML(s.game)}${action}${bar(s.endsAt, s.windowMs)}`;
+  return `${introHTML(s.game, s.rules)}${action}${bar(s.endsAt, s.windowMs)}`;
 }
 
 // ---- a small bar so the host can end or restart a game from their phone --
@@ -319,7 +319,7 @@ function wireHostBar() {
   if ($('#hostSound')) $('#hostSound').onclick = openSettings;
 }
 
-const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder'];
+const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7'];
 const headHTML = (me, score, editable = false) => `<div class="me" style="--color:${me.color}"><b>${esc(me.name)}</b>${editable
   ? `<button class="ghost me-edit" id="renameBtn">${icon('pencil')} Change name</button>`
   : score == null ? '' : `<span class="${score.neg ? 'neg' : ''}">${score.text}</span>`}</div>`;

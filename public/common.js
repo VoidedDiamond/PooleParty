@@ -2,7 +2,7 @@
 // Per-game client modules register here: GAMES.<name>.tv, .phone, .console
 const GAMES = {
   jeopardy: {}, feud: {}, wheel: {}, wavelength: {}, pictionary: {}, tshirt: {}, trivia: {}, moviereveal: {},
-  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {}, scales: {}, memory: {}, quickmath: {}, popinorder: {},
+  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {}, scales: {}, memory: {}, quickmath: {}, popinorder: {}, flip7: {},
 };
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
@@ -28,6 +28,7 @@ const GLYPHS = {
   bone: '<path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/>',
   gallows: '<path d="M3 21h8"/><path d="M7 21V3h9v3"/><circle cx="16" cy="8.5" r="2.5"/><path d="M16 11v5"/><path d="m13.5 14.5 2.5-2 2.5 2"/><path d="m14 19.5 2-3.5 2 3.5"/>',
   box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  cards: '<rect width="12" height="16" x="3" y="6" rx="2"/><path d="M9 3.5 17.7 2a2 2 0 0 1 2.3 1.6l2 11.8a2 2 0 0 1-1.6 2.3L18 18"/><path d="M9 11h.01"/>',
   brain: '<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/>',
   'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
   calculator: '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
@@ -80,6 +81,7 @@ const GAME_META = {
   quickmath: { glyph: 'calculator', color: '#e67700' },
   popinorder: { glyph: 'bubbles', color: '#12b886' },
   brain: { glyph: 'brain', color: '#f06595' },
+  flip7: { glyph: 'cards', color: '#e8590c' },
 };
 
 // icon('crown') -> a stroke glyph that inherits the surrounding text color; icon('jeopardy') ->
@@ -164,6 +166,12 @@ const GAME_MENU = [
   { id: 'hangman', name: 'Hangman', tagline: 'Crack the word letter by letter', min: 2 },
   { id: 'neanderthals', name: 'Neanderthals', tagline: 'Hint in one syllable. Ugh.', min: 2, dynamic: s =>
     s.players.length >= 4 ? [{ key: 'teams', label: 'Teams: Glad vs Mad', opts: { mode: 'teams' } }, { key: 'solo', label: 'Everyone for themselves', opts: { mode: 'solo' } }] : null },
+  { id: 'flip7', name: 'Flip 7', tagline: 'Push your luck. Don\'t flip a double!', min: 2, dynamic: () => [
+    { key: 'classic', label: 'Flip 7', opts: { variant: 'classic', target: 200 } },
+    { key: 'classic100', label: 'Flip 7 (quick, to 100)', opts: { variant: 'classic', target: 100 } },
+    { key: 'vengeance', label: 'With a Vengeance', opts: { variant: 'vengeance', target: 200, rules: 'flip7v' } },
+    { key: 'vengeance100', label: 'With a Vengeance (quick, to 100)', opts: { variant: 'vengeance', target: 100, rules: 'flip7v' } },
+  ] },
   // Brain Games: one tile, each variant starts its own game (opts.type picks it).
   { id: 'brain', name: 'Brain Games', tagline: 'Quick puzzles: count, weigh, remember, race', min: 1, dynamic: () => [
     { key: 'cubes', label: 'Count the Cubes', opts: { type: 'cubes', level: 'normal' } },
@@ -262,6 +270,18 @@ const GAME_INSTRUCTIONS = {
     'Read the question: from round 4, some rounds ask for the lightest instead.',
     'Right answers score 100, plus up to 50 for answering fast. Ten rounds, with more shapes as you go.',
   ] },
+  flip7: { title: 'Flip 7', rules: [
+    'On your turn, HIT to flip a card or STAY to bank your points for the round.',
+    'Flip a number you already have and you BUST: no points this round. Collect 7 different numbers to FLIP 7: +15, and the round ends.',
+    'Bonus cards: +2 to +10, and x2 doubles your numbers. Freeze makes someone bank and sit out, Flip Three makes someone flip three in a row, Second Chance saves you from one duplicate.',
+    'First to 200 (or 100 in the quick game) after a round wins.',
+  ] },
+  flip7v: { title: 'Flip 7: With a Vengeance', rules: [
+    'Same as Flip 7: HIT or STAY, a duplicate number busts you, 7 numbers is a FLIP 7 (+15). Numbers go up to 13.',
+    'Modifiers hurt: −2 to −10 and ÷2. Whoever flips one puts it on any player still in the round, even someone who stayed.',
+    'Just One More, Flip Four, Steal, Discard and Swap let you mess with anyone still in, stayed or not.',
+    'The Zero: your round scores 0 unless you Flip 7. Unlucky 7: throw away your numbers and modifiers. Lucky 13: you can hold two 13s.',
+  ] },
   memory: { title: 'Memory Flash', rules: [
     'A grid of pictures flashes up on the TV for a few seconds, then the cards turn over.',
     'Then one question: "Where was the apple?" (tap the spot on your phone) or "What was in the glowing spot?" (pick the picture).',
@@ -285,8 +305,8 @@ const GAME_INSTRUCTIONS = {
   ] },
 };
 // The intro card (badge, title, numbered rules), shared by the TV and phone intro screens.
-function introHTML(gameId) {
-  const info = GAME_INSTRUCTIONS[gameId];
+function introHTML(gameId, rulesKey) {
+  const info = GAME_INSTRUCTIONS[rulesKey] || GAME_INSTRUCTIONS[gameId];
   if (!info) return '';
   return `<div class="intro">
     <div class="intro-head">${gameBadge(gameId, 'lg')}<div><div class="kicker">How to play</div><div class="intro-title">${esc(info.title)}</div></div></div>

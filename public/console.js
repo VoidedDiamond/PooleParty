@@ -36,6 +36,8 @@ function hubPanel(s) {
       ${btn('Memory Flash', 'data-act="startGame" data-type="memory"', 'gold big')}
       ${btn('Quick Math', 'data-act="startGame" data-type="quickmath"', 'gold big')}
       ${btn('Pop in Order', 'data-act="startGame" data-type="popinorder"', 'gold big')}
+      ${btn('Flip 7', 'data-act="startGame" data-type="flip7" data-variant="classic"', 'gold big')}
+      ${btn('Flip 7: With a Vengeance', 'data-act="startGame" data-type="flip7" data-variant="vengeance" data-rules="flip7v"', 'gold big')}
       ${btn('Neanderthals', 'data-act="startGame" data-type="neanderthals"', 'gold big')}
     </div>
     <div class="meta">Jeopardy: ${esc(s.content.jeopardy)}. Family Feud: ${esc(s.content.feud)} (needs 2 or more players). Wheel: ${esc(s.content.wheel)}. Wavelength: ${esc(s.content.wavelength)} (needs 2 or more players). Pictionary: ${esc(s.content.pictionary)} (needs 2 or more players). T-Shirt Wars: ${esc(s.content.tshirt)} (needs 2 or more players). Movie Reveal: ${esc(s.content.moviereveal)}. Codenames: ${esc(s.content.codenames)} (needs 2 or more players). Password: ${esc(s.content.password)} (needs 2 or more players). Scattergories: ${esc(s.content.scattergories)}. Hangman: ${esc(s.content.hangman)} (needs 2 or more players). Neanderthals: ${esc(s.content.neanderthals)} (needs 2 or more players).</div>
@@ -149,9 +151,9 @@ function brainPanel(s) {
 }
 
 function playersPanel(s) {
-  const plainScore = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder'].includes(s.game);
+  const plainScore = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7'].includes(s.game);
   const adjustable = s.game === 'jeopardy' || s.game === 'wheel' || s.game === 'wavelength'
-    || s.game === 'pictionary' || s.game === 'tshirt' || s.game === 'trivia' || s.game === 'moviereveal' || ['cubes', 'scales', 'memory', 'quickmath', 'popinorder'].includes(s.game);
+    || s.game === 'pictionary' || s.game === 'tshirt' || s.game === 'trivia' || s.game === 'moviereveal' || ['cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7'].includes(s.game);
   const rows = s.players.map(p => `<tr>
     <td style="border-left:6px solid ${p.color}">${esc(p.name)}${p.connected ? '' : ' <span class="meta">(offline)</span>'}${p.id === s.controllerId ? ' <span class="meta">(has control)</span>' : ''}</td>
     <td class="num ${p.score < 0 ? 'neg' : ''}">${p.score === undefined ? '' : (plainScore ? p.score : money(p.score))}</td>
@@ -179,6 +181,9 @@ function render() {
   else if (s.game === 'cubes') main = cubesPanel(s);
   else if (s.game === 'scales') main = scalesPanel(s);
   else if (['memory', 'quickmath', 'popinorder'].includes(s.game)) main = brainPanel(s);
+  else if (s.game === 'flip7') main = `<div class="panel"><h2>${esc(s.title)}. Round ${s.round}. Phase: ${esc(s.phase)}</h2>
+    <div class="meta">${esc((s.log || []).map(l => l.text).join(' '))}</div>
+    <div class="btns">${btn(s.phase === 'roundEnd' ? 'Next round (S)' : 'Hurry the current player (S)', 'data-act="skip"', 'gold')}</div></div>`;
   const footer = s.game === 'hub' ? '' : `<div class="btns">${btn('Restart this game', 'data-act="reset"', 'quiet')}${btn('Back to game menu', 'data-act="toMenu"', 'quiet')}</div>`;
   app.innerHTML = `<div class="wrap">
     <h1>Host console <small>${esc(s.title)}${s.mode ? ` (${s.mode === 'choice' ? 'multiple choice' : 'typed answers'})` : ''}</small></h1>
@@ -222,5 +227,5 @@ document.addEventListener('keydown', e => {
       if (c.stage === 'reading') run('openNow');
       else if (c.stage === 'revealed') run('next');
     }
-  } else if (['feud', 'wheel', 'wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder'].includes(state.game) && k === 's') run('skip');
+  } else if (['feud', 'wheel', 'wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7'].includes(state.game) && k === 's') run('skip');
 });

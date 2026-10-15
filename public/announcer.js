@@ -141,6 +141,19 @@ const Announcer = (() => {
       return [right.length ? { kind: 'right', name: list(right), pri: 1, fact } : { kind: 'nobody', answer: `the ${b.answer}`, fact }];
     },
 
+    flip7(a, b) {
+      const out = [];
+      const was = new Map((a.rows || []).map(r => [r.id, r]));
+      for (const r of b.rows || []) {
+        const o = was.get(r.id);
+        if (!o) continue;
+        const cards = r.nums.map(c => c.label).join(', ');
+        if (r.flip7 && !o.flip7) out.push({ kind: 'flipseven', name: nm(b, r.id), pri: 3, fact: `${b.title}: ${nm(b, r.id)} collected seven number cards (${cards}) for a Flip 7, a 15-point bonus that ends the round.` });
+        else if (r.status === 'busted' && o.status !== 'busted') out.push({ kind: 'bust', name: nm(b, r.id), pri: r.nums.length >= 5 ? 2 : 1, fact: `${b.title}: ${nm(b, r.id)} kept flipping and drew a duplicate number. Bust: no points this round. They had ${cards}.` });
+      }
+      return out;
+    },
+
     memory(a, b) {
       if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
       const right = (b.results || []).filter(r => r.correct).map(r => nm(b, r.id)).filter(Boolean);

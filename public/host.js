@@ -98,7 +98,7 @@ function hubHTML(s) {
 // the host taps Start or the intro timer runs out.
 function introScreenHTML(s) {
   const host = findPlayer(s, s.hostId);
-  return `<div class="stage intro-stage">${introHTML(s.game)}
+  return `<div class="stage intro-stage">${introHTML(s.game, s.rules)}
     <div class="intro-foot">${bar(s.endsAt, s.windowMs)}
       <div class="intro-hint">${icon('smartphone')} ${host ? `${esc(host.name)} can start it now from their phone` : 'Starting in a moment'}</div></div>
   </div>`;

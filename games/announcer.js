@@ -109,6 +109,8 @@ const LINES = {
   miss: ['Ooh. Nobody was even close!', 'Way off, everybody! {name}, I think that clue needs work.', 'Not a single point on the board. Wow.'],
   bullseye: ['Bullseye! {name} is on the same wavelength!', '{name}, are you a mind reader?', 'Dead center! Unbelievable, {name}!'],
   thrownout: ['The group says no to {name}. Tough crowd!', "Thrown out! Sorry {name}, they didn't buy it."],
+  bust: ['Bust! {name}, you got greedy!', 'Ohh, a double! Sorry, {name}.', '{name} flew too close to the sun!'],
+  flipseven: ['Flip 7! {name}, you legend!', 'Seven cards! {name} cleans up!', 'FLIP SEVEN! Give it up for {name}!'],
   roundwin: ['Big round for {name}!', '{name} is heating up!', 'Somebody stop {name}!'],
   gameover: ['And the winner is... {name}! Congratulations!', "That's the game! {name}, take a bow!", '{name} wins it all tonight! Give it up!', 'Game over! {name}, you are the champion!'],
   tie: ["It's a tie! {name}, you share the crown!", 'We have a tie! Give it up for {name}!', 'Nobody could break the tie. Congratulations, {name}!'],

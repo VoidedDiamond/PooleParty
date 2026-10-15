@@ -893,6 +893,25 @@ const Sound = (() => {
       },
       form: ['A', 'A', 'B'],
     },
+    // Flip 7: a swinging casino-lounge shuffle with brass stabs.
+    flip7: {
+      bpm: 120, swing: 0.2, key: 62, scale: 'minor', bassKey: 38, bassStyle: 'upright', level: 0.9, mix: { drums: 0.75, bass: 0.9, comp: 0.85, arp: 0.6, lead: 0.85 },
+      sections: {
+        A: {
+          chords: ['i7', 'iv7', 'i7', 'V7'],
+          drums: { k: 'x.......x.......', s: '....x.......x...', h: 'x.xxx.xxx.xxx.xx', r: '......x.......x.' },
+          bass: 'R...5...8...5...', comp: { inst: 'brass', pat: '...x......x.....' },
+          arp: { inst: 'vibes', pat: '1...3...5...3...' },
+        },
+        B: {
+          chords: ['VImaj7', 'ii7', 'V7', 'i7', 'VImaj7', 'iv7', 'V7', 'V7'],
+          drums: { k: 'x.......x.......', s: '....x.......x...', h: 'x.xxx.xxx.xxx.xx', r: '......x.......x.' },
+          bass: 'R...5...8...7...', comp: { inst: 'brass', pat: '...x......x.....' },
+          lead: { inst: 'vibes', notes: '0:7:3 4:6:1 6:5:2 8:4:8 16:3:3 20:4:1 22:5:2 24:2:8 32:4:3 36:5:1 38:6:2 40:7:4 44:9:4 48:8:8 56:7:8 64:7:3 68:6:1 70:5:2 72:4:8 80:3:3 84:2:1 86:1:2 88:0:8 96:4:4 100:5:4 104:6:4 108:7:4 112:7:16' },
+        },
+      },
+      form: ['A', 'A', 'B'],
+    },
     // The results screen.
     victory: {
       bpm: 120, swing: 0, key: 60, scale: 'major', bassKey: 36, bassStyle: 'synth', level: 0.96, mix: { drums: 0.8, bass: 0.85, comp: 0.8, arp: 0.7, lead: 0.85 },

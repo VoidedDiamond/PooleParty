@@ -23,6 +23,7 @@ const { Scales } = require('./games/scales');
 const { Memory } = require('./games/memory');
 const { QuickMath } = require('./games/quickmath');
 const { PopInOrder } = require('./games/popinorder');
+const { Flip7 } = require('./games/flip7');
 const { Neanderthals } = require('./games/neanderthals');
 const content = require('./games/content');
 const { Announcer } = require('./games/announcer');
@@ -135,6 +136,7 @@ const GAMES = {
   memory: { min: 1, make: () => new Memory(players, broadcast) },
   quickmath: { min: 1, make: () => new QuickMath(players, broadcast) },
   popinorder: { min: 1, make: () => new PopInOrder(players, broadcast) },
+  flip7: { min: 2, make: (opts) => new Flip7(players, broadcast, { variant: opts.variant, target: opts.target }) },
 };
 
 houseSettings.load(__dirname);
@@ -200,6 +202,7 @@ function pruneAway() {
 function introView() {
   return {
     game: intro.type, phase: 'intro', endsAt: intro.endsAt, windowMs: INTRO_MS,
+    rules: (intro.opts && typeof intro.opts.rules === 'string' && intro.opts.rules) || intro.type, // a variant can have its own rules
     players: [...players.values()].map(p => ({ id: p.id, name: p.name, color: p.color, connected: p.connected, score: 0 })),
   };
 }
