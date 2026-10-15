@@ -874,6 +874,25 @@ const Sound = (() => {
       },
       form: ['A', 'A', 'B'],
     },
+    // Memory Flash, Quick Math, Pop in Order: a busy, bright "thinking cap" groove.
+    brain: {
+      bpm: 128, swing: 0, key: 64, scale: 'mixolydian', bassKey: 40, bassStyle: 'synth', level: 0.85, mix: { drums: 0.8, bass: 0.85, comp: 0.7, arp: 0.85, lead: 0.75 },
+      sections: {
+        A: {
+          chords: ['I', 'bVII', 'IV', 'I'],
+          drums: { k: 'x...x...x...x...', c: '....x.......x...', h: 'xxxxxxxxxxxxxxxx', b: '...x......x.....' },
+          bass: 'R.R.5.R.R.R.8.5.', comp: { inst: 'stab', pat: '..x..x....x..x..' },
+          arp: { inst: 'bell', pat: '1538153815381538' },
+        },
+        B: {
+          chords: ['vi', 'IV', 'bVII', 'V', 'vi', 'IV', 'bVII', 'V'],
+          drums: { k: 'x...x...x...x...', c: '....x.......x...', h: 'x.x.x.x.x.x.x.x.', b: '...x......x.....' },
+          bass: 'R.R.5.R.R.R.8.5.', comp: { inst: 'stab', pat: '..x..x....x..x..' },
+          lead: { inst: 'lead', notes: '0:4:2 2:5:2 4:7:4 8:6:2 10:5:2 12:4:4 16:3:2 18:4:2 20:5:4 24:4:8 32:4:2 34:5:2 36:7:4 40:8:2 42:9:2 44:8:4 48:7:8 56:6:8 64:4:2 66:5:2 68:7:4 72:6:2 74:5:2 76:4:4 80:3:2 82:4:2 84:5:4 88:7:8 96:6:4 100:5:4 104:4:4 108:2:4 112:4:16' },
+        },
+      },
+      form: ['A', 'A', 'B'],
+    },
     // The results screen.
     victory: {
       bpm: 120, swing: 0, key: 60, scale: 'major', bassKey: 36, bassStyle: 'synth', level: 0.96, mix: { drums: 0.8, bass: 0.85, comp: 0.8, arp: 0.7, lead: 0.85 },

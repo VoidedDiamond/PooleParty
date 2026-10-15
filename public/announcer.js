@@ -141,6 +141,24 @@ const Announcer = (() => {
       return [right.length ? { kind: 'right', name: list(right), pri: 1, fact } : { kind: 'nobody', answer: `the ${b.answer}`, fact }];
     },
 
+    memory(a, b) {
+      if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
+      const right = (b.results || []).filter(r => r.correct).map(r => nm(b, r.id)).filter(Boolean);
+      const what = b.kind === 'where' ? `where the ${b.ask.name} was` : `which picture was in the glowing spot (the ${b.answer.name})`;
+      const fact = `Memory Flash: pictures flashed on the TV, then players had to remember ${what}. ${right.length ? `Got it: ${list(right)}.` : 'Nobody remembered.'}`;
+      return [right.length ? { kind: 'right', name: list(right), pri: 1, fact } : { kind: 'nobody', fact }];
+    },
+
+    quickmath(a, b) { return D.racedone(a, b, 'Quick Math, a race to answer sums'); },
+    popinorder(a, b) { return D.racedone(a, b, 'Pop in Order, a race to pop numbered bubbles from smallest to largest'); },
+    racedone(a, b, what) {
+      if (b.phase !== 'results' || a.phase === 'results') return [];
+      const top = b.race.slice().sort((x, y) => y.pts - x.pts)[0];
+      if (!top || top.pts <= 0) return [];
+      const name = nm(b, top.id);
+      return [{ kind: 'roundwin', name, fact: `${what}: ${name} won round ${b.round} with ${top.pts} points (${top.right} right).` }];
+    },
+
     moviereveal(a, b) {
       if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
       return [b.winnerName ? { kind: 'right', name: b.winnerName, fact: `Name That Disney Movie: ${b.winnerName} guessed ${q(b.movie)} after ${(b.clues || []).length} clue(s).` }
@@ -227,6 +245,10 @@ const Announcer = (() => {
     codenames(a, b) {
       const c = b.clue, ca = a.clue;
       return c && c.word && (!ca || ca.word !== c.word || ca.number !== c.number) ? `${(b.teams && b.teams[b.turn] || {}).name || 'Next team'}: ${c.word}, ${c.number}.` : null;
+    },
+    memory(a, b) {
+      if (b.phase !== 'question' || a.phase === 'question') return null;
+      return b.kind === 'where' ? `Where was the ${b.ask.name}?` : 'What was in the glowing spot?';
     },
     scales(a, b) { return b.phase === 'question' && (a.phase !== 'question' || a.round !== b.round) ? `Round ${b.round}. Which is the ${b.ask}?` : null; },
     cubes(a, b) { return b.phase === 'show' && (a.phase !== 'show' || a.round !== b.round) ? `Round ${b.round}. Count the cubes!` : null; },

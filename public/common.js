@@ -2,7 +2,7 @@
 // Per-game client modules register here: GAMES.<name>.tv, .phone, .console
 const GAMES = {
   jeopardy: {}, feud: {}, wheel: {}, wavelength: {}, pictionary: {}, tshirt: {}, trivia: {}, moviereveal: {},
-  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {}, scales: {},
+  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {}, scales: {}, memory: {}, quickmath: {}, popinorder: {},
 };
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
@@ -28,6 +28,10 @@ const GLYPHS = {
   bone: '<path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/>',
   gallows: '<path d="M3 21h8"/><path d="M7 21V3h9v3"/><circle cx="16" cy="8.5" r="2.5"/><path d="M16 11v5"/><path d="m13.5 14.5 2.5-2 2.5 2"/><path d="m14 19.5 2-3.5 2 3.5"/>',
   box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  brain: '<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/>',
+  'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+  calculator: '<rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/>',
+  bubbles: '<circle cx="8" cy="15" r="5"/><circle cx="17" cy="8" r="4"/><circle cx="18.5" cy="18.5" r="2.5"/>',
   scale: '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
   'chevron-right': '<path d="m9 18 6-6-6-6"/>',
   crown: '<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z"/><path d="M5 21h14"/>',
@@ -72,6 +76,10 @@ const GAME_META = {
   neanderthals: { glyph: 'bone', color: '#c2410c' },
   cubes: { glyph: 'box', color: '#343a40' },
   scales: { glyph: 'scale', color: '#a61e4d' },
+  memory: { glyph: 'layout-grid', color: '#4263eb' },
+  quickmath: { glyph: 'calculator', color: '#e67700' },
+  popinorder: { glyph: 'bubbles', color: '#12b886' },
+  brain: { glyph: 'brain', color: '#f06595' },
 };
 
 // icon('crown') -> a stroke glyph that inherits the surrounding text color; icon('jeopardy') ->
@@ -156,10 +164,15 @@ const GAME_MENU = [
   { id: 'hangman', name: 'Hangman', tagline: 'Crack the word letter by letter', min: 2 },
   { id: 'neanderthals', name: 'Neanderthals', tagline: 'Hint in one syllable. Ugh.', min: 2, dynamic: s =>
     s.players.length >= 4 ? [{ key: 'teams', label: 'Teams: Glad vs Mad', opts: { mode: 'teams' } }, { key: 'solo', label: 'Everyone for themselves', opts: { mode: 'solo' } }] : null },
-  { id: 'cubes', name: 'Count the Cubes', tagline: 'A stack flashes up. How many?', min: 1, dynamic: () => [
-    { key: 'normal', label: 'Normal', opts: { level: 'normal' } }, { key: 'hard', label: 'Hard', opts: { level: 'hard' } },
+  // Brain Games: one tile, each variant starts its own game (opts.type picks it).
+  { id: 'brain', name: 'Brain Games', tagline: 'Quick puzzles: count, weigh, remember, race', min: 1, dynamic: () => [
+    { key: 'cubes', label: 'Count the Cubes', opts: { type: 'cubes', level: 'normal' } },
+    { key: 'cubeshard', label: 'Count the Cubes (Hard)', opts: { type: 'cubes', level: 'hard' } },
+    { key: 'scales', label: 'Tip the Scales', opts: { type: 'scales' } },
+    { key: 'memory', label: 'Memory Flash', opts: { type: 'memory' } },
+    { key: 'quickmath', label: 'Quick Math', opts: { type: 'quickmath' } },
+    { key: 'popinorder', label: 'Pop in Order', opts: { type: 'popinorder' } },
   ] },
-  { id: 'scales', name: 'Tip the Scales', tagline: 'Which shape is heaviest?', min: 1 },
 ];
 const gameVariants = (entry, s) => (entry.dynamic ? entry.dynamic(s) : null);
 
@@ -248,6 +261,21 @@ const GAME_INSTRUCTIONS = {
     'Work out which shape is the heaviest and tap it on your phone. You may need to chain the seesaws together.',
     'Read the question: from round 4, some rounds ask for the lightest instead.',
     'Right answers score 100, plus up to 50 for answering fast. Ten rounds, with more shapes as you go.',
+  ] },
+  memory: { title: 'Memory Flash', rules: [
+    'A grid of pictures flashes up on the TV for a few seconds, then the cards turn over.',
+    'Then one question: "Where was the apple?" (tap the spot on your phone) or "What was in the glowing spot?" (pick the picture).',
+    'Right answers score 100, plus up to 50 for answering fast. Ten rounds, and the grid grows.',
+  ] },
+  quickmath: { title: 'Quick Math', rules: [
+    'Everyone races through the same sums on their own phone. The TV shows the race.',
+    'Type the answer on the keypad. It checks as soon as you finish typing.',
+    'Right: +10. Wrong: a short freeze, then the next sum. Three 40-second rounds, each harder.',
+  ] },
+  popinorder: { title: 'Pop in Order', rules: [
+    'Bubbles with numbers appear on your phone. Pop them from smallest to largest.',
+    'Each right pop scores 2, a finished set adds 10. A wrong pop costs 5 and freezes you for a second.',
+    'Three 40-second rounds: small numbers, bigger numbers, then little sums to work out.',
   ] },
   neanderthals: { title: 'Neanderthals', rules: [
     'Take turns as the Poet: 90 seconds to get through as many cards as you can. Everyone is the Poet equally often.',

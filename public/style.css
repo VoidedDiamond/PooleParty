@@ -62,6 +62,9 @@
 :root[data-game="hangman"] { --bg: #1f2b35; --bg-deep: #151e26; --surface: #2a3843; --surface-hi: #364752; --accent: #ffd166; --accent-ink: #2b2000; --shadow: rgba(0, 0, 0, .45); }
 :root[data-game="cubes"] { --bg: #16324a; --bg-deep: #0e2336; --surface: #1d4060; --surface-hi: #285479; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 8, 20, .5); }
 :root[data-game="scales"] { --bg: #3a1030; --bg-deep: #290a22; --surface: #4d1641; --surface-hi: #661e56; --accent: #ffc94d; --accent-ink: #2b1d00; --shadow: rgba(20, 0, 15, .5); }
+:root[data-game="memory"] { --bg: #14275e; --bg-deep: #0c1a45; --surface: #1c3477; --surface-hi: #274494; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
+:root[data-game="quickmath"] { --bg: #3b2a07; --bg-deep: #2a1d03; --surface: #4f390c; --surface-hi: #694c12; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
+:root[data-game="popinorder"] { --bg: #07463a; --bg-deep: #04322a; --surface: #0b5a4b; --surface-hi: #11735f; --accent: #ffe066; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
 :root[data-game="neanderthals"] { --bg: #3b2514; --bg-deep: #2a190c; --surface: #4c301a; --surface-hi: #613f23; --accent: #ff9a3c; --accent-ink: #2b1400; --shadow: rgba(15, 6, 0, .5); }
 
 /* ---- Base ---------------------------------------------------------------- */
@@ -1055,3 +1058,46 @@ button.tile:active, button.tile:focus-visible { background: var(--surface-hi); }
 .sc-choice .shape { width: 72px; height: 72px; }
 .sc-pick { display: flex; justify-content: center; }
 .sc-pick .shape { width: 110px; height: 110px; }
+
+/* ---- Memory Flash ------------------------------------------------------------------------- */
+.tv .mf-main { align-items: center; justify-content: center; }
+.mf-grid { display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 1.6vh; height: 100%; aspect-ratio: calc(var(--cols) / var(--rows)); max-width: 100%; }
+.mf-card { position: relative; border-radius: var(--r); perspective: 800px; }
+.mf-card > div { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: var(--r); backface-visibility: hidden; transition: transform .5s ease; transition-delay: calc(var(--i) * 30ms); }
+.mf-face { background: #fff; font-size: min(11vh, 7vw); transform: rotateY(180deg); box-shadow: var(--lift); }
+.mf-back { background: var(--surface-hi); color: rgba(255, 255, 255, .35); font-family: var(--font-display); font-weight: 700; font-size: 6vh; box-shadow: var(--lift); }
+.mf-card.up .mf-face { transform: none; }
+.mf-card.up .mf-back { transform: rotateY(-180deg); }
+.mf-card.mark > div { outline: .7vh solid var(--accent); outline-offset: .4vh; }
+.mf-card.mark:not(.up) .mf-back { background: var(--accent); color: var(--accent-ink); animation: cbPulse 1.2s ease-in-out infinite; }
+.mf-target { font-size: 1.1em; }
+.mf-emoji { font-size: 1.3em; vertical-align: -.1em; }
+.mf-emoji.big { font-size: 2.6rem; }
+.mf-pgrid { display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 8px; }
+.mf-cell { aspect-ratio: 1; border: 0; border-radius: var(--r-sm); background: var(--surface-hi); color: rgba(255, 255, 255, .35); font-family: var(--font-display); font-weight: 700; font-size: 1.6rem; box-shadow: 0 3px 0 var(--shadow); }
+.mf-cell:active, .mf-opt:active { transform: translateY(2px); }
+.mf-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mf-opt { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 6px; border: 0; border-radius: var(--r); background: var(--surface-hi); color: var(--ink); font-family: var(--font-display); font-weight: 700; font-size: 1rem; box-shadow: 0 3px 0 var(--shadow); }
+
+/* ---- Brain-game races (Quick Math, Pop in Order) ------------------------------------------ */
+.tv .rc-main { justify-content: center; }
+.rc-count { font-family: var(--font-display); font-weight: 700; font-size: 30vh; line-height: 1; color: var(--accent); text-align: center; text-shadow: var(--lift); }
+.rc-count.bump { animation: cbBump .4s ease-out; }
+.rc-bars { display: flex; flex-direction: column; gap: 1.6vh; width: 100%; }
+.rc-row { display: grid; grid-template-columns: 12em 1fr 4em 9em 2em; align-items: center; gap: 1.2vw; font-size: 1.35em; }
+.rc-name { display: flex; align-items: center; gap: .5em; font-family: var(--font-display); font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.rc-name .dot { width: .8em; height: .8em; border-radius: 50%; background: var(--color); flex-shrink: 0; }
+.rc-track { height: 3.2vh; background: rgba(0, 0, 0, .3); border-radius: 99px; overflow: hidden; }
+.rc-fill { height: 100%; background: var(--color); border-radius: 99px; transition: width .35s ease; }
+.rc-pts { font-family: var(--font-display); text-align: right; }
+.rc-sub { opacity: .7; font-size: .8em; }
+.rc-crown { color: var(--accent); }
+.rc-top { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-display); font-size: 1.2rem; }
+.qm-problem { font-family: var(--font-display); font-weight: 700; font-size: 2.8rem; text-align: center; padding: 10px 0 0; }
+.rc-wrong { animation: rcShake .45s ease; color: #ff6b6b; }
+@keyframes rcShake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+.pp-area { position: relative; height: min(62vh, 480px); background: rgba(0, 0, 0, .22); border-radius: var(--r); overflow: hidden; }
+.pp-area.rc-wrong { box-shadow: inset 0 0 0 4px #ff6b6b; }
+.pp-bubble { position: absolute; transform: translate(-50%, -50%); width: 74px; height: 74px; border-radius: 50%; border: 0; background: radial-gradient(circle at 35% 30%, #fff 0 8%, #74c0fc 9% 60%, #339af0); color: #0b2540; font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; box-shadow: 0 4px 0 rgba(0, 0, 0, .25); transition: transform .12s, opacity .12s; }
+.pp-bubble.popping { transform: translate(-50%, -50%) scale(.85); }
+.pp-bubble.popped { opacity: 0; transform: translate(-50%, -50%) scale(1.5); pointer-events: none; }

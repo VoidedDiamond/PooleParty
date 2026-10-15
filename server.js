@@ -20,6 +20,9 @@ const { Scattergories } = require('./games/scattergories');
 const { Hangman } = require('./games/hangman');
 const { Cubes } = require('./games/cubes');
 const { Scales } = require('./games/scales');
+const { Memory } = require('./games/memory');
+const { QuickMath } = require('./games/quickmath');
+const { PopInOrder } = require('./games/popinorder');
 const { Neanderthals } = require('./games/neanderthals');
 const content = require('./games/content');
 const { Announcer } = require('./games/announcer');
@@ -129,6 +132,9 @@ const GAMES = {
   neanderthals: { min: 2, make: (opts) => new Neanderthals(players, broadcast, { source: sources.neanderthals, mode: opts.mode }) },
   cubes: { min: 1, make: (opts) => new Cubes(players, broadcast, { level: opts.level }) },
   scales: { min: 1, make: () => new Scales(players, broadcast) },
+  memory: { min: 1, make: () => new Memory(players, broadcast) },
+  quickmath: { min: 1, make: () => new QuickMath(players, broadcast) },
+  popinorder: { min: 1, make: () => new PopInOrder(players, broadcast) },
 };
 
 houseSettings.load(__dirname);

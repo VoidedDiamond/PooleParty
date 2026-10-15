@@ -2,7 +2,7 @@
 
 Jackbox-style game night on your own network. One laptop runs the server and shows the game on the TV. Everyone else plays from their phone browser. No account, no app, no internet needed once it is set up.
 
-Fifteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, Count the Cubes, and Tip the Scales. No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
+Eighteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, and Brain Games (Count the Cubes, Tip the Scales, Memory Flash, Quick Math, Pop in Order). No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
 
 ## Run it
 
@@ -127,6 +127,9 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 - One player per round picks a theme (from 3 choices) and a secret word from it is drawn automatically. Everyone else taps letters on their phone or types a guess for the whole thing.
 - Six misses completes the figure and ends the round. Guessers score for each letter they found, plus a bonus for solving, and lose 10 points for a wrong letter (25 for a wrong solve); the theme picker scores more the longer the group struggles.
 
+### Brain Games
+One tile on the menu holds the quick puzzle games, inspired by Big Brain Academy. Pick one from the host's phone: Count the Cubes (Normal or Hard), Tip the Scales, Memory Flash, Quick Math, or Pop in Order.
+
 ### Count the Cubes
 Inspired by the block-counting puzzle in Big Brain Academy. **Normal** or **Hard**.
 - A stack of cubes on a 5x5 grid flashes up on the TV for a few seconds, then disappears. Everyone types how many cubes there were on a keypad on their phone.
@@ -141,6 +144,18 @@ Inspired by the balance puzzles in Big Brain Academy.
 - The seesaws always point to exactly one answer, but you often have to chain them ("the star beats the triangle, the triangle beats the diamond...").
 - Right answers score 100, plus up to 50 for answering fast. The reveal shows every shape from heaviest to lightest.
 - Ten rounds: 3 shapes at first, then 4, then 5, with less time as you go (20 seconds down to 13).
+
+### Memory Flash
+- A grid of pictures flashes on the TV, then the cards turn over. Then one question, alternating each round: "Where was the apple?" (tap the spot on your phone's grid) or "What was in the glowing spot?" (pick from four pictures).
+- Right answers score 100, plus up to 50 for answering fast. Ten rounds: 6 cards, then 9, then 12, with a shorter flash at the end.
+
+### Quick Math
+- Everyone races through the same sums on their own phone while the TV shows live bars. The keypad checks your answer as soon as you've typed as many digits as it has.
+- Right: +10. Wrong: a short freeze, then the next sum. Three 40-second rounds: adding and taking away, then bigger numbers and times tables, then everything including dividing.
+
+### Pop in Order
+- Numbered bubbles appear on your phone; pop them from smallest to largest. Everyone gets the same sets.
+- Each right pop scores 2 and a finished set adds 10. A wrong pop costs 5 and freezes you for a second. Three 40-second rounds: small numbers, bigger numbers (with look-alikes like 16 and 61), then little sums like 3×4 to work out.
 
 ### Neanderthals
 Based on the rules of Poetry for Neanderthals. Two ways to play: **Teams** (Team Glad vs Team Mad, 4+ players) or **Everyone for themselves**.
@@ -342,7 +357,8 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     server.js               sockets, players, game menu, reconnect tokens, live-stroke relay
     games/                  jeopardy.js, feud.js, wheel.js, wavelength.js,
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
-                             cubes.js and scales.js (make their own puzzles, no content), match.js, content.js
+                             cubes.js, scales.js, memory.js, quickmath.js, popinorder.js
+                             (brain games; race.js is the shared race engine), match.js, content.js
     games/announcer.js      host voice lines (classic, or written by Claude)
     games/judge.js          the AI answer judge (second look at rejected answers)
     games/quizmaker.js      Claude-written wrong options for multiple-choice Jeopardy

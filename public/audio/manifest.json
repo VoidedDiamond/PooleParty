@@ -101,6 +101,12 @@
       "loopStart": 1,
       "loopEnd": 37.92308390022676,
       "gain": 1.1046
+    },
+    "brain": {
+      "file": "music/brain.mp3",
+      "loopStart": 1,
+      "loopEnd": 31,
+      "gain": 1.1395
     }
   },
   "sfx": {
@@ -245,5 +251,5 @@
       "gain": 1
     }
   },
-  "generated": "2026-10-14T23:52:03.080Z"
+  "generated": "2026-10-15T00:46:53.103Z"
 }
