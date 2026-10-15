@@ -239,7 +239,7 @@ const GAME_INSTRUCTIONS = {
   ] },
   cubes: { title: 'Count the Cubes', rules: [
     'A stack of cubes flashes up on the TV for a few seconds, then disappears.',
-    'Type how many cubes there were on your phone. Count the hidden ones too: every cube sits on the floor or on another cube.',
+    'Type how many cubes there were on your phone. Count the hidden ones too: every cube sits on the floor or on another cube, and the top of every column is always in sight.',
     'Exactly right scores 100, plus up to 50 for answering fast. Off by one scores 50, off by two scores 20.',
     'Ten rounds. The stacks get bigger and the flashes get shorter.',
   ] },

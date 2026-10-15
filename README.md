@@ -130,7 +130,7 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 ### Count the Cubes
 Inspired by the block-counting puzzle in Big Brain Academy. **Normal** or **Hard**.
 - A stack of cubes on a 5x5 grid flashes up on the TV for a few seconds, then disappears. Everyone types how many cubes there were on a keypad on their phone.
-- Every cube sits on the floor or on another cube, so count the ones hidden underneath too.
+- Every cube sits on the floor or on another cube, so count the ones hidden underneath too. Stacks are built as a staircase that steps down toward you, so the top of every column is always in sight and every hidden cube can be worked out.
 - Exactly right scores 100, plus up to 50 for answering fast. Off by one scores 50, off by two scores 20.
 - The TV then rebuilds the stack layer by layer, counting up, before showing who was closest.
 - Ten rounds. Stacks grow from about 5 cubes to 26 (10 to 38 on Hard) and the flashes get shorter (7 seconds down to 4; 5 down to 2.5 on Hard). The phones never get the stack, only the TV shows it.

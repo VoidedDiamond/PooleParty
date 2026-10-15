@@ -26,26 +26,26 @@ const COLORS = ['#4dabf7', '#ff922b', '#69db7c', '#f06595', '#ffd43b', '#9775fa'
 const lerp = (a, b, t) => a + (b - a) * t;
 const rand = n => Math.floor(Math.random() * n);
 
-// A connected stack: heights[y * w + x] cubes in each column. Every cube rests on the floor or
-// on another cube, so the ones underneath can't be seen from above.
+// A stack you can always count fairly. The room looks at it from the front corner (x and y grow
+// toward the viewer), so it's built as a staircase that only steps down toward the viewer: no
+// column is ever taller than the ones behind it. That way the top of every column is in plain
+// sight, and the only hidden cubes are the ones underneath visible cubes, which you can work out
+// because nothing floats. heights[y * w + x] is the number of cubes in each column.
 function buildStack(w, d, total, maxH) {
   const h = new Array(w * d).fill(0);
-  const at = (x, y) => (x >= 0 && y >= 0 && x < w && y < d ? h[y * w + x] : -1);
+  const at = (x, y) => h[y * w + x];
+  // How much this stack likes to pile up versus spread out, so stacks look different.
+  const tall = 1 + Math.random() * 3;
   let placed = 0;
-  // Start near the middle of the grid.
-  h[Math.floor(d / 2) * w + Math.floor(w / 2)] = 1;
-  placed = 1;
-  let guard = 0;
-  while (placed < total && guard++ < 5000) {
+  while (placed < total) {
     const options = [];
     for (let y = 0; y < d; y++) {
       for (let x = 0; x < w; x++) {
         const c = at(x, y);
         if (c >= maxH) continue;
-        const touching = c > 0 || [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => at(x + dx, y + dy) > 0);
-        if (!touching) continue;
-        // Stacking on top is a bit likelier than spreading out, so towers hide cubes.
-        const weight = c > 0 ? 3 + c : 2;
+        if (x > 0 && at(x - 1, y) <= c) continue; // would stick up past the column behind it
+        if (y > 0 && at(x, y - 1) <= c) continue;
+        const weight = Math.max(1, Math.round(c > 0 ? tall * (1 + c / 2) : 2));
         for (let k = 0; k < weight; k++) options.push(y * w + x);
       }
     }
