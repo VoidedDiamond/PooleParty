@@ -33,15 +33,26 @@ const MAX_PLAYERS = 10;
 const LOBBY_AWAY_PRUNE_MS = 60000;
 const COLORS = ['#ff5d5d', '#4fd18b', '#5aa9ff', '#ffa94d', '#c084fc', '#38d5e8', '#ff7ac6', '#c6e23b'];
 
-function lanAddress() {
-  const candidates = [];
-  for (const list of Object.values(os.networkInterfaces())) {
+// The laptop's address on the home network, for the QR code. Windows often has extra virtual
+// adapters (WSL, Hyper-V, VirtualBox, VPNs) whose addresses phones can't reach, so those go last,
+// and home-router ranges (192.168.x.x, then 10.x.x.x) go first.
+const VIRTUAL = /vethernet|virtual|vmware|vbox|hyper-v|wsl|docker|loopback|bluetooth|tailscale|zerotier|vpn|tap|tun/i;
+function lanAddresses() {
+  const found = [];
+  for (const [name, list] of Object.entries(os.networkInterfaces())) {
     for (const i of list || []) {
-      if (i.family === 'IPv4' && !i.internal) candidates.push(i.address);
+      if (i.family === 'IPv4' && !i.internal && !i.address.startsWith('169.254.')) found.push({ name, address: i.address });
     }
   }
-  const isPrivate = a => /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(a);
-  return candidates.find(isPrivate) || candidates[0] || 'localhost';
+  const rank = ({ name, address }) => (VIRTUAL.test(name) ? 10 : 0)
+    + (address.startsWith('192.168.') ? 0 : address.startsWith('10.') ? 1 : /^172\.(1[6-9]|2\d|3[01])\./.test(address) ? 2 : 3);
+  return found.sort((a, b) => rank(a) - rank(b));
+}
+function lanAddress() {
+  const flagged = flag('ip') || process.env.LAN_IP;
+  if (flagged) return flagged;
+  const list = lanAddresses();
+  return list.length ? list[0].address : 'localhost';
 }
 const LAN_IP = lanAddress();
 const JOIN_URL = `http://${LAN_IP}:${PORT}`;
@@ -473,5 +484,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Host console:  http://localhost:${PORT}/console`);
   console.log(`  from phone:  ${JOIN_URL}/console?key=${HOST_KEY}`);
   console.log(`Players join:  ${JOIN_URL}   (QR code is on the TV lobby)`);
+  const others = lanAddresses().filter(a => a.address !== LAN_IP);
+  if (others.length) console.log(`  not working?  try ${others.map(a => `http://${a.address}:${PORT} (${a.name})`).join(', ')}`);
   console.log(line);
 });

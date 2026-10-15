@@ -27,7 +27,11 @@ The terminal prints the addresses:
 - Players: `http://<laptop-ip>:3000` (a QR code is on the TV menu)
 
 Windows will ask to allow Node through the firewall the first time. Allow it on Private networks.
-If phones cannot connect, the router may have client isolation on. Run the laptop as a mobile hotspot instead.
+If phones cannot connect:
+- Check the address on the TV matches the laptop's Wi-Fi address. The startup window lists other addresses under "not working?"; try those on a phone. To force one, start with `npm start -- --ip=192.168.1.23`.
+- Windows blocks phones when the Wi-Fi is set to **Public**. Make it Private: Settings > Network & internet > Wi-Fi > your network > Private network.
+- Phones must be on the same Wi-Fi as the laptop (not mobile data, not a guest network).
+- The router may have client isolation on. Run the laptop as a mobile hotspot instead.
 
 If guests aren't on your Wi-Fi yet, start the server with `--wifi-ssid=` (and `--wifi-pass=` if it's not open) to show a second QR code on the TV that joins the network directly, no typing a password required:
 
