@@ -45,6 +45,9 @@ There's no separate admin screen. Everyone joins from their phone by scanning th
 
 For real households where nobody wants that much control, an advanced `/console` page still exists (open it on any browser on the same machine, or from a phone with the `?key=` link the terminal prints) with score adjustments, manual judging overrides, and a kick-player button. It's optional. Day to day, nobody needs to open it.
 
+
+In team games (Codenames, Family Feud, Neanderthals in Teams mode) each phone shows a bar in its team's color across the top ("You're on TEAM RED") and a matching colored frame around the screen.
+
 ### Jeopardy
 - Choose typed answers or multiple choice when you start.
 - Wait for the buzzers to open, then tap BUZZ. Buzzing early locks you out briefly.

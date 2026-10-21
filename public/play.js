@@ -360,11 +360,29 @@ function render() {
   lastScreen = sig;
   const fmt = POINT_GAMES.includes(s.game) ? String : money; // points, not dollars
   const head = screen.head || headHTML(me, me.score === undefined ? null : { text: fmt(me.score), neg: me.score < 0 }, s.game === 'hub');
-  app.innerHTML = `<div class="wrap">${head}<main class="screen">${screen.html}</main>${amHost ? hostBarHTML(s) : ''}</div>`;
+  app.innerHTML = `<div class="wrap">${teamBarHTML(s, me)}${head}<main class="screen">${screen.html}</main>${amHost ? hostBarHTML(s) : ''}</div>`;
   markIdle();
   if (s.game === 'hub') { wireHub(s); wireRename(me); }
   else if (mod && mod.wire) mod.wire(screen.key, s, me);
   if (amHost) wireHostBar();
+}
+
+// In team games (Codenames, Family Feud, Neanderthals teams): a bar in your team's color across
+// the top of the phone and a matching frame around the edge, so you always know your side.
+function teamOf(s, me) {
+  if (!s.teams || !Array.isArray(s.teams)) return null;
+  const mine = (s.players || []).find(p => p.id === me.id);
+  const t = mine && mine.team != null ? s.teams[mine.team] : null;
+  return t && t.color ? t : null;
+}
+function teamBarHTML(s, me) {
+  const t = teamOf(s, me);
+  document.body.classList.toggle('onteam', !!t);
+  if (!t) return '';
+  document.body.style.setProperty('--teamc', t.color);
+  // "Team Red", "Team Glad", "Avery's team" stay as they are; Feud's one-player "Blake" reads "Blake's team".
+  const name = /team/i.test(t.name) ? t.name : `${t.name}'s team`;
+  return `<div class="teambar" style="--tc:${t.color}">${icon('users')} You're on <b>${esc(name)}</b></div>`;
 }
 
 function markIdle() {
