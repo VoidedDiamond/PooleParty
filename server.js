@@ -27,6 +27,10 @@ const { Flip7 } = require('./games/flip7');
 const { OddOneOut } = require('./games/oddoneout');
 const { ColorClash } = require('./games/colorclash');
 const { Blurry } = require('./games/blurry');
+const { ClockReader } = require('./games/clock');
+const { CoinCount } = require('./games/coins');
+const { MirrorOrNot } = require('./games/mirror');
+const { Simon } = require('./games/simon');
 const { Neanderthals } = require('./games/neanderthals');
 const content = require('./games/content');
 const { Announcer } = require('./games/announcer');
@@ -142,6 +146,10 @@ const GAMES = {
   oddoneout: { min: 1, make: () => new OddOneOut(players, broadcast) },
   colorclash: { min: 1, make: () => new ColorClash(players, broadcast) },
   blurry: { min: 1, make: () => new Blurry(players, broadcast) },
+  clock: { min: 1, make: () => new ClockReader(players, broadcast) },
+  coins: { min: 1, make: () => new CoinCount(players, broadcast) },
+  mirror: { min: 1, make: () => new MirrorOrNot(players, broadcast) },
+  simon: { min: 1, make: () => new Simon(players, broadcast) },
   flip7: { min: 2, make: (opts) => new Flip7(players, broadcast, { variant: opts.variant, target: opts.target }) },
 };
 

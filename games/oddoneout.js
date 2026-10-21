@@ -42,4 +42,4 @@ class OddOneOut extends Race {
   roundLabel(round) { return LABELS[round - 1] || ''; }
 }
 
-module.exports = { OddOneOut };
+module.exports = { OddOneOut, LOPSIDED };

@@ -7,6 +7,9 @@
     popinorder: 'Pop the bubbles on your phone from smallest to largest!',
     oddoneout: 'Find the odd one out on your phone!',
     colorclash: 'Tap the right color on your phone. Read carefully!',
+    clock: 'What time is it? Read the clock on your phone!',
+    coins: 'Add up the coins on your phone!',
+    mirror: 'Same picture turned, or a mirror image?',
   };
 
   function header(s, label) {
@@ -77,4 +80,7 @@
   GAMES.popinorder.tv = tv;
   GAMES.oddoneout.tv = tv;
   GAMES.colorclash.tv = tv;
+  GAMES.clock.tv = tv;
+  GAMES.coins.tv = tv;
+  GAMES.mirror.tv = tv;
 })();

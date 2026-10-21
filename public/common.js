@@ -2,7 +2,7 @@
 // Per-game client modules register here: GAMES.<name>.tv, .phone, .console
 const GAMES = {
   jeopardy: {}, feud: {}, wheel: {}, wavelength: {}, pictionary: {}, tshirt: {}, trivia: {}, moviereveal: {},
-  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {}, scales: {}, memory: {}, quickmath: {}, popinorder: {}, flip7: {}, oddoneout: {}, colorclash: {}, blurry: {},
+  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {}, scales: {}, memory: {}, quickmath: {}, popinorder: {}, flip7: {}, oddoneout: {}, colorclash: {}, blurry: {}, clock: {}, coins: {}, mirror: {}, simon: {},
 };
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
@@ -31,6 +31,10 @@ const GLYPHS = {
   scan: '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/>',
   droplet: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
   eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  coins: '<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/>',
+  'flip-horizontal': '<path d="M8 3H5a2 2 0 0 0-2 2v14c0 1.1.9 2 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><path d="M12 20v2"/><path d="M12 14v2"/><path d="M12 8v2"/><path d="M12 2v2"/>',
+  'grid-2x2': '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/><path d="M12 3v18"/>',
   cards: '<rect width="12" height="16" x="3" y="6" rx="2"/><path d="M9 3.5 17.7 2a2 2 0 0 1 2.3 1.6l2 11.8a2 2 0 0 1-1.6 2.3L18 18"/><path d="M9 11h.01"/>',
   brain: '<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/>',
   'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
@@ -88,6 +92,10 @@ const GAME_META = {
   oddoneout: { glyph: 'scan', color: '#0c8599' },
   colorclash: { glyph: 'droplet', color: '#d6336c' },
   blurry: { glyph: 'eye', color: '#5f3dc4' },
+  clock: { glyph: 'clock', color: '#1971c2' },
+  coins: { glyph: 'coins', color: '#e67700' },
+  mirror: { glyph: 'flip-horizontal', color: '#0ca678' },
+  simon: { glyph: 'grid-2x2', color: '#c92a2a' },
 };
 
 // icon('crown') -> a stroke glyph that inherits the surrounding text color; icon('jeopardy') ->
@@ -189,6 +197,10 @@ const GAME_MENU = [
     { key: 'oddoneout', label: 'Odd One Out', opts: { type: 'oddoneout' } },
     { key: 'colorclash', label: 'Color Clash', opts: { type: 'colorclash' } },
     { key: 'blurry', label: 'Blurry Picture', opts: { type: 'blurry' } },
+    { key: 'simon', label: 'Simon Says', opts: { type: 'simon' } },
+    { key: 'clock', label: 'Clock Reader', opts: { type: 'clock' } },
+    { key: 'coins', label: 'Coin Count', opts: { type: 'coins' } },
+    { key: 'mirror', label: 'Mirror or Not', opts: { type: 'mirror' } },
   ] },
 ];
 const gameVariants = (entry, s) => (entry.dynamic ? entry.dynamic(s) : null);
@@ -305,6 +317,26 @@ const GAME_INSTRUCTIONS = {
     'A picture starts blurry and zoomed in on the TV, and slowly comes into focus.',
     'Pick what it is from four choices on your phone. One guess only.',
     'The sooner you get it right, the more it is worth: up to 200, down to 50 once it is sharp. Ten rounds.',
+  ] },
+  clock: { title: 'Clock Reader', rules: [
+    'An analog clock appears on your phone. Tap the time it shows, from four choices.',
+    'Round 1: o\'clock, quarter and half past. Round 2: any five minutes. Round 3: the numbers disappear.',
+    'Right: +10. Wrong: −5 and a short freeze. Three 40-second rounds; everyone races at once.',
+  ] },
+  coins: { title: 'Coin Count', rules: [
+    'A pile of coins appears on your phone. Type how many cents they add up to.',
+    'The keypad checks as soon as you\'ve typed as many digits as the answer has.',
+    'Right: +10. Wrong: a short freeze. Round 1: pennies, nickels and dimes. Round 2: quarters. Round 3: bigger piles and half dollars.',
+  ] },
+  mirror: { title: 'Mirror or Not', rules: [
+    'Two copies of a picture, the second one turned around. Is it the same picture turned, or a mirror image?',
+    'Round 1: quarter turns. Round 2: any angle. Round 3: both pictures are turned.',
+    'Right: +10. Wrong: −5 and a short freeze. Three 40-second rounds; everyone races at once.',
+  ] },
+  simon: { title: 'Simon Says', rules: [
+    'Four pads light up in a pattern on the TV. Watch closely!',
+    'Then repeat the pattern by tapping the pads on your phone. Each pad has a color and a shape.',
+    'The pattern starts at 3 steps and grows by one each round. A perfect pattern scores 20 per step, plus a bonus for speed.',
   ] },
   memory: { title: 'Memory Flash', rules: [
     'A grid of pictures flashes up on the TV for a few seconds, then the cards turn over.',

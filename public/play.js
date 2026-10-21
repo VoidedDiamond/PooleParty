@@ -323,7 +323,7 @@ function wireHostBar() {
   if ($('#hostSound')) $('#hostSound').onclick = openSettings;
 }
 
-const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7', 'oddoneout', 'colorclash', 'blurry'];
+const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7', 'oddoneout', 'colorclash', 'blurry', 'clock', 'coins', 'mirror', 'simon'];
 const headHTML = (me, score, editable = false) => `<div class="me" style="--color:${me.color}"><b>${esc(me.name)}</b>${editable
   ? `<button class="ghost me-edit" id="renameBtn">${icon('pencil')} Change name</button>`
   : score == null ? '' : `<span class="${score.neg ? 'neg' : ''}">${score.text}</span>`}</div>`;

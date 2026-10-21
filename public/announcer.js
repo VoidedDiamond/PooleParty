@@ -166,6 +166,15 @@ const Announcer = (() => {
     popinorder(a, b) { return D.racedone(a, b, 'Pop in Order, a race to pop numbered bubbles from smallest to largest'); },
     oddoneout(a, b) { return D.racedone(a, b, 'Odd One Out, a race to spot the one different picture in a grid'); },
     colorclash(a, b) { return D.racedone(a, b, 'Color Clash, a race to tap the ink color of color words written in the wrong color'); },
+    clock(a, b) { return D.racedone(a, b, 'Clock Reader, a race to read analog clocks'); },
+    coins(a, b) { return D.racedone(a, b, 'Coin Count, a race to add up piles of coins'); },
+    mirror(a, b) { return D.racedone(a, b, 'Mirror or Not, a race to tell a turned picture from a mirror image'); },
+    simon(a, b) {
+      if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
+      const right = (b.results || []).filter(r => r.correct).map(r => nm(b, r.id)).filter(Boolean);
+      const fact = `Simon Says: players had to repeat a ${b.length}-step pattern of colored pads from memory. ${right.length ? `Perfect: ${list(right)}.` : 'Nobody got the whole pattern.'}`;
+      return [right.length ? { kind: 'right', name: list(right), pri: b.length >= 7 ? 2 : 1, fact } : { kind: 'nobody', fact }];
+    },
     blurry(a, b) {
       if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
       const right = (b.results || []).filter(r => r.correct).sort((x, y) => y.pts - x.pts).map(r => nm(b, r.id)).filter(Boolean);

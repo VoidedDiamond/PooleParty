@@ -69,6 +69,10 @@
 :root[data-game="oddoneout"] { --bg: #073b44; --bg-deep: #04292f; --surface: #0b4f5b; --surface-hi: #126673; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
 :root[data-game="colorclash"] { --bg: #2b2b33; --bg-deep: #1c1c22; --surface: #3a3a45; --surface-hi: #4b4b59; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
 :root[data-game="blurry"] { --bg: #26164f; --bg-deep: #190d38; --surface: #341e69; --surface-hi: #452887; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
+:root[data-game="clock"] { --bg: #102a4c; --bg-deep: #0a1c35; --surface: #173a66; --surface-hi: #224e85; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
+:root[data-game="coins"] { --bg: #3a2a0a; --bg-deep: #281c05; --surface: #4d3810; --surface-hi: #664a17; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
+:root[data-game="mirror"] { --bg: #0b3d2e; --bg-deep: #06291f; --surface: #11523e; --surface-hi: #186b51; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
+:root[data-game="simon"] { --bg: #1f1f2e; --bg-deep: #141420; --surface: #2c2c40; --surface-hi: #3b3b55; --accent: #ffd43b; --accent-ink: #2b2300; --shadow: rgba(0, 0, 0, .45); }
 :root[data-game="neanderthals"] { --bg: #3b2514; --bg-deep: #2a190c; --surface: #4c301a; --surface-hi: #613f23; --accent: #ff9a3c; --accent-ink: #2b1400; --shadow: rgba(15, 6, 0, .5); }
 
 /* ---- Base ---------------------------------------------------------------- */
@@ -1198,3 +1202,34 @@ button.tile:active, button.tile:focus-visible { background: var(--surface-hi); }
 .teambar { position: sticky; top: 0; z-index: 5; margin: -16px -16px 0; padding: 12px 16px; background: var(--tc); color: #111; font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; text-align: center; text-shadow: 0 1px 0 rgba(255, 255, 255, .35); box-shadow: 0 3px 0 rgba(0, 0, 0, .25); display: flex; align-items: center; justify-content: center; gap: 8px; }
 .teambar b { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
 body.phone.onteam::after { content: ''; position: fixed; inset: 0; border: 6px solid var(--teamc); pointer-events: none; z-index: 50; }
+
+/* ---- Clock Reader / Coin Count / Mirror or Not / Simon Says ------------------------------- */
+.pk-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pk-opt { height: 70px; border: 0; border-radius: var(--r); background: var(--surface-hi); color: var(--ink); font-family: var(--font-display); font-weight: 700; font-size: 1.5rem; box-shadow: 0 3px 0 var(--shadow); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.pk-opt:active { transform: translateY(2px); }
+.ck-face { display: block; width: min(68vw, 300px); margin: 6px auto 12px; }
+.ck-face > circle:first-child { fill: #fffdf5; stroke: #222; stroke-width: 2.5; }
+.ck-ticks line { stroke: #333; }
+.ck-face text { font-family: var(--font-display); font-weight: 700; font-size: 9px; text-anchor: middle; fill: #222; }
+.ck-h { stroke: #222; }
+.ck-m { stroke: #e03131; }
+.ck-pin { fill: #222; }
+.mr-pair { display: flex; justify-content: space-around; align-items: center; padding: 18px 0 22px; }
+.mr-pic { font-size: 5.5rem; line-height: 1; display: inline-block; }
+.co-pile { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; min-height: 160px; padding: 10px 0; }
+.co { width: calc(64px * var(--s)); height: calc(64px * var(--s)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: calc(1.05rem * var(--s)); box-shadow: inset 0 0 0 4px rgba(0, 0, 0, .15), 0 3px 0 rgba(0, 0, 0, .3); }
+.co.copper { background: radial-gradient(circle at 35% 30%, #f0b27a, #b8642a); color: #3d1d05; }
+.co.silver { background: radial-gradient(circle at 35% 30%, #f1f3f5, #9aa3ad); color: #212529; }
+.cb-entry small { font-size: .55em; opacity: .7; margin-left: 4px; }
+.sm-pads { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5vh; width: min(60vh, 60vw); aspect-ratio: 1; }
+.tv .sm-main { align-items: center; justify-content: center; }
+.sm-pad { border: 0; border-radius: 22%; background: var(--c); opacity: .32; display: flex; align-items: center; justify-content: center; color: rgba(0, 0, 0, .55); font-size: 9vh; transition: opacity .12s, transform .12s, box-shadow .12s; }
+.sm-pad.lit { opacity: 1; transform: scale(1.05); box-shadow: 0 0 6vh var(--c); }
+.sm-pads.phone { width: 100%; gap: 12px; }
+.sm-pads.phone .sm-pad { opacity: .9; font-size: 3.4rem; aspect-ratio: 1; }
+.sm-pads.phone .sm-pad.lit { opacity: 1; transform: scale(.95); }
+.sm-progress { display: flex; justify-content: center; gap: 6px; }
+.sm-progress i { width: 14px; height: 14px; border-radius: 50%; background: rgba(255, 255, 255, .2); }
+.sm-progress i.on { background: var(--accent); }
+.sm-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5vh; }
+.sm-strip span { width: 11vh; height: 11vh; border-radius: 22%; background: var(--c); display: flex; align-items: center; justify-content: center; font-size: 6vh; color: rgba(0, 0, 0, .55); }

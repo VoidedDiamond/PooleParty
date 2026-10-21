@@ -26,7 +26,7 @@ setTimeout(soundHint, 1500);
 // Which loop plays: the menu theme in the lobby, each game's own theme, a victory loop on the
 // final scores.
 // Games that share a theme.
-const MUSIC_ALIAS = { memory: 'brain', quickmath: 'brain', popinorder: 'brain', oddoneout: 'brain', colorclash: 'brain', blurry: 'brain' };
+const MUSIC_ALIAS = { memory: 'brain', quickmath: 'brain', popinorder: 'brain', oddoneout: 'brain', colorclash: 'brain', blurry: 'brain', clock: 'brain', coins: 'brain', mirror: 'brain', simon: 'brain' };
 function musicFor(s) {
   if (s.game === 'hub') return 'lobby';
   if (s.phase === 'end') return 'victory';

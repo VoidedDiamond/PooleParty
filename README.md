@@ -2,7 +2,7 @@
 
 Jackbox-style game night on your own network. One laptop runs the server and shows the game on the TV. Everyone else plays from their phone browser. No account, no app, no internet needed once it is set up.
 
-Nineteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, Flip 7 (and Flip 7: With a Vengeance), and Brain Games (Count the Cubes, Tip the Scales, Memory Flash, Quick Math, Pop in Order, Odd One Out, Color Clash, Blurry Picture). No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
+Nineteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, Flip 7 (and Flip 7: With a Vengeance), and Brain Games (Count the Cubes, Tip the Scales, Memory Flash, Quick Math, Pop in Order, Odd One Out, Color Clash, Blurry Picture, Simon Says, Clock Reader, Coin Count, Mirror or Not). No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
 
 ## Run it
 
@@ -141,7 +141,7 @@ Based on the card games by The Op. Pick **Flip 7** or **With a Vengeance**, to 2
 - Turns time out after 30 seconds (the player stays) and choices after 25 (picked at random), so an absent player never holds up the table.
 
 ### Brain Games
-One tile on the menu holds the quick puzzle games, inspired by Big Brain Academy. Pick one from the host's phone: Count the Cubes (Normal or Hard), Tip the Scales, Memory Flash, Quick Math, Pop in Order, Odd One Out, Color Clash, or Blurry Picture.
+One tile on the menu holds the quick puzzle games, inspired by Big Brain Academy. Pick one from the host's phone: Count the Cubes (Normal or Hard), Tip the Scales, Memory Flash, Quick Math, Pop in Order, Odd One Out, Color Clash, Blurry Picture, Simon Says, Clock Reader, Coin Count, or Mirror or Not.
 
 ### Count the Cubes
 Inspired by the block-counting puzzle in Big Brain Academy. **Normal** or **Hard**.
@@ -181,6 +181,22 @@ Inspired by the balance puzzles in Big Brain Academy.
 ### Blurry Picture
 - A picture starts blurry and zoomed in on the TV and comes into focus over 15 seconds. Pick it from four choices on your phone, one guess each.
 - Right answers score up to 200 the sooner you answer, down to 50 once it's sharp. Ten rounds, zooming in further as they go.
+
+### Simon Says
+- Four pads (each a color and a shape, so it works for colorblind players) light up in a pattern on the TV. Then everyone repeats it on their phone.
+- The pattern starts at 3 steps and grows by one each round (it keeps last round's steps, like the real Simon), up to 10. A perfect pattern scores 20 per step plus up to 30% for speed. Eight rounds.
+
+### Clock Reader
+- An analog clock on your phone: tap the time it shows, from four (the wrong ones are tempting: hands swapped, an hour off, five minutes off). A race.
+- Right: +10. Wrong: −5 and a short freeze. Round 1: o'clock, quarter and half past. Round 2: any five minutes. Round 3: no numbers on the clock.
+
+### Coin Count
+- A pile of coins on your phone: type the total in cents. The keypad checks as soon as you've typed enough digits. A race.
+- Right: +10. Round 1: pennies, nickels and dimes. Round 2: quarters too. Round 3: bigger piles with half dollars.
+
+### Mirror or Not
+- Two copies of a picture, the second one turned: is it the same picture turned, or a mirror image? A race.
+- Right: +10. Wrong: −5 and a short freeze. Round 1: quarter turns. Round 2: any angle. Round 3: both pictures turned.
 
 ### Neanderthals
 Based on the rules of Poetry for Neanderthals. Two ways to play: **Teams** (Team Glad vs Team Mad, 4+ players) or **Everyone for themselves**.
@@ -390,7 +406,7 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     games/                  jeopardy.js, feud.js, wheel.js, wavelength.js,
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
                              cubes.js, scales.js, memory.js, quickmath.js, popinorder.js, oddoneout.js,
-                             colorclash.js, blurry.js
+                             colorclash.js, blurry.js, simon.js, clock.js, coins.js, mirror.js
                              (brain games; race.js is the shared race engine), flip7.js, match.js, content.js
     games/announcer.js      host voice lines (classic, or written by Claude)
     games/judge.js          the AI answer judge (second look at rejected answers)
