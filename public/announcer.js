@@ -164,6 +164,14 @@ const Announcer = (() => {
 
     quickmath(a, b) { return D.racedone(a, b, 'Quick Math, a race to answer sums'); },
     popinorder(a, b) { return D.racedone(a, b, 'Pop in Order, a race to pop numbered bubbles from smallest to largest'); },
+    oddoneout(a, b) { return D.racedone(a, b, 'Odd One Out, a race to spot the one different picture in a grid'); },
+    colorclash(a, b) { return D.racedone(a, b, 'Color Clash, a race to tap the ink color of color words written in the wrong color'); },
+    blurry(a, b) {
+      if (b.phase !== 'reveal' || a.phase === 'reveal') return [];
+      const right = (b.results || []).filter(r => r.correct).sort((x, y) => y.pts - x.pts).map(r => nm(b, r.id)).filter(Boolean);
+      const fact = `Blurry Picture: a blurry zoomed-in picture slowly came into focus. It was a ${b.answer.name}. ${right.length ? `Got it: ${list(right)} (fastest first).` : 'Nobody got it.'}`;
+      return [right.length ? { kind: 'right', name: right[0], pri: 1, fact } : { kind: 'nobody', answer: b.answer.name, fact }];
+    },
     racedone(a, b, what) {
       if (b.phase !== 'results' || a.phase === 'results') return [];
       const top = b.race.slice().sort((x, y) => y.pts - x.pts)[0];

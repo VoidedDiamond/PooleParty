@@ -2,7 +2,7 @@
 // Per-game client modules register here: GAMES.<name>.tv, .phone, .console
 const GAMES = {
   jeopardy: {}, feud: {}, wheel: {}, wavelength: {}, pictionary: {}, tshirt: {}, trivia: {}, moviereveal: {},
-  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {}, scales: {}, memory: {}, quickmath: {}, popinorder: {}, flip7: {},
+  codenames: {}, password: {}, scattergories: {}, hangman: {}, neanderthals: {}, cubes: {}, scales: {}, memory: {}, quickmath: {}, popinorder: {}, flip7: {}, oddoneout: {}, colorclash: {}, blurry: {},
 };
 const $ = (sel, root = document) => root.querySelector(sel);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => (
@@ -28,6 +28,9 @@ const GLYPHS = {
   bone: '<path d="M17 10c.7-.7 1.69 0 2.5 0a2.5 2.5 0 1 0 0-5 .5.5 0 0 1-.5-.5 2.5 2.5 0 1 0-5 0c0 .81.7 1.8 0 2.5l-7 7c-.7.7-1.69 0-2.5 0a2.5 2.5 0 0 0 0 5c.28 0 .5.22.5.5a2.5 2.5 0 1 0 5 0c0-.81-.7-1.8 0-2.5Z"/>',
   gallows: '<path d="M3 21h8"/><path d="M7 21V3h9v3"/><circle cx="16" cy="8.5" r="2.5"/><path d="M16 11v5"/><path d="m13.5 14.5 2.5-2 2.5 2"/><path d="m14 19.5 2-3.5 2 3.5"/>',
   box: '<path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  scan: '<path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/>',
+  droplet: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+  eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
   cards: '<rect width="12" height="16" x="3" y="6" rx="2"/><path d="M9 3.5 17.7 2a2 2 0 0 1 2.3 1.6l2 11.8a2 2 0 0 1-1.6 2.3L18 18"/><path d="M9 11h.01"/>',
   brain: '<path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/>',
   'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
@@ -82,6 +85,9 @@ const GAME_META = {
   popinorder: { glyph: 'bubbles', color: '#12b886' },
   brain: { glyph: 'brain', color: '#f06595' },
   flip7: { glyph: 'cards', color: '#e8590c' },
+  oddoneout: { glyph: 'scan', color: '#0c8599' },
+  colorclash: { glyph: 'droplet', color: '#d6336c' },
+  blurry: { glyph: 'eye', color: '#5f3dc4' },
 };
 
 // icon('crown') -> a stroke glyph that inherits the surrounding text color; icon('jeopardy') ->
@@ -180,6 +186,9 @@ const GAME_MENU = [
     { key: 'memory', label: 'Memory Flash', opts: { type: 'memory' } },
     { key: 'quickmath', label: 'Quick Math', opts: { type: 'quickmath' } },
     { key: 'popinorder', label: 'Pop in Order', opts: { type: 'popinorder' } },
+    { key: 'oddoneout', label: 'Odd One Out', opts: { type: 'oddoneout' } },
+    { key: 'colorclash', label: 'Color Clash', opts: { type: 'colorclash' } },
+    { key: 'blurry', label: 'Blurry Picture', opts: { type: 'blurry' } },
   ] },
 ];
 const gameVariants = (entry, s) => (entry.dynamic ? entry.dynamic(s) : null);
@@ -281,6 +290,21 @@ const GAME_INSTRUCTIONS = {
     'Modifiers hurt: −2 to −10 and ÷2. Whoever flips one puts it on any player still in the round, even someone who stayed.',
     'Just One More, Flip Four, Steal, Discard and Swap let you mess with anyone still in, stayed or not.',
     'The Zero: your round scores 0 unless you Flip 7. Unlucky 7: throw away your numbers and modifiers. Lucky 13: you can hold two 13s.',
+  ] },
+  oddoneout: { title: 'Odd One Out', rules: [
+    'A grid of pictures appears on your phone. They are all the same, except one. Tap it!',
+    'Round 1: a look-alike. Round 2: one is a mirror image. Round 3: one is slightly tilted, in a bigger grid.',
+    'Right: +10. Wrong: −5 and a one-second freeze. Three 40-second rounds; everyone gets the same grids.',
+  ] },
+  colorclash: { title: 'Color Clash', rules: [
+    'A color word appears in a different color ink, like RED written in blue. Tap the color of the INK.',
+    'Round 2: the buttons are color words in the wrong ink too. Round 3: some cards ask for the WORD instead, so read the question.',
+    'Right: +10. Wrong: −5 and a short freeze. Three 40-second rounds.',
+  ] },
+  blurry: { title: 'Blurry Picture', rules: [
+    'A picture starts blurry and zoomed in on the TV, and slowly comes into focus.',
+    'Pick what it is from four choices on your phone. One guess only.',
+    'The sooner you get it right, the more it is worth: up to 200, down to 50 once it is sharp. Ten rounds.',
   ] },
   memory: { title: 'Memory Flash', rules: [
     'A grid of pictures flashes up on the TV for a few seconds, then the cards turn over.',

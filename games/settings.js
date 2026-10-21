@@ -14,6 +14,7 @@ const DEFAULTS = {
   hostStyle: 'gameshow', // the host's character (see STYLES in announcer.js), or 'mix' for a new one each game
   voiceName: null,  // a TV browser voice by name; null = the best one for the character
   readAloud: true,  // the host reads questions and clues out loud
+  hostChat: 'normal', // how often the host reacts: 'less' | 'normal' | 'more'
 };
 const STYLE_IDS = ['gameshow', 'sports', 'trailer', 'grandma', 'pirate', 'mix'];
 const BUDGETS = [0.5, 1, 2, 5, 0];
@@ -37,6 +38,7 @@ function sanitize(p) {
   if (typeof p.aiJudge === 'boolean') out.aiJudge = p.aiJudge;
   if (BUDGETS.includes(Number(p.aiBudget)) && p.aiBudget !== null && p.aiBudget !== '') out.aiBudget = Number(p.aiBudget);
   if (STYLE_IDS.includes(p.hostStyle)) out.hostStyle = p.hostStyle;
+  if (['less', 'normal', 'more'].includes(p.hostChat)) out.hostChat = p.hostChat;
   if (p.voiceName === null || (typeof p.voiceName === 'string' && p.voiceName.length <= 120)) out.voiceName = p.voiceName || null;
   if (typeof p.readAloud === 'boolean') out.readAloud = p.readAloud;
   return out;

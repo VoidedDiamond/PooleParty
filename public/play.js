@@ -119,6 +119,9 @@ function hostSettingsHTML(s) {
   return `<div class="voicebox-head">${icon('mic')}<b>Host voice</b><button class="ghost voicetest" id="voiceTest" ${v.mode === 'off' ? 'disabled' : ''}>${icon('volume-2')} Test</button></div>
     <div class="seggroup">${segBtn('voice', 'off', v.mode, 'Off')}${segBtn('voice', 'classic', v.mode, 'Classic')}${segBtn('voice', 'ai', v.mode, 'AI')}</div>
     <p class="note">${voiceNote}</p>
+    <div class="voicebox-head">${icon('mic')}<b>How often the host talks</b></div>
+    <div class="seggroup">${segBtn('chat', 'less', v.chat || 'normal', 'Less')}${segBtn('chat', 'normal', v.chat || 'normal', 'Normal')}${segBtn('chat', 'more', v.chat || 'normal', 'More')}</div>
+    <p class="note">${{ less: 'Only the big moments, and a comment now and then.', normal: 'Big moments, plus a comment every so often.', more: 'Reacts to most answers.' }[v.chat || 'normal']}</p>
     <div class="voicebox-head">${icon('users')}<b>Host character</b></div>
     <div class="seggroup">${STYLE_CHOICES.map(([id, label]) => segBtn('style', id, choice, label)).join('')}</div>
     <p class="note">${STYLE_NOTES[choice] || ''}${choice === 'mix' && v.style ? ` This game: ${esc((STYLE_CHOICES.find(x => x[0] === v.style) || [])[1] || '')}.` : ''}</p>
@@ -195,6 +198,7 @@ function openSettings() {
     if (b.dataset.voice) act('voiceMode', { mode: b.dataset.voice });
     else if (b.dataset.style) act('hostStyle', { style: b.dataset.style });
     else if (b.dataset.read) act('readAloud', { on: b.dataset.read === 'on' });
+    else if (b.dataset.chat) act('hostChat', { chat: b.dataset.chat });
     else if (b.dataset.judge) act('aiJudge', { on: b.dataset.judge === 'on' });
     else if (b.dataset.budget !== undefined) act('aiBudget', { budget: Number(b.dataset.budget) });
     else if (b.id === 'voiceTest') act('voiceTest');
@@ -319,7 +323,7 @@ function wireHostBar() {
   if ($('#hostSound')) $('#hostSound').onclick = openSettings;
 }
 
-const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7'];
+const POINT_GAMES = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7', 'oddoneout', 'colorclash', 'blurry'];
 const headHTML = (me, score, editable = false) => `<div class="me" style="--color:${me.color}"><b>${esc(me.name)}</b>${editable
   ? `<button class="ghost me-edit" id="renameBtn">${icon('pencil')} Change name</button>`
   : score == null ? '' : `<span class="${score.neg ? 'neg' : ''}">${score.text}</span>`}</div>`;

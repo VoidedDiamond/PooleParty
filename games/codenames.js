@@ -8,6 +8,10 @@ const GUESS_MS = 90000;
 const TEAMS_MS = 45000;
 const ROLES_MS = 30000;
 
+// Remembered between games (this server run), so Random Teams mixes people up and hands the
+// hint-giver role around instead of repeating last game.
+const memory = { teams: new Map(), spies: new Set() };
+
 class Codenames {
   // opts: { source, teamMode: 'pick' | 'random' }
   constructor(players, notify, opts) {
@@ -27,7 +31,10 @@ class Codenames {
       this.setTimer(TEAMS_MS);
       this.later(TEAMS_MS, () => this.finishTeamPick());
     } else {
+      // Random: even teams of the people actually here, and a random hint-giver for each team,
+      // so nobody has to sort anything out before the board appears.
       this.autoAssignTeams();
+      this.randomRoles = true;
       this.startRoles();
     }
   }
@@ -60,9 +67,33 @@ class Codenames {
   }
 
   // ---- teams --------------------------------------------------------------
+  // Even teams of connected players (disconnected ones are spread after), trying a number of
+  // shuffles and keeping the one that splits up last game's teammates the most.
   autoAssignTeams() {
-    const ids = shuffle([...this.players.keys()]);
-    ids.forEach((id, i) => this.teamOf.set(id, i % 2));
+    const here = [...this.players.values()].filter(p => p.connected).map(p => p.id);
+    const away = [...this.players.keys()].filter(id => !here.includes(id));
+    const repeats = ids => {
+      let n = 0;
+      for (let i = 0; i < ids.length; i++) {
+        for (let j = i + 1; j < ids.length; j++) {
+          const a = memory.teams.get(ids[i]), b = memory.teams.get(ids[j]);
+          if (a != null && a === b && i % 2 === j % 2) n++;
+        }
+      }
+      return n;
+    };
+    let best = null;
+    for (let k = 0; k < 40; k++) {
+      const ids = shuffle(here);
+      const score = repeats(ids);
+      if (!best || score < best.score) best = { ids, score };
+      if (score === 0) break;
+    }
+    this.teamOf = new Map();
+    // Odd numbers: the extra player goes to a random team.
+    const flip = Math.random() < 0.5 ? 1 : 0;
+    best.ids.forEach((id, i) => this.teamOf.set(id, (i + flip) % 2));
+    away.forEach((id, i) => this.teamOf.set(id, i % 2));
   }
 
   teamPlayers(t) {
@@ -119,9 +150,15 @@ class Codenames {
     this.chosenSpymaster = [0, 1].map(t => {
       const list = this.teamPlayers(t);
       if (list.length <= 1) { const id = list[0] ?? null; if (id != null) { this.roleOf.set(id, 'spy'); this.rolesPicked.add(id); } return id; }
+      if (this.randomRoles) {
+        // Someone who hasn't given hints recently, if there is one.
+        const fresh = list.filter(id => !memory.spies.has(id));
+        const from = fresh.length ? fresh : list;
+        return from[Math.floor(Math.random() * from.length)];
+      }
       return null;
     });
-    if ([0, 1].every(t => this.teamPlayers(t).length <= 1)) { this.setupBoard(); return; }
+    if (this.randomRoles || [0, 1].every(t => this.teamPlayers(t).length <= 1)) { this.setupBoard(); return; }
     this.phase = 'roles';
     this.setTimer(ROLES_MS);
     this.later(ROLES_MS, () => this.finishRoles());
@@ -181,6 +218,11 @@ class Codenames {
     });
     this.turn = first;
     this.remaining = [counts[0], counts[1]];
+    // Remember this game's teams and hint-givers for next time.
+    memory.teams = new Map(this.teamOf);
+    for (const id of this.spymasterOf) if (id != null) memory.spies.add(id);
+    const everyone = [...this.players.keys()];
+    if (everyone.every(id => memory.spies.has(id))) memory.spies = new Set(this.spymasterOf.filter(id => id != null));
     this.clue = null;
     this.log = [];
     this.startClue();

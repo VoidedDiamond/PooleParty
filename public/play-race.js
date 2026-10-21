@@ -82,4 +82,47 @@
     });
   };
   GAMES.popinorder.phone = pop;
+
+  // ---- Odd One Out ----
+  const odd = { inputScreens };
+  odd.screen = (s, me) => {
+    const w = waitScreen(s, 'Every picture is the same but one. Tap the odd one!') || resultsScreen(s, me);
+    if (w) return w;
+    if (s.phase !== 'play') return finalScoresPhone(s, me);
+    const m = s.me;
+    return { key: `play:${m.idx}:${m.last ? m.last.n : 0}`, html: `<div class="rc-top"><span>${icon('check')} ${m.right}</span><b>${m.pts} pts</b></div>${bar(s.endsAt, s.windowMs)}
+      <p class="note">${esc(s.roundLabel)}</p>
+      <div class="oo-grid${flash(s)}" style="--n:${m.item.size}">${m.item.cells.map((c, i) => `<button class="oo-cell" data-cell="${i}"><span class="${c.t || ''}">${c.e}</span></button>`).join('')}</div>` };
+  };
+  odd.wire = (key, s) => {
+    if (!key.startsWith('play')) return;
+    document.querySelectorAll('.oo-cell').forEach(b => {
+      b.onclick = () => { if (serverNow() < (s.me.lockUntil || 0)) return; b.classList.add('popping'); act('move', { idx: s.me.idx, cell: Number(b.dataset.cell) }); };
+    });
+  };
+  GAMES.oddoneout.phone = odd;
+
+  // ---- Color Clash ----
+  const INK = { red: '#ff4d4d', blue: '#4d9dff', green: '#3ccf6e', yellow: '#ffd43b', purple: '#b57bff', orange: '#ff922b' };
+  const clash = { inputScreens };
+  clash.screen = (s, me) => {
+    const w = waitScreen(s, 'Tap the color of the INK, not what the word says.') || resultsScreen(s, me);
+    if (w) return w;
+    if (s.phase !== 'play') return finalScoresPhone(s, me);
+    const m = s.me, it = m.item;
+    const opts = it.options.map(o => (it.style === 'swatch'
+      ? `<button class="cc-opt swatch" data-v="${o.name}" style="--c:${INK[o.name]}" aria-label="${o.name}"></button>`
+      : `<button class="cc-opt" data-v="${o.name}" style="--c:${INK[o.ink]}">${o.name.toUpperCase()}</button>`)).join('');
+    return { key: `play:${m.idx}`, html: `<div class="rc-top"><span>${icon('check')} ${m.right}</span><b>${m.pts} pts</b></div>${bar(s.endsAt, s.windowMs)}
+      <p class="cc-ask ${it.ask}">Tap the ${it.ask === 'ink' ? '<b>INK</b> color' : '<b>WORD</b>'}</p>
+      <div class="cc-word${flash(s)}" style="color:${INK[it.ink]}">${it.word.toUpperCase()}</div>
+      <div class="cc-opts">${opts}</div>` };
+  };
+  clash.wire = (key, s) => {
+    if (!key.startsWith('play')) return;
+    document.querySelectorAll('.cc-opt').forEach(b => {
+      b.onclick = () => { if (serverNow() < (s.me.lockUntil || 0)) return; act('move', { idx: s.me.idx, value: b.dataset.v }); };
+    });
+  };
+  GAMES.colorclash.phone = clash;
 })();

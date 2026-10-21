@@ -24,6 +24,9 @@ const { Memory } = require('./games/memory');
 const { QuickMath } = require('./games/quickmath');
 const { PopInOrder } = require('./games/popinorder');
 const { Flip7 } = require('./games/flip7');
+const { OddOneOut } = require('./games/oddoneout');
+const { ColorClash } = require('./games/colorclash');
+const { Blurry } = require('./games/blurry');
 const { Neanderthals } = require('./games/neanderthals');
 const content = require('./games/content');
 const { Announcer } = require('./games/announcer');
@@ -136,6 +139,9 @@ const GAMES = {
   memory: { min: 1, make: () => new Memory(players, broadcast) },
   quickmath: { min: 1, make: () => new QuickMath(players, broadcast) },
   popinorder: { min: 1, make: () => new PopInOrder(players, broadcast) },
+  oddoneout: { min: 1, make: () => new OddOneOut(players, broadcast) },
+  colorclash: { min: 1, make: () => new ColorClash(players, broadcast) },
+  blurry: { min: 1, make: () => new Blurry(players, broadcast) },
   flip7: { min: 2, make: (opts) => new Flip7(players, broadcast, { variant: opts.variant, target: opts.target }) },
 };
 
@@ -350,7 +356,7 @@ io.on('connection', socket => {
     const r = socket.data.role;
     if (r !== 'console' && r !== 'player') return ack('Not allowed');
     const isHost = r === 'player' && !!socket.data.playerId && socket.data.playerId === currentHostId();
-    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest', 'sound', 'aiJudge', 'aiBudget', 'hostStyle', 'voiceName', 'readAloud']);
+    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest', 'sound', 'aiJudge', 'aiBudget', 'hostStyle', 'voiceName', 'readAloud', 'hostChat']);
     let err = null;
     try {
       if (HOST_ACTIONS.has(type) && r !== 'console' && !isHost) {
@@ -370,6 +376,8 @@ io.on('connection', socket => {
       } else if (type === 'voiceName') {
         houseSettings.update({ voiceName: (payload && payload.name) || null });
         if (announcer.mode !== 'off') hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'The host just got a new voice. Say hi to the room in character.' });
+      } else if (type === 'hostChat') {
+        houseSettings.update({ hostChat: payload && payload.chat });
       } else if (type === 'readAloud') {
         houseSettings.update({ readAloud: !!(payload && payload.on) });
       } else if (type === 'aiBudget') {

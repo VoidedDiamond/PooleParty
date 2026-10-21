@@ -5,6 +5,8 @@
   const HOW = {
     quickmath: 'Answer the sums on your phone. Fast!',
     popinorder: 'Pop the bubbles on your phone from smallest to largest!',
+    oddoneout: 'Find the odd one out on your phone!',
+    colorclash: 'Tap the right color on your phone. Read carefully!',
   };
 
   function header(s, label) {
@@ -73,4 +75,6 @@
   };
   GAMES.quickmath.tv = tv;
   GAMES.popinorder.tv = tv;
+  GAMES.oddoneout.tv = tv;
+  GAMES.colorclash.tv = tv;
 })();

@@ -2,7 +2,7 @@
 
 Jackbox-style game night on your own network. One laptop runs the server and shows the game on the TV. Everyone else plays from their phone browser. No account, no app, no internet needed once it is set up.
 
-Nineteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, Flip 7 (and Flip 7: With a Vengeance), and Brain Games (Count the Cubes, Tip the Scales, Memory Flash, Quick Math, Pop in Order). No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
+Nineteen games in one app, 1-10 players depending on the game: Jeopardy, Family Feud, Wheel of Fortune, Wavelength, Pictionary (with a Disney word list), T-Shirt Wars, Trivia (5th Grade or Disney), Name That Disney Movie, Codenames, Password, Scattergories, Hangman, Neanderthals, Flip 7 (and Flip 7: With a Vengeance), and Brain Games (Count the Cubes, Tip the Scales, Memory Flash, Quick Math, Pop in Order, Odd One Out, Color Clash, Blurry Picture). No human judge is needed anywhere — typed answers are checked by a fuzzy matcher, drawing/trivia games are scored automatically, and Scattergories answers are settled by a quick group challenge vote instead of one person adjudicating.
 
 ## Run it
 
@@ -109,7 +109,8 @@ If a Disney pack is present, the host's phone shows a Standard / Disney Night to
 - First correct guess ends the round and reveals the title; if nobody gets it, the movie is revealed once all clues run out. Plays 8 rounds, then a final scoreboard.
 
 ### Codenames
-- 3+ players: choose Random Teams or Pick Your Team when you start it (2 players just get one per side automatically). Each team's first member becomes its spymaster.
+- 3+ players: choose Random Teams or Pick Your Team when you start it (2 players just get one per side automatically).
+- Random Teams splits the players who are actually connected as evenly as possible (an odd player out goes to a random side), avoids repeating last game's teams, and picks each team's spymaster at random, handing the role to someone who hasn't had it recently. Pick Your Team lets everyone choose a side, then each team chooses its spymaster.
 - The spymaster sees every word's secret color on their own phone and types a one-word clue plus a number; their teammates tap words on their phones to guess (the TV board only reveals colors as they're actually guessed, so nobody else can peek).
 - Guessing the other team's word or a neutral word ends your turn; guessing the black assassin word loses instantly. First team to find all of their own words wins.
 - Colorblind friendly: every card whose color is known carries a shape (red ▲, blue ■, neutral —, assassin ✕), and each phone has a Colorblind mode switch that adds stripes and stronger contrast.
@@ -137,7 +138,7 @@ Based on the card games by The Op. Pick **Flip 7** or **With a Vengeance**, to 2
 - Turns time out after 30 seconds (the player stays) and choices after 25 (picked at random), so an absent player never holds up the table.
 
 ### Brain Games
-One tile on the menu holds the quick puzzle games, inspired by Big Brain Academy. Pick one from the host's phone: Count the Cubes (Normal or Hard), Tip the Scales, Memory Flash, Quick Math, or Pop in Order.
+One tile on the menu holds the quick puzzle games, inspired by Big Brain Academy. Pick one from the host's phone: Count the Cubes (Normal or Hard), Tip the Scales, Memory Flash, Quick Math, Pop in Order, Odd One Out, Color Clash, or Blurry Picture.
 
 ### Count the Cubes
 Inspired by the block-counting puzzle in Big Brain Academy. **Normal** or **Hard**.
@@ -165,6 +166,18 @@ Inspired by the balance puzzles in Big Brain Academy.
 ### Pop in Order
 - Numbered bubbles appear on your phone; pop them from smallest to largest. Everyone gets the same sets.
 - Each right pop scores 2 and a finished set adds 10. A wrong pop costs 5 and freezes you for a second. Three 40-second rounds: small numbers, bigger numbers (with look-alikes like 16 and 61), then little sums like 3×4 to work out.
+
+### Odd One Out
+- A grid of pictures on your phone, all the same except one: tap it. Everyone gets the same grids.
+- Right: +10. Wrong: −5 and a one-second freeze. Three 40-second rounds: a look-alike picture (🍎 among 🍅), a mirror image, then a slightly tilted one in a bigger 5x5 grid.
+
+### Color Clash
+- A color word written in the wrong ink (RED in blue). Tap the color of the INK.
+- Right: +10. Wrong: −5 and a short freeze. Round 1 has color swatches to tap; round 2's buttons are color words in the wrong ink too; round 3 sometimes asks for the WORD instead.
+
+### Blurry Picture
+- A picture starts blurry and zoomed in on the TV and comes into focus over 15 seconds. Pick it from four choices on your phone, one guess each.
+- Right answers score up to 200 the sooner you answer, down to 50 once it's sharp. Ten rounds, zooming in further as they go.
 
 ### Neanderthals
 Based on the rules of Poetry for Neanderthals. Two ways to play: **Teams** (Team Glad vs Team Mad, 4+ players) or **Everyone for themselves**.
@@ -227,6 +240,13 @@ say them, and the voice they get:
 ones. That's why the desktop shortcut opens the TV in Edge. If the list on your phone says the
 voices sound robotic, the TV page is open in another browser: open
 `http://localhost:3000/host` in Edge instead. Natural voices need the internet.
+
+**How often the host talks** (Less / Normal / More) sets how chatty the host is. Big moments (a
+new game, a Daily Double, a steal, the assassin, a Flip 7, the winner) always get a line. Everyday
+moments like a right or wrong answer only get one now and then: Normal waits a while between
+comments and skips some. More reacts to most answers; Less sticks to the big moments. Pre-written
+lines are shuffled so the host goes through every line it has for a moment before repeating one,
+and the AI host is shown its last ten lines and told not to repeat itself.
 
 **Read questions aloud** (on by default) has the host read out each question, clue and category
 like a real game show: the Family Feud survey question, the Jeopardy clue, the trivia question, the
@@ -366,7 +386,8 @@ Everywhere else in this app, an action goes through the same round trip: a playe
     server.js               sockets, players, game menu, reconnect tokens, live-stroke relay
     games/                  jeopardy.js, feud.js, wheel.js, wavelength.js,
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
-                             cubes.js, scales.js, memory.js, quickmath.js, popinorder.js
+                             cubes.js, scales.js, memory.js, quickmath.js, popinorder.js, oddoneout.js,
+                             colorclash.js, blurry.js
                              (brain games; race.js is the shared race engine), flip7.js, match.js, content.js
     games/announcer.js      host voice lines (classic, or written by Claude)
     games/judge.js          the AI answer judge (second look at rejected answers)
