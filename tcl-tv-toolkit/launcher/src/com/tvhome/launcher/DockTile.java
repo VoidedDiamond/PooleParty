@@ -28,12 +28,13 @@ import android.widget.TextView;
  */
 final class DockTile extends LinearLayout {
 
-    static final int GLYPH_ALL_APPS = 1, GLYPH_SETTINGS = 2;
+    static final int GLYPH_ALL_APPS = 1, GLYPH_SETTINGS = 2, GLYPH_INPUTS = 3;
 
     final FrameLayout card;
     final TextView caption;
     String pkg;          // package this tile opens (null for special tiles)
     String label;
+    int glyph;           // GLYPH_* for special tiles, 0 for apps
     boolean installed = true;
     private final boolean alwaysCaption;
 
@@ -87,6 +88,7 @@ final class DockTile extends LinearLayout {
     void bindApp(String label, String pkg, boolean isInstalled) {
         this.label = label;
         this.pkg = pkg;
+        this.glyph = 0;
         this.installed = isInstalled;
         caption.setText(isInstalled ? label : label + " · Get");
         card.removeAllViews();
@@ -125,6 +127,7 @@ final class DockTile extends LinearLayout {
     void bindGlyph(String label, int glyph) {
         this.label = label;
         this.pkg = null;
+        this.glyph = glyph;
         caption.setText(label);
         card.removeAllViews();
         ((GradientDrawable) card.getBackground()).setColor(0xCC3A4150);
@@ -177,6 +180,21 @@ final class DockTile extends LinearLayout {
                 for (int i = 0; i < 3; i++)
                     for (int j = 0; j < 3; j++)
                         c.drawCircle(w * (0.2f + 0.3f * i), h * (0.2f + 0.3f * j), r, p);
+            } else if (kind == GLYPH_INPUTS) {
+                // a screen outline with an arrow coming in from the left
+                Paint stroke = new Paint(p);
+                stroke.setStyle(Paint.Style.STROKE);
+                stroke.setStrokeWidth(w * 0.08f);
+                stroke.setStrokeJoin(Paint.Join.ROUND);
+                stroke.setStrokeCap(Paint.Cap.ROUND);
+                c.drawRoundRect(w * 0.30f, h * 0.16f, w * 0.94f, h * 0.70f, w * 0.06f, w * 0.06f, stroke);
+                c.drawLine(w * 0.48f, h * 0.86f, w * 0.76f, h * 0.86f, stroke);
+                c.drawLine(w * 0.06f, h * 0.43f, w * 0.56f, h * 0.43f, stroke);
+                Path head = new Path();
+                head.moveTo(w * 0.44f, h * 0.31f);
+                head.lineTo(w * 0.60f, h * 0.43f);
+                head.lineTo(w * 0.44f, h * 0.55f);
+                c.drawPath(head, stroke);
             } else {
                 float cx = w / 2, cy = h / 2, ro = w * 0.46f, ri = w * 0.34f;
                 Path gear = new Path();

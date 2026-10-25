@@ -221,6 +221,9 @@ public class MainActivity extends Activity {
         DockTile all = tile();
         all.bindGlyph("All Apps", DockTile.GLYPH_ALL_APPS);
         dock.addView(all);
+        DockTile inputs = tile();
+        inputs.bindGlyph("Inputs", DockTile.GLYPH_INPUTS);
+        dock.addView(inputs);
         DockTile settings = tile();
         settings.bindGlyph("Settings", DockTile.GLYPH_SETTINGS);
         dock.addView(settings);
@@ -257,14 +260,37 @@ public class MainActivity extends Activity {
     }
 
     private void open(DockTile t) {
-        if (t.pkg == null) {
-            if ("All Apps".equals(t.label)) startActivity(new Intent(this, AllAppsActivity.class));
-            else Apps.openSettings(this);
+        if (t.glyph == DockTile.GLYPH_ALL_APPS) {
+            startActivity(new Intent(this, AllAppsActivity.class));
+        } else if (t.glyph == DockTile.GLYPH_INPUTS) {
+            showInputs();
+        } else if (t.glyph == DockTile.GLYPH_SETTINGS) {
+            Apps.openSettings(this);
         } else if (t.installed) {
             Apps.launch(this, t.pkg);
         } else {
             Apps.openStore(this, t.pkg);
         }
+    }
+
+    /** The Inputs tile: pick HDMI 1, HDMI 2, Antenna... (stands in for the remote's Input button). */
+    private void showInputs() {
+        final java.util.List<Apps.TvInput> inputs = Apps.tvInputs(this);
+        if (inputs.isEmpty()) {
+            Apps.openTvApp(this);
+            return;
+        }
+        String[] names = new String[inputs.size()];
+        for (int i = 0; i < names.length; i++) names[i] = inputs.get(i).label;
+        new AlertDialog.Builder(this, AlertDialog.THEME_DEVICE_DEFAULT_DARK)
+                .setTitle("Inputs")
+                .setItems(names, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface d, int which) {
+                        Apps.switchTo(MainActivity.this, inputs.get(which));
+                    }
+                })
+                .show();
     }
 
     /** OK-and-hold or Menu on a dock tile: move it or take it off the dock. */

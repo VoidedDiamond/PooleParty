@@ -146,6 +146,9 @@ PART 3 - RUN IT (about 15-20 minutes)
        This is needed: otherwise Google TV takes the Home button back
        after a minute or after a restart. It's only switched off, not
        deleted, and Undo brings it back.
+       Side effect: the remote's Settings and Input buttons stop working
+       (Google TV's home screen runs them). Use the Settings and Inputs
+       tiles at the end of TV Home's app row instead.
      - It then offers to restart the TV to check TV Home stays.
        Press Enter and leave the TV alone for 1-2 minutes until it's back.
 
@@ -162,7 +165,9 @@ USING TV HOME
 
   * Left / right moves along your apps. OK opens one.
   * The row starts with: Netflix, YouTube, Disney+, Peacock, Prime Video,
-    Hulu, HBO Max, then "All Apps" and "Settings".
+    Hulu, HBO Max, then "All Apps", "Inputs" and "Settings".
+  * "Inputs" switches to HDMI 1, HDMI 2, Antenna and so on (use it instead
+    of the remote's Input button). "Settings" opens the TV settings.
   * An app you haven't installed shows as a faded tile. Press OK on it
     to open its page in the Play Store and install it.
   * "All Apps" shows everything installed on the TV.
@@ -237,6 +242,16 @@ The Home button (or a restart) brings back the old TCL / Google TV screen
        each question. It switches off the Google TV home screen so TV
        Home stays, then restarts the TV to check.
 
+The remote's Settings or Input button does nothing
+    -> Expected on Google TV once its home screen is switched off. Use the
+       Settings and Inputs tiles at the far right of TV Home's app row.
+
+GETTING A NEWER VERSION OF THIS KIT
+    -> Unzip the new kit, copy the "tv-data" folder from the old kit
+       into the new one, then double-click
+       Update dock and wallpapers (Windows).bat  - it installs the new
+       TV Home and keeps your app row and settings.
+
 The TV shows a black screen after pressing Home
     -> Don't panic, the laptop can still reach it. Double-click
        Undo everything (Windows).bat  and restart the TV.
@@ -308,7 +323,8 @@ WHAT'S IN THIS FOLDER
   Run on Windows.bat                   START HERE - runs every step
   Undo everything (Windows).bat        puts the TV back how it was
   Update dock and wallpapers (Windows).bat
-                                       sends app-row changes and photos
+                                       sends app-row changes and photos,
+                                       and installs a newer TV Home
   Fix Home button (Windows).bat        if Home goes back to the old screen
   config\dock.txt                      which apps are in the row
   wallpapers\                          put your own photos here (optional)

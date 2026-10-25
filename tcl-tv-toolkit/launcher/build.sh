@@ -57,4 +57,6 @@ echo "Signing..."
 # apksig 2.3 (the newest on Maven Central) touches a JDK-internal class while loading, hence the export
 java --add-exports java.base/sun.security.x509=ALL-UNNAMED -cp "$APKSIG" tools/Sign.java build/unsigned.apk build/tvhome.apk "$KEYSTORE" "$KEYPASS"
 mkdir -p prebuilt && cp build/tvhome.apk prebuilt/tvhome.apk
+# 4_launcher.sh --update-dock compares this with the version on the TV
+sed -n 's/.*android:versionCode="\([0-9]*\)".*/\1/p' AndroidManifest.xml | head -1 > prebuilt/VERSION
 echo "✔ Built build/tvhome.apk ($(wc -c < build/tvhome.apk | tr -d ' ') bytes), also copied to prebuilt/tvhome.apk"

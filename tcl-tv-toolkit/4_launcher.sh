@@ -5,7 +5,8 @@
 #        ./4_launcher.sh --build            rebuild the APK from source first (needs Java; see launcher/build.sh)
 #        ./4_launcher.sh --apk file.apk     install a different APK
 #        ./4_launcher.sh --no-default       install and preview only
-#        ./4_launcher.sh --update-dock      just push config/dock.txt and wallpapers/ to the TV (no reinstall)
+#        ./4_launcher.sh --update-dock      push config/dock.txt and wallpapers/ to the TV, and update TV Home
+#                                           itself if this kit has a newer version than the TV
 #        ./4_launcher.sh --replace-wallpapers   delete the photos already on the TV first
 #        ./4_launcher.sh --fix-home         only (re)do the "make it the home screen" part
 set -u
@@ -58,9 +59,26 @@ push_files() {
   tvsh "am broadcast -a $LAUNCHER_PKG.RELOAD -p $LAUNCHER_PKG" >/dev/null 2>&1
 }
 
+# install the kit's TV Home if it's newer than the one on the TV (settings and dock edits are kept)
+update_app() {
+  local have new apk="launcher/prebuilt/tvhome.apk" out
+  pkg_exists "$LAUNCHER_PKG" || return 0
+  new="$(head -1 launcher/prebuilt/VERSION 2>/dev/null | tr -dc 0-9)"
+  have="$(tvsh dumpsys package "$LAUNCHER_PKG" | grep -oE 'versionCode=[0-9]+' | head -1 | cut -d= -f2)"
+  [ -n "$new" ] && [ -f "$apk" ] || return 0
+  if [ -z "$have" ] || [ "$new" -gt "$have" ]; then
+    say "Updating TV Home on the TV (version ${have:-?} -> $new)..."
+    out="$(A install -r "$apk" 2>&1 | tr -d '\r' | tail -3)"
+    case "$out" in *Success*) ok "TV Home updated" ;; *) warn "couldn't update TV Home: $out" ;; esac
+  else
+    dim "TV Home is already the latest version ($have)"
+  fi
+}
+
 if [ "$UPDATE_ONLY" = 1 ]; then
   init_shots
   head1 "Updating dock and wallpapers"
+  update_app
   push_files
   tvsh "am start -n $FULL" >/dev/null 2>&1; sleep 4
   shot "dock_updated" "Home screen after updating the dock"

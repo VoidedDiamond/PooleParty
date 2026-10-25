@@ -69,13 +69,16 @@ Some settings adb can't change reliably. The script lists them at the end so you
   (alpine dawn, ocean sunset, northern lights, misty forest, desert dunes, lake at dusk), different each time.
   To use your own photos, put them in `wallpapers/` and run `./4_launcher.sh --update-dock`.
 - A clock and date, top right.
-- **The dock:** Netflix, YouTube, Disney+, Peacock, Prime Video, Hulu, HBO Max, then All Apps and Settings.
+- **The dock:** Netflix, YouTube, Disney+, Peacock, Prime Video, Hulu, HBO Max, then All Apps, Inputs and Settings.
+  Inputs lists the TV's inputs (HDMI 1, Antenna...) and switches to the one you pick; with Google TV's home switched off
+  the remote's own Settings and Input buttons do nothing, so these two tiles replace them.
   An app that isn't installed shows a dimmed tile that opens its Play Store page.
 - After 45 seconds without input, everything except the wallpaper fades away. Any button brings it back.
 - **Changing the dock:**
   - On the TV: hold OK (or press Menu) on a dock tile to move or remove it. In All Apps, hold OK on any app to add it.
-  - From the laptop: edit `config/dock.txt`, then run `./4_launcher.sh --update-dock`. The same file sets the wallpaper interval, 12/24-hour clock and motion on/off.
-- It's a 36 KB app with no internet access, no tracking and no background services.
+  - From the laptop: edit `config/dock.txt`, then run `./4_launcher.sh --update-dock` (this also installs a newer TV Home
+    when the kit has one). The same file sets the wallpaper interval, 12/24-hour clock and motion on/off.
+- It's a 38 KB app with no internet access, no tracking and no background services.
 
 **About Google TV's Home button:** Google TV lets another home screen take over for a while, then takes the Home button
 back (and always after a restart). On Google TV, `4_launcher.sh` therefore recommends switching the Google TV home off.
