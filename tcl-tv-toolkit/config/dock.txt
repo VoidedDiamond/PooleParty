@@ -1,0 +1,15 @@
+# Dock apps, left to right:   Label|package[,fallback package...]
+# After editing, send it to the TV with:  ./4_launcher.sh --update-dock
+# An app that isn't installed shows a dimmed tile that opens its Play Store page.
+Netflix|com.netflix.ninja
+YouTube|com.google.android.youtube.tv
+Disney+|com.disney.disneyplus
+Peacock|com.peacocktv.peacockandroid
+Prime Video|com.amazon.amazonvideo.livingroom,com.amazon.avod.thirdpartyclient
+Hulu|com.hulu.livingroomplus
+HBO Max|com.wbd.stream,com.hbo.hbonow
+
+# Settings
+@wallpaper_seconds|60
+@clock|12h
+@motion|on
