@@ -1,0 +1,318 @@
+=====================================================================
+  TV HOME + DEBLOAT  -  make a slow, ad-filled TCL TV fast again
+=====================================================================
+
+WHAT THIS DOES
+--------------
+This kit runs on a laptop that's on the same Wi-Fi as your TV. It:
+
+  1. Finds your TV on the Wi-Fi and connects to it.
+  2. Backs up the TV's current setup to the laptop BEFORE changing anything.
+  3. Switches off the junk: manufacturer ads, tracking ("viewing data"),
+     sponsored rows and pop-ups. It ASKS YOU before every group, and it
+     only switches things off - it never deletes or uninstalls anything.
+  4. Installs "TV Home", a clean, fast home screen in the style of Apple TV:
+     a row of your favourite apps over slowly changing nature pictures,
+     with a clock. No ads, no recommendations, no tracking.
+  5. Gives you a one-click UNDO that puts everything back exactly as it was.
+
+After each step it takes a screenshot from the TV and asks whether
+everything still looks right. If you say no, that step is undone on the spot.
+
+The laptop only needs to stay on while it runs (about 20-30 minutes).
+After that, everything lives on the TV and you won't need the laptop
+unless you want to undo something or change the app row.
+
+Works on TCL Google TV / Android TV sets (and most other Android TVs).
+It does NOT work on Roku TVs (TCL also sells those - if your TV's home
+screen says "Roku", this isn't for you).
+
+
+WHAT YOU NEED
+-------------
+  * A Windows laptop or PC on the same Wi-Fi as the TV
+    (a Mac works too - see "MAC USERS" near the end)
+  * The TV remote
+  * About 30 minutes
+
+
+=====================================================================
+PART 1 - SET UP THE LAPTOP (one time, about 10 minutes)
+=====================================================================
+
+1. Install "Git for Windows". It provides the program that runs these
+   scripts.
+     - Go to  https://git-scm.com/download/win
+     - Download it, then click "Next" through the installer.
+       The default options are all fine.
+
+2. Install "adb", the free Google tool that talks to the TV.
+     - Press the Windows key, type  cmd  and open "Command Prompt"
+     - Type this and press Enter:
+           winget install Google.PlatformTools
+     - When it says it's finished, close the window.
+     - Restart the laptop (so Windows can find the new tool).
+
+   (If "winget" isn't recognised: download "SDK Platform-Tools for
+    Windows" from https://developer.android.com/tools/releases/platform-tools
+    and unzip it so the "platform-tools" folder sits INSIDE this folder,
+    next to this file.)
+
+3. Unzip this kit somewhere easy, like your Desktop.
+   (Right-click the zip > "Extract All" > "Extract".)
+
+
+=====================================================================
+PART 2 - SET UP THE TV (one time, about 3 minutes)
+=====================================================================
+
+4. Unlock the hidden "Developer options" menu:
+     - On the TV go to  Settings > System > About
+     - Scroll down to "Build" (it may say "Android TV OS build")
+     - Press OK on it 7 times, until it says "You are now a developer"
+
+5. Turn on debugging:
+     - Go back to  Settings > System > Developer options
+     - Turn on "USB debugging"
+     - If you also see "Network debugging" or "Wireless debugging",
+       turn that on too.
+   (This is what lets the laptop talk to the TV over Wi-Fi.
+    It's perfectly safe; you can turn it off again afterwards.)
+
+6. Find the TV's IP address, just in case the laptop can't find the TV
+   on its own:
+     - Settings > Network & Internet > your Wi-Fi network
+     - Write down the "IP address", e.g.  192.168.1.50
+
+
+=====================================================================
+PART 3 - RUN IT (about 15-20 minutes)
+=====================================================================
+
+7. In this folder, double-click   Run on Windows.bat
+     - If a blue "Windows protected your PC" box appears, click
+       "More info" > "Run anyway". (It appears because the file was
+       downloaded; it isn't a virus warning about this file.)
+
+   A black window opens and asks questions. In every question:
+     * The capital letter is the suggested answer: [Y/n] means
+       "yes unless you say otherwise". Just press ENTER to accept it.
+     * Type  y  or  n  and press Enter to choose yourself.
+
+8. CONNECT
+     - It searches for the TV. If it finds it, confirm with Enter.
+       If not, type the IP address from step 6 and press Enter.
+     - >>> LOOK AT THE TV NOW <<<  A box "Allow USB debugging?" pops up.
+       Tick "Always allow from this computer" and press OK.
+       (If you miss it, just run the .bat file again.)
+
+9. BACKUP - runs by itself.
+     - If it asks "Also copy their APK files to this laptop?", press
+       Enter (no - you don't need them).
+
+10. CLEAN-UP (the "debloat")
+
+    a) First it asks which TV features you use, e.g. voice search,
+       casting from your phone, live TV / antenna, soundbar control.
+       Say YES (or just press Enter) to anything you use or MIGHT use.
+       Everything related to those is then left completely alone.
+
+    b) Then it shows each group of junk, one at a time:
+         - Advertising
+         - Tracking / "viewing data"
+         - Promotions and sponsored stuff
+         - Feedback and survey pop-ups
+       Press Enter to switch off the whole group, n to skip it, or r to
+       go through it one item at a time.
+
+    c) After EACH group, look at the TV. If it looks and works normally,
+       press Enter. If anything seems broken, type  n  and that group is
+       switched straight back on.
+
+    d) Two lists where nothing is picked for you:
+         - "TCL's own apps I couldn't classify"
+         - "Other preinstalled apps"
+       Type the numbers of any you never use (e.g.  1 3  or  2-4),
+       or just press Enter to skip. When in doubt, skip.
+
+    e) Speed tweaks: press Enter for both (faster menus, freed storage).
+
+11. NEW HOME SCREEN
+     - It installs TV Home and shows it on the TV. Move left and right
+       with the remote. If it looks right, press Enter.
+     - Press Enter again to make it your home screen.
+     - If it says "The Home button still goes to the old home screen",
+       that's normal on Google TV: Google keeps its own home screen in
+       charge of the Home button. Type  y  to switch the Google home
+       screen off. It's only switched off, not deleted (Undo brings it
+       back), and the script checks it worked - if not, it puts
+       everything back by itself.
+
+12. When it says "All done", close the window.
+
+13. Restart the TV: hold the remote's power button > Restart.
+
+That's it. You can unplug / switch off the laptop.
+
+
+=====================================================================
+USING TV HOME
+=====================================================================
+
+  * Left / right moves along your apps. OK opens one.
+  * The row starts with: Netflix, YouTube, Disney+, Peacock, Prime Video,
+    Hulu, HBO Max, then "All Apps" and "Settings".
+  * An app you haven't installed shows as a faded tile. Press OK on it
+    to open its page in the Play Store and install it.
+  * "All Apps" shows everything installed on the TV.
+  * After 45 seconds without touching the remote, everything except the
+    picture fades away, like a screensaver. Any button brings it back.
+  * The pictures change every minute. They're drawn by the app itself
+    (mountains, ocean sunset, northern lights, forest, desert, lake),
+    so they're different every time and need no internet.
+
+CHANGE WHICH APPS ARE IN THE ROW - on the TV, no laptop needed:
+  * Add an app:     open All Apps, highlight the app, HOLD the OK button
+                    (or press Menu) > "Add to dock"
+  * Move / remove:  on the home screen, highlight the app, HOLD OK >
+                    "Move left", "Move right" or "Remove from dock"
+
+USE YOUR OWN PHOTOS AS THE BACKGROUND (needs the laptop):
+  1. Copy .jpg or .png photos into the "wallpapers" folder in this kit
+     (wide landscape photos look best).
+  2. Double-click   Update dock and wallpapers (Windows).bat
+
+CHANGE THE APP ROW OR SETTINGS FROM THE LAPTOP (optional):
+  * Open  config\dock.txt  in Notepad. Each line is  Name|app id .
+    You can reorder lines, delete lines, switch the clock to 24-hour
+    (@clock|24h), change how often the picture changes
+    (@wallpaper_seconds|60), or turn the slow picture drift off
+    (@motion|off).
+  * Then double-click   Update dock and wallpapers (Windows).bat
+
+
+=====================================================================
+UNDO EVERYTHING
+=====================================================================
+
+  1. Make sure the TV is on, on the same Wi-Fi, and the laptop is on.
+  2. Double-click   Undo everything (Windows).bat
+  3. Press Enter to confirm.
+  4. Restart the TV.
+
+This switches every app back on, puts the settings back, brings back the
+original home screen, and removes TV Home.
+
+IMPORTANT: keep the "tv-data" folder that appears inside this kit after
+the first run. It holds the backup, and Undo needs it. Don't delete this
+kit from the laptop until you're sure you're happy.
+
+
+=====================================================================
+IF SOMETHING GOES WRONG
+=====================================================================
+
+"Git for Windows is needed"
+    -> Do step 1, then double-click the .bat file again.
+
+"adb isn't installed"
+    -> Restart the laptop after step 2. If it still says that, use the
+       platform-tools download described in step 2.
+
+It can't find or connect to the TV
+    -> TV switched on (not standby)? Both on the same Wi-Fi network?
+       "USB debugging" still on? Then run the .bat file again - it's
+       always safe to run again; it picks up where it left off.
+    -> Missed the "Allow USB debugging?" box on the TV? Run it again
+       and watch the TV.
+
+Something on the TV stopped working after the clean-up
+    -> Double-click  Undo everything (Windows).bat
+       (Or, to keep TV Home but find the culprit: run the clean-up again
+        and say no to the group that caused it.)
+
+The TV shows a black screen after pressing Home
+    -> Don't panic, the laptop can still reach it. Double-click
+       Undo everything (Windows).bat  and restart the TV.
+
+Want to see the screenshots it took along the way?
+    -> Open  tv-data  > backups > (the folder inside) > any folder named
+       "screenshots..." and open  index.html .
+       (A screenshot can come out black while a streaming app is
+        playing - that's the app's copy protection, not a problem.)
+
+The TV installed a software update and some ads came back
+    -> Just double-click  Run on Windows.bat  again.
+
+
+=====================================================================
+COMMON QUESTIONS
+=====================================================================
+
+Is it safe?
+    Nothing is deleted. Apps are only switched off, the same way you
+    could switch them off yourself in Settings > Apps, and Undo switches
+    them all back on. Core parts of the TV (Google Play, picture and
+    sound, HDMI, remote pairing, system updates, voice search if you use
+    it) are on a protected list and are never offered.
+
+Will the TV still get updates?
+    Yes. The update services are protected and never switched off.
+
+Does TV Home spy on me or use the internet?
+    No. It has no internet permission at all, no ads, no tracking. It's
+    a tiny app (36 KB) that only shows your apps, a clock and pictures.
+
+Do I need to keep the laptop connected?
+    No. Only while the kit runs, or later to undo or update.
+
+Should I turn off USB debugging afterwards?
+    You can (Settings > System > Developer options). Turn it back on if
+    you ever want to undo or update.
+
+Some settings worth switching off by hand (the kit reminds you at the end):
+    - Settings > Privacy > Usage & diagnostics: off
+    - Settings > Privacy > Ads: delete advertising ID / opt out
+    - TCL: Settings > Privacy (or System > Advanced) >
+      "Viewing information services": off
+
+
+=====================================================================
+MAC USERS
+=====================================================================
+
+  * Skip Git for Windows.
+  * Install adb: open Terminal and run
+        brew install android-platform-tools
+    (No Homebrew? Get it first from https://brew.sh )
+  * Instead of double-clicking the .bat files, open Terminal, type  cd
+    and a space, drag this folder onto the Terminal window, press Enter,
+    then run:
+        bash run_all.sh                      (instead of Run on Windows.bat)
+        bash restore.sh                      (Undo everything)
+        bash 4_launcher.sh --update-dock     (Update dock and wallpapers)
+
+
+=====================================================================
+WHAT'S IN THIS FOLDER
+=====================================================================
+
+  READ ME FIRST.txt                    this guide
+  Run on Windows.bat                   START HERE - runs every step
+  Undo everything (Windows).bat        puts the TV back how it was
+  Update dock and wallpapers (Windows).bat
+                                       sends app-row changes and photos
+  config\dock.txt                      which apps are in the row
+  wallpapers\                          put your own photos here (optional)
+
+  run_all.sh, 1_connect.sh, 2_backup.sh, 3_debloat.sh, 4_launcher.sh,
+  restore.sh, lib.sh                   the scripts the .bat files run
+  candidates.conf                      what the clean-up looks for and
+                                       what it must never touch
+  launcher\prebuilt\tvhome.apk         the TV Home app itself
+  launcher\ (everything else)          TV Home's source code - only
+                                       needed if someone wants to modify it
+  README.md                            technical notes
+
+  tv-data\                             created on first run: the backup
+                                       and screenshots. KEEP IT.

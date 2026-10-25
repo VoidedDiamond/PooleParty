@@ -156,9 +156,9 @@ say "Storage     : $(tvsh df -h /data | tail -1 | awk '{print $4" free of "$2" (
 say "Current home: $(current_home)"
 printf '%s' "$brand" | grep -qi tcl && ok "That looks like a TCL." || warn "This doesn't report itself as a TCL ($brand). The scripts still work, but double-check it's the right TV."
 if printf '%s' "$builds" | grep -qi "$EXPECTED_BUILD"; then
-  ok "Build matches the one you gave me ($EXPECTED_BUILD)."
+  ok "Same TV software this toolkit was made on ($EXPECTED_BUILD)."
 else
-  warn "Build number differs from the one you gave me ($EXPECTED_BUILD) - fine if the TV updated since."
+  say "  (Different TV software from the one this was made on ($EXPECTED_BUILD) - that's fine, it works on any Android/Google TV.)"
 fi
 
 init_shots

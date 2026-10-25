@@ -72,7 +72,7 @@ head1 "Step 4: the home screen"
 # ---------------------------------------------------------------- the APK
 if [ "$BUILD" = 1 ]; then
   say "Building the launcher from source..."
-  ( cd launcher && ./build.sh ) || die "The build didn't finish (see above). The ready-made APK in launcher/prebuilt/ still works."
+  ( cd launcher && bash ./build.sh ) || die "The build didn't finish (see above). The ready-made APK in launcher/prebuilt/ still works."
   APK="launcher/build/tvhome.apk"
 fi
 [ -n "$APK" ] || APK="launcher/prebuilt/tvhome.apk"

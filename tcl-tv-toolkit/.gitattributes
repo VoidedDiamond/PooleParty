@@ -10,3 +10,4 @@
 *.apk   binary
 *.png   binary
 *.p12   binary
+READ[[:space:]]ME[[:space:]]FIRST.txt text eol=crlf

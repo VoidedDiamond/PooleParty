@@ -15,7 +15,7 @@ LAUNCHER_PKG="com.tvhome.launcher"
 LAUNCHER_ACT=".MainActivity"
 FILES_DIR_ON_TV="/sdcard/Android/data/$LAUNCHER_PKG/files"
 WALL_DIR_ON_TV="$FILES_DIR_ON_TV/wallpapers"
-EXPECTED_BUILD="R51MT08"      # from the build number you gave: V8-R51MT08-LF1VO95.021344
+EXPECTED_BUILD="R51MT08"      # the TCL build this was made on: V8-R51MT08-LF1VO95.021344
 
 # Stock home screens we know about (Google TV, Android TV, TCL's own)
 STOCK_HOMES="com.google.android.apps.tv.launcherx com.google.android.tvlauncher com.google.android.leanbacklauncher com.tcl.cyberui com.tcl.home"
