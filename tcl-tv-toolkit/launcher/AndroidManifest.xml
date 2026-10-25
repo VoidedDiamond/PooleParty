@@ -2,8 +2,8 @@
 <!-- Compiled to Android's binary format by tools/mkapk.py (no Android SDK needed). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.tvhome.launcher"
-    android:versionCode="2"
-    android:versionName="1.1">
+    android:versionCode="3"
+    android:versionName="1.2">
 
     <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="29" />
 

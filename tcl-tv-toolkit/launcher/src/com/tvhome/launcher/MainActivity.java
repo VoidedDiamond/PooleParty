@@ -273,9 +273,9 @@ public class MainActivity extends Activity {
         }
     }
 
-    /** The Inputs tile: pick HDMI 1, HDMI 2, Antenna... (stands in for the remote's Input button). */
+    /** The Inputs tile: pick HDMI 1, 2, 3 (stands in for the remote's Input button). */
     private void showInputs() {
-        final java.util.List<Apps.TvInput> inputs = Apps.tvInputs(this);
+        final java.util.List<Apps.TvInput> inputs = Apps.hdmiInputs(this, config.inputNames);
         if (inputs.isEmpty()) {
             Apps.openTvApp(this);
             return;

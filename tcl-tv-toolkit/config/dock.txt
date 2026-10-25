@@ -13,3 +13,9 @@ HBO Max|com.wbd.stream,com.hbo.hbonow
 @wallpaper_seconds|60
 @clock|12h
 @motion|on
+
+# Names for the Inputs list (optional). Devices like game consoles and cable boxes
+# usually name themselves; a soundbar often can't, so name its port here, e.g.:
+#@hdmi1|Xbox
+#@hdmi2|Soundbar
+#@hdmi3|Cable box

@@ -16,7 +16,7 @@ import java.util.List;
  *
  * Text format (same as config/dock.txt on the laptop):
  *   Label|package[,fallback package...]
- *   @wallpaper_seconds|60     @clock|12h or 24h     @motion|on or off
+ *   @wallpaper_seconds|60     @clock|12h or 24h     @motion|on or off     @hdmi2|Soundbar
  *
  * Two copies can exist: dock.txt pushed by 4_launcher.sh into the app's external files folder, and
  * dock_user.txt written when you edit the dock on the TV. Whichever was changed last wins.
@@ -63,6 +63,8 @@ final class DockConfig {
     int wallpaperSeconds = 60;
     boolean clock24 = false;
     boolean motion = true;
+    /** Your own names for HDMI ports (@hdmi1|Xbox), shown in the Inputs list. */
+    final java.util.TreeMap<Integer, String> inputNames = new java.util.TreeMap<>();
     /** The raw text this was parsed from; used to notice changes cheaply. */
     String source = "";
 
@@ -79,6 +81,7 @@ final class DockConfig {
             fallback.wallpaperSeconds = cfg.wallpaperSeconds;
             fallback.clock24 = cfg.clock24;
             fallback.motion = cfg.motion;
+            fallback.inputNames.putAll(cfg.inputNames);
             return fallback;
         }
         return cfg;
@@ -115,6 +118,8 @@ final class DockConfig {
             clock24 = value.startsWith("24");
         } else if (key.equals("motion")) {
             motion = !value.equalsIgnoreCase("off");
+        } else if (key.matches("hdmi[0-9]+") && !value.isEmpty()) {
+            inputNames.put(Integer.parseInt(key.substring(4)), value);
         }
     }
 
@@ -131,6 +136,9 @@ final class DockConfig {
         sb.append("@wallpaper_seconds|").append(wallpaperSeconds).append('\n');
         sb.append("@clock|").append(clock24 ? "24h" : "12h").append('\n');
         sb.append("@motion|").append(motion ? "on" : "off").append('\n');
+        for (java.util.Map.Entry<Integer, String> e : inputNames.entrySet()) {
+            sb.append("@hdmi").append(e.getKey()).append('|').append(e.getValue()).append('\n');
+        }
         return sb.toString();
     }
 

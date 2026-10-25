@@ -9,6 +9,7 @@ import android.media.tv.TvContract;
 import android.media.tv.TvInputInfo;
 import android.media.tv.TvInputManager;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import java.text.Collator;
@@ -81,8 +82,13 @@ final class Apps {
         }
     }
 
-    /** The TV's inputs as the system lists them, using the names set in Settings. Empty if none. */
-    static List<TvInput> tvInputs(Context c) {
+    /**
+     * The TV's HDMI ports only (no antenna, AV...), in port order, each labelled with what's on it:
+     * your own name from dock.txt (@hdmi2|Soundbar), else a name you gave it in the TV's settings,
+     * else the names connected devices announce over HDMI-CEC (consoles, streaming and cable boxes),
+     * else whether anything is plugged in. Empty if the TV doesn't list its inputs.
+     */
+    static List<TvInput> hdmiInputs(Context c, Map<Integer, String> myNames) {
         List<TvInput> out = new ArrayList<>();
         TvInputManager m = (TvInputManager) c.getSystemService(Context.TV_INPUT_SERVICE);
         if (m == null) return out;
@@ -93,18 +99,88 @@ final class Apps {
             return out;
         }
         if (all == null) return out;
+
+        // devices plugged into each port that announced themselves (CEC "child" inputs)
+        Map<String, List<String>> devices = new LinkedHashMap<>();
         for (TvInputInfo info : all) {
-            if (info.getParentId() != null) continue;   // devices behind an HDMI port (CEC) - the port itself is listed
-            CharSequence label = null;
+            if (info.getParentId() == null) continue;
+            CharSequence l = info.loadLabel(c);
+            if (l == null || l.length() == 0) continue;
+            List<String> list = devices.get(info.getParentId());
+            if (list == null) devices.put(info.getParentId(), list = new ArrayList<>());
+            if (!list.contains(l.toString())) list.add(l.toString());
+        }
+
+        List<TvInputInfo> ports = new ArrayList<>();
+        for (TvInputInfo info : all) {
+            if (info.getParentId() != null || info.getType() != TvInputInfo.TYPE_HDMI) continue;
             try {
-                if (info.isHidden(c)) continue;          // inputs hidden in Settings
-                label = info.loadCustomLabel(c);
+                if (info.isHidden(c)) continue;          // inputs hidden in the TV's settings
             } catch (RuntimeException ignored) {
             }
-            if (label == null || label.length() == 0) label = info.loadLabel(c);
-            out.add(new TvInput(info.getId(), label == null ? info.getId() : label.toString(), info.isPassthroughInput()));
+            ports.add(info);
         }
+        // only trust "nothing connected" if this TV reports plugged/unplugged at all
+        boolean reportsCables = false;
+        for (TvInputInfo info : ports) if (state(m, info) == TvInputManager.INPUT_STATE_DISCONNECTED) reportsCables = true;
+
+        final Map<TvInput, Integer> order = new java.util.HashMap<>();
+        for (int i = 0; i < ports.size(); i++) {
+            TvInputInfo info = ports.get(i);
+            CharSequence sys = info.loadLabel(c), custom = null;
+            try {
+                custom = info.loadCustomLabel(c);
+            } catch (RuntimeException ignored) {
+            }
+            int port = portNumber(sys == null ? null : sys.toString(), i + 1);
+            String label = inputLabel(port, myNames == null ? null : myNames.get(port),
+                    sys == null ? null : sys.toString(), custom == null ? null : custom.toString(),
+                    devices.get(info.getId()), state(m, info), reportsCables);
+            TvInput in = new TvInput(info.getId(), label, true);
+            order.put(in, port);
+            out.add(in);
+        }
+        Collections.sort(out, new Comparator<TvInput>() {
+            @Override
+            public int compare(TvInput a, TvInput b) {
+                return order.get(a) - order.get(b);
+            }
+        });
         return out;
+    }
+
+    private static int state(TvInputManager m, TvInputInfo info) {
+        try {
+            return m.getInputState(info.getId());
+        } catch (RuntimeException e) {
+            return TvInputManager.INPUT_STATE_CONNECTED;
+        }
+    }
+
+    /** "HDMI 2", "HDMI2", "HDMI 2 (ARC)" -> 2; otherwise the fallback. */
+    static int portNumber(String systemLabel, int fallback) {
+        if (systemLabel != null) {
+            java.util.regex.Matcher mt = java.util.regex.Pattern.compile("(\\d+)").matcher(systemLabel);
+            if (mt.find()) return Integer.parseInt(mt.group(1));
+        }
+        return fallback;
+    }
+
+    /** e.g. "HDMI 1  ·  PlayStation 5", "HDMI 2  ·  Soundbar", "HDMI 3  ·  nothing connected". */
+    static String inputLabel(int port, String myName, String systemLabel, String customLabel,
+                             List<String> devices, int state, boolean reportsCables) {
+        String what = null;
+        if (myName != null && !myName.trim().isEmpty()) {
+            what = myName.trim();
+        } else if (customLabel != null && !customLabel.trim().isEmpty() && !customLabel.trim().equals(systemLabel)
+                && portNumber(customLabel, -1) != port) {
+            what = customLabel.trim();
+        } else if (devices != null && !devices.isEmpty()) {
+            what = TextUtils.join(", ", devices);
+        } else if (reportsCables) {
+            what = state == TvInputManager.INPUT_STATE_DISCONNECTED ? "nothing connected" : "connected";
+        }
+        return what == null ? "HDMI " + port : "HDMI " + port + "  \u00b7  " + what;
     }
 
     /** The standard Android TV request to show an input; the TV's own TV app carries it out. */

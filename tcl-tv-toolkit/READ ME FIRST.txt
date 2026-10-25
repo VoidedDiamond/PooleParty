@@ -166,8 +166,21 @@ USING TV HOME
   * Left / right moves along your apps. OK opens one.
   * The row starts with: Netflix, YouTube, Disney+, Peacock, Prime Video,
     Hulu, HBO Max, then "All Apps", "Inputs" and "Settings".
-  * "Inputs" switches to HDMI 1, HDMI 2, Antenna and so on (use it instead
-    of the remote's Input button). "Settings" opens the TV settings.
+  * "Inputs" lists HDMI 1, 2 and 3 with what's plugged into each, e.g.
+        HDMI 1  ·  PlayStation 5
+        HDMI 2  ·  Soundbar
+        HDMI 3  ·  nothing connected
+    Pick one to switch to it (use it instead of the remote's Input
+    button). "Settings" opens the TV settings.
+
+NAME YOUR HDMI PORTS (optional):
+  Game consoles, streaming boxes and cable boxes name themselves. A
+  soundbar usually can't, so its port just says "connected". To name it:
+  1. Open  config\dock.txt  in Notepad. At the bottom you'll see lines like
+         #@hdmi2|Soundbar
+  2. Remove the  #  and change the number/name to match, e.g.
+         @hdmi2|Soundbar
+  3. Save, then double-click   Update dock and wallpapers (Windows).bat
   * An app you haven't installed shows as a faded tile. Press OK on it
     to open its page in the Play Store and install it.
   * "All Apps" shows everything installed on the TV.
