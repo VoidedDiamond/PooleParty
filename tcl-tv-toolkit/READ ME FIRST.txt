@@ -141,12 +141,13 @@ PART 3 - RUN IT (about 15-20 minutes)
      - It installs TV Home and shows it on the TV. Move left and right
        with the remote. If it looks right, press Enter.
      - Press Enter again to make it your home screen.
-     - If it says "The Home button still goes to the old home screen",
-       that's normal on Google TV: Google keeps its own home screen in
-       charge of the Home button. Type  y  to switch the Google home
-       screen off. It's only switched off, not deleted (Undo brings it
-       back), and the script checks it worked - if not, it puts
-       everything back by itself.
+     - On Google TV it then says "This TV runs Google TV" and asks to
+       switch off the Google TV home screen. Press Enter (yes).
+       This is needed: otherwise Google TV takes the Home button back
+       after a minute or after a restart. It's only switched off, not
+       deleted, and Undo brings it back.
+     - It then offers to restart the TV to check TV Home stays.
+       Press Enter and leave the TV alone for 1-2 minutes until it's back.
 
 12. When it says "All done", close the window.
 
@@ -231,6 +232,11 @@ Something on the TV stopped working after the clean-up
        (Or, to keep TV Home but find the culprit: run the clean-up again
         and say no to the group that caused it.)
 
+The Home button (or a restart) brings back the old TCL / Google TV screen
+    -> Double-click  Fix Home button (Windows).bat  and press Enter at
+       each question. It switches off the Google TV home screen so TV
+       Home stays, then restarts the TV to check.
+
 The TV shows a black screen after pressing Home
     -> Don't panic, the laptop can still reach it. Double-click
        Undo everything (Windows).bat  and restart the TV.
@@ -291,6 +297,7 @@ MAC USERS
         bash run_all.sh                      (instead of Run on Windows.bat)
         bash restore.sh                      (Undo everything)
         bash 4_launcher.sh --update-dock     (Update dock and wallpapers)
+        bash 4_launcher.sh --fix-home        (Fix Home button)
 
 
 =====================================================================
@@ -302,6 +309,7 @@ WHAT'S IN THIS FOLDER
   Undo everything (Windows).bat        puts the TV back how it was
   Update dock and wallpapers (Windows).bat
                                        sends app-row changes and photos
+  Fix Home button (Windows).bat        if Home goes back to the old screen
   config\dock.txt                      which apps are in the row
   wallpapers\                          put your own photos here (optional)
 

@@ -77,9 +77,12 @@ Some settings adb can't change reliably. The script lists them at the end so you
   - From the laptop: edit `config/dock.txt`, then run `./4_launcher.sh --update-dock`. The same file sets the wallpaper interval, 12/24-hour clock and motion on/off.
 - It's a 36 KB app with no internet access, no tracking and no background services.
 
-**About Google TV's Home button:** Google TV keeps its own home in charge of the Home button. If pressing Home still opens
-the Google TV home, `4_launcher.sh` explains this and offers to switch that home off. It's *disabled, not uninstalled*, and
-`restore.sh` switches it back on. It tests the Home button afterwards and puts everything back automatically if that didn't work.
+**About Google TV's Home button:** Google TV lets another home screen take over for a while, then takes the Home button
+back (and always after a restart). On Google TV, `4_launcher.sh` therefore recommends switching the Google TV home off.
+It's *disabled, not uninstalled*, and `restore.sh` switches it back on. It then tests the Home button (twice, starting
+from another screen), offers to restart the TV to confirm TV Home survives the restart, and puts everything back
+automatically if it didn't work. If Home ever goes back to the old screen, run `./4_launcher.sh --fix-home`
+(Windows: `Fix Home button (Windows).bat`).
 
 ## Undo
 
