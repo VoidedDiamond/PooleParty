@@ -30,6 +30,19 @@ commands above in PowerShell, first run `$env:Path = "$PWD\node;$env:Path"` in t
 Allowing Node through the firewall (below) can need an admin password, so on a locked-down computer
 phones may not be able to connect even though the TV screen works.
 
+**Sharing it with friends (no install at all):** friends who don't want to touch Node or npm can
+download one file and double-click it, the way you'd start any other game: `PooleParty.exe` on
+Windows, or `PooleParty-Mac.zip` for Macs with Apple chips. Send them
+https://github.com/VoidedDiamond/PooleParty/releases/latest, which has step-by-step instructions
+(`.github/release-notes.md`) above the download links. To publish a new version from whatever is on
+main, open the repo's **Actions** tab, pick **Downloads**, and click **Run workflow**; it builds both
+files on GitHub's Windows and Mac machines, checks that they start, and adds them as a new release.
+To build just for the computer you're on, run `node tools/build-release.js` (Node 20.12 or newer),
+which writes `dist/PooleParty.exe` (or `dist/PooleParty`) and test-launches it. The download is
+the Node runtime with the app packed inside (`tools/launcher.js` unpacks it to the user's app-data
+folder on first run and after updates, keeping their settings), so it's about 100 MB. It isn't
+code-signed, so Windows and macOS warn about it the first time; the release notes walk through that.
+
 The terminal prints the addresses:
 
 - TV display: `http://localhost:3000/host` (fullscreen on the TV, F11)
@@ -184,7 +197,8 @@ Everywhere else in this app, an action goes through the same round trip: a playe
                              pictionary.js, tshirt.js, trivia.js, moviereveal.js,
                              match.js, content.js
     tools/                  data download and build scripts, family filter,
-                             get-node.ps1 (portable Node for Poole Party.bat)
+                             get-node.ps1 (portable Node for Poole Party.bat),
+                             build-release.js + launcher.js (the no-install download)
     content/                sample content and generated banks (jeopardy/, feud/, wheel/,
                              wavelength/, pictionary/, tshirt/, trivia/, movie/)
     public/host*.js         TV views          public/play*.js     phone views

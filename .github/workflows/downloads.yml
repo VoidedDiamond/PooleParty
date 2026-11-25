@@ -1,0 +1,64 @@
+# Builds the no-install downloads (PooleParty.exe for Windows, PooleParty-Mac.zip for Macs
+# with Apple chips) on GitHub's own Windows and Mac machines, using tools/build-release.js.
+#
+# To publish a new version for friends: Actions tab -> Downloads -> Run workflow. That adds a
+# release whose files anyone can download from
+# https://github.com/VoidedDiamond/PooleParty/releases/latest
+# Pushes that change the build itself only build and test, without publishing.
+name: Downloads
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - tools/build-release.js
+      - tools/launcher.js
+      - .github/workflows/downloads.yml
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: node tools/build-release.js
+      # A bare file loses its "can run" permission when a browser downloads it; a zip keeps it.
+      - name: Zip the Mac app
+        if: runner.os == 'macOS'
+        working-directory: dist
+        run: |
+          mv PooleParty "Poole Party"
+          ditto -c -k "Poole Party" PooleParty-Mac.zip
+          rm "Poole Party"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "build-${{ github.run_number }}" dist/* \
+            --target "${{ github.sha }}" \
+            --title "Poole Party, $(date -u '+%B %-d, %Y')" \
+            --notes-file .github/release-notes.md
