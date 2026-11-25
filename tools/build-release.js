@@ -26,7 +26,8 @@ const DIST = path.join(ROOT, 'dist');
 // stays out. Only files tracked by git go in, so local keys and settings never ship.
 const SHIP = ['server.js', 'package.json', 'package-lock.json', 'games/', 'public/', 'content/', 'data/'];
 const SKIP = ['data/raw/'];
-const TOOLS = { postject: '1.0.0-alpha.6', rcedit: '5.0.2' };
+// Build-time helpers, pinned. resedit's pe-library dependency is pinned too.
+const TOOLS = { postject: '1.0.0-alpha.6', resedit: '3.1.0', 'pe-library': '2.0.1' };
 const SEA_FUSE = 'NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2';
 const WIN = process.platform === 'win32';
 const MAC = process.platform === 'darwin';
@@ -67,13 +68,34 @@ function pack(dir) {
   return { count: files.length, packed: zlib.gzipSync(Buffer.concat([len, header, ...files.map(f => f.data)]), { level: 9 }) };
 }
 
-function findSigntool() {
-  const kits = path.join(process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)', 'Windows Kits', '10', 'bin');
-  try {
-    return fs.readdirSync(kits).sort().reverse()
-      .map(v => path.join(kits, v, 'x64', 'signtool.exe'))
-      .find(f => fs.existsSync(f));
-  } catch { return null; }
+// Gives the exe Poole Party's icon and name, which the firewall prompt and Task Manager show
+// instead of "Node.js JavaScript Runtime". Also drops Node's signature, which the injection
+// has already broken.
+async function brandWindowsExe(exe, tools) {
+  const { NtExecutable, NtExecutableResource, Data, Resource } =
+    await import(pathToFileURL(path.join(tools, 'node_modules', 'resedit', 'dist', 'index.js')).href);
+  const bin = NtExecutable.from(fs.readFileSync(exe), { ignoreCert: true });
+  const res = NtExecutableResource.from(bin);
+  const icons = Data.IconFile.from(fs.readFileSync(path.join(ROOT, 'Poole Party.ico'))).icons.map(i => i.data);
+  for (const group of Resource.IconGroupEntry.fromEntries(res.entries)) {
+    Resource.IconGroupEntry.replaceIconsForResource(res.entries, group.id, group.lang, icons);
+  }
+  const [info] = Resource.VersionInfo.fromEntries(res.entries);
+  for (const lang of info.getAllLanguagesForStringValues()) {
+    info.removeStringValue(lang, 'CompanyName');
+    info.setStringValues(lang, {
+      FileDescription: 'Poole Party',
+      ProductName: 'Poole Party',
+      InternalName: 'PooleParty',
+      OriginalFilename: 'PooleParty.exe',
+    });
+  }
+  const [major, minor, micro] = pkg.version.split('.').map(n => parseInt(n, 10) || 0);
+  info.setFileVersion(major, minor, micro, 0);
+  info.setProductVersion(major, minor, micro, 0);
+  info.outputToResourceEntries(res.entries);
+  res.outputResource(bin);
+  fs.writeFileSync(exe, Buffer.from(bin.generate()));
 }
 
 // Starts the built app the way a double-click would (with a throwaway home folder and a
@@ -154,42 +176,22 @@ async function main() {
   execFileSync(process.execPath, ['--experimental-sea-config', path.join(BUILD, 'sea-config.json')], { stdio: 'inherit' });
 
   const tools = path.join(BUILD, 'tools');
-  const want = WIN ? ['postject', 'rcedit'] : ['postject'];
-  run(`npm install --prefix "${tools}" --no-save --no-audit --no-fund ${want.map(t => `${t}@${TOOLS[t]}`).join(' ')}`);
+  const want = Object.keys(TOOLS).filter(t => WIN || t === 'postject');
+  run(`npm install --prefix "${tools}" --no-save --ignore-scripts --no-audit --no-fund ${want.map(t => `${t}@${TOOLS[t]}`).join(' ')}`);
   const { inject } = require(path.join(tools, 'node_modules', 'postject'));
 
   const exe = path.join(DIST, WIN ? 'PooleParty.exe' : 'PooleParty');
   fs.rmSync(exe, { force: true });
   fs.copyFileSync(process.execPath, exe);
   fs.chmodSync(exe, 0o755);
-  if (WIN) {
-    // Node's own signature would be broken by the edits below; take it off cleanly.
-    const signtool = findSigntool();
-    try {
-      if (!signtool) throw new Error('signtool not found (it comes with the Windows SDK)');
-      execFileSync(signtool, ['remove', '/s', exe], { stdio: 'inherit' });
-    } catch (e) {
-      console.warn(`Couldn't remove the old signature, carrying on: ${e.message}`);
-    }
-    // The name here is what the firewall prompt and Task Manager show, instead of "Node.js".
-    const { rcedit } = await import(pathToFileURL(path.join(tools, 'node_modules', 'rcedit', 'lib', 'index.js')).href);
-    await rcedit(exe, {
-      icon: path.join(ROOT, 'Poole Party.ico'),
-      'file-version': pkg.version,
-      'product-version': pkg.version,
-      'version-string': {
-        FileDescription: 'Poole Party',
-        ProductName: 'Poole Party',
-        InternalFilename: 'PooleParty',
-        OriginalFilename: 'PooleParty.exe',
-      },
-    });
-  }
   if (MAC) execFileSync('codesign', ['--remove-signature', exe], { stdio: 'inherit' });
   await inject(exe, 'NODE_SEA_BLOB', fs.readFileSync(path.join(BUILD, 'sea.blob')), {
     sentinelFuse: SEA_FUSE,
     ...(MAC ? { machoSegmentName: 'NODE_SEA' } : {}),
   });
+  // After injecting, not before: resedit then only rewrites the resource section, which
+  // postject has already moved to the end of the file.
+  if (WIN) await brandWindowsExe(exe, tools);
   if (MAC) execFileSync('codesign', ['--sign', '-', exe], { stdio: 'inherit' });
   console.log(`Built ${path.relative(ROOT, exe)} (${(fs.statSync(exe).size / 1e6).toFixed(0)} MB)`);
 

@@ -28,6 +28,13 @@ jobs:
         with:
           node-version: 24
       - run: node tools/build-release.js
+      - name: Check Windows sees the exe as Poole Party
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $info = (Get-Item dist/PooleParty.exe).VersionInfo
+          $info | Format-List FileDescription, ProductName, FileVersion, CompanyName
+          if ($info.FileDescription -ne 'Poole Party') { throw 'The exe still describes itself as Node.js' }
       # A bare file loses its "can run" permission when a browser downloads it; a zip keeps it.
       - name: Zip the Mac app
         if: runner.os == 'macOS'
