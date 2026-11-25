@@ -50,9 +50,10 @@
     },
     sounds(a, b) {
       if (!a) return;
+      if (b.phase === 'writing' && a.phase !== 'writing') sfx.start();
       if (b.phase === 'judging' && a.phase !== 'judging') sfx.pop();
-      if (b.phase === 'catResult' && a.phase !== 'catResult') sfx.whoosh();
-      if (b.phase === 'roundEnd' && a.phase !== 'roundEnd') sfx.splash();
+      if (b.phase === 'catResult' && a.phase !== 'catResult') sfx.flip();
+      if (b.phase === 'roundEnd' && a.phase !== 'roundEnd') sfx.kaching();
     },
   };
 })();

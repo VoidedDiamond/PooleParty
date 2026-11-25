@@ -1,6 +1,7 @@
 'use strict';
 const { sampleFill } = require('./content');
 const { judge } = require('./match');
+const ai = require('./judge');
 
 const ROUND_MS = 80000;
 const REVEAL_MS = 4500;
@@ -69,6 +70,7 @@ class Pictionary {
   }
 
   chooseWord(word) {
+    if (this.batcher) this.batcher.reset();
     this.word = this.choices.includes(word) ? word : this.choices[0];
     this.used.add(this.word);
     this.phase = 'drawing';
@@ -94,17 +96,12 @@ class Pictionary {
         const player = this.players.get(pid);
         const result = judge(text, [this.word]);
         if (result.index === 0) {
-          this.correctIds.add(pid);
-          const order = this.correctIds.size;
-          const pts = Math.max(50, 150 - (order - 1) * 30);
-          if (player) player.score += pts;
-          const drawer = this.players.get(this.drawerId);
-          if (drawer) drawer.score += 25;
           this.guesses.unshift({ name: player ? player.name : 'Someone', text, correct: true });
-          const guessers = [...this.players.values()].filter(x => x.connected && x.id !== this.drawerId).length;
-          if (guessers > 0 && this.correctIds.size >= guessers) this.endRound();
+          this.markCorrect(pid);
         } else {
-          this.guesses.unshift({ name: player ? player.name : 'Someone', text, correct: false });
+          const entry = { name: player ? player.name : 'Someone', text, correct: false };
+          this.guesses.unshift(entry);
+          this.aiCheck(pid, entry);
         }
         this.guesses = this.guesses.slice(0, 30);
         return null;
@@ -126,6 +123,38 @@ class Pictionary {
     }
   }
 
+  markCorrect(pid) {
+    const player = this.players.get(pid);
+    this.correctIds.add(pid);
+    const order = this.correctIds.size;
+    const pts = Math.max(50, 150 - (order - 1) * 30);
+    if (player) player.score += pts;
+    const drawer = this.players.get(this.drawerId);
+    if (drawer) drawer.score += 25;
+    const guessers = [...this.players.values()].filter(x => x.connected && x.id !== this.drawerId).length;
+    if (guessers > 0 && this.correctIds.size >= guessers) this.endRound();
+  }
+
+  // A wrong-looking guess gets a second look from Claude ("sofa" for "couch") while the round
+  // keeps going. Guesses that arrive together are judged in one request, a few per round.
+  aiCheck(pid, entry) {
+    if (entry.text.trim().length < 3) return;
+    if (!this.batcher) this.batcher = new ai.GuessBatcher({ maxRequests: 6 });
+    const seq = this.roundSeq;
+    const queued = this.batcher.add({
+      text: entry.text, answers: [this.word], opts: { mode: 'word', context: 'Pictionary: what is being drawn?' },
+      done: idx => {
+        entry.checking = false;
+        if (idx === 0 && this.phase === 'drawing' && this.roundSeq === seq && !this.correctIds.has(pid)) {
+          entry.correct = true;
+          this.markCorrect(pid);
+        }
+        this.notify();
+      },
+    });
+    if (queued) entry.checking = true;
+  }
+
   // ---- drawing relay hooks: called directly by server.js's 'stroke' socket
   // handler, bypassing the normal action/broadcast round trip so individual
   // points relay with minimal latency. ----
@@ -133,7 +162,8 @@ class Pictionary {
   recordStroke(kind, point, color) {
     if (kind === 'start') this.strokes.push({ c: color || '#141414', s: [point] });
     else if (kind === 'point') { const s = this.strokes[this.strokes.length - 1]; if (s) s.s.push(point); }
-    else if (kind === 'clear') this.strokes = [];
+    else if (kind === 'clear') { this.strokes = []; this.strokeRev = (this.strokeRev || 0) + 1; }
+    else if (kind === 'undo') { this.strokes.pop(); this.strokeRev = (this.strokeRev || 0) + 1; }
   }
 
   endRound() {
@@ -165,6 +195,7 @@ class Pictionary {
       drawerId: this.drawerId,
       drawerName: this.name(this.drawerId),
       roundSeq: this.roundSeq || 0,
+      strokeRev: this.strokeRev || 0,
       choices: (isDrawer || priv) && this.phase === 'choosing' ? this.choices : null,
       wordLength: this.word ? this.word.replace(/[^a-zA-Z]/g, '').length : 0,
       wordShape: this.word ? this.word.replace(/[A-Za-z]/g, '_') : '',

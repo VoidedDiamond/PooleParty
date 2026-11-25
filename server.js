@@ -18,8 +18,24 @@ const { Codenames } = require('./games/codenames');
 const { Password } = require('./games/password');
 const { Scattergories } = require('./games/scattergories');
 const { Hangman } = require('./games/hangman');
+const { Cubes } = require('./games/cubes');
+const { Scales } = require('./games/scales');
+const { Memory } = require('./games/memory');
+const { QuickMath } = require('./games/quickmath');
+const { PopInOrder } = require('./games/popinorder');
+const { Flip7 } = require('./games/flip7');
+const { OddOneOut } = require('./games/oddoneout');
+const { ColorClash } = require('./games/colorclash');
+const { Blurry } = require('./games/blurry');
+const { ClockReader } = require('./games/clock');
+const { CoinCount } = require('./games/coins');
+const { MirrorOrNot } = require('./games/mirror');
+const { Simon } = require('./games/simon');
 const { Neanderthals } = require('./games/neanderthals');
 const content = require('./games/content');
+const { Announcer } = require('./games/announcer');
+const claude = require('./games/claude');
+const houseSettings = require('./games/settings');
 
 const PORT = Number(process.env.PORT) || 3000;
 const HOST_KEY = process.env.HOST_KEY || crypto.randomBytes(3).toString('hex');
@@ -28,15 +44,26 @@ const MAX_PLAYERS = 10;
 const LOBBY_AWAY_PRUNE_MS = 60000;
 const COLORS = ['#ff5d5d', '#4fd18b', '#5aa9ff', '#ffa94d', '#c084fc', '#38d5e8', '#ff7ac6', '#c6e23b'];
 
-function lanAddress() {
-  const candidates = [];
-  for (const list of Object.values(os.networkInterfaces())) {
+// The laptop's address on the home network, for the QR code. Windows often has extra virtual
+// adapters (WSL, Hyper-V, VirtualBox, VPNs) whose addresses phones can't reach, so those go last,
+// and home-router ranges (192.168.x.x, then 10.x.x.x) go first.
+const VIRTUAL = /vethernet|virtual|vmware|vbox|hyper-v|wsl|docker|loopback|bluetooth|tailscale|zerotier|vpn|tap|tun/i;
+function lanAddresses() {
+  const found = [];
+  for (const [name, list] of Object.entries(os.networkInterfaces())) {
     for (const i of list || []) {
-      if (i.family === 'IPv4' && !i.internal) candidates.push(i.address);
+      if (i.family === 'IPv4' && !i.internal && !i.address.startsWith('169.254.')) found.push({ name, address: i.address });
     }
   }
-  const isPrivate = a => /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[01])\.)/.test(a);
-  return candidates.find(isPrivate) || candidates[0] || 'localhost';
+  const rank = ({ name, address }) => (VIRTUAL.test(name) ? 10 : 0)
+    + (address.startsWith('192.168.') ? 0 : address.startsWith('10.') ? 1 : /^172\.(1[6-9]|2\d|3[01])\./.test(address) ? 2 : 3);
+  return found.sort((a, b) => rank(a) - rank(b));
+}
+function lanAddress() {
+  const flagged = flag('ip') || process.env.LAN_IP;
+  if (flagged) return flagged;
+  const list = lanAddresses();
+  return list.length ? list[0].address : 'localhost';
 }
 const LAN_IP = lanAddress();
 const JOIN_URL = `http://${LAN_IP}:${PORT}`;
@@ -87,6 +114,7 @@ const disneySources = {
 // Trivia ships two independent packs (not a toggle on one game, since the question sets are
 // unrelated): 5th Grade and Disney. Both use the same game module.
 const triviaSources = {
+  general: tryLoad(content.loadTriviaSource, 'content/trivia/general.json'),
   fifthgrade: tryLoad(content.loadTriviaSource, 'content/trivia/fifthgrade.json'),
   disney: tryLoad(content.loadTriviaSource, 'content/trivia/disney.json'),
 };
@@ -103,14 +131,33 @@ const GAMES = {
   wavelength: { min: 2, make: (opts) => new Wavelength(players, broadcast, { source: pickSource('wavelength', opts) }) },
   pictionary: { min: 2, make: (opts) => new Pictionary(players, broadcast, { source: pickSource('pictionary', opts) }) },
   tshirt: { min: 2, make: (opts) => new Tshirt(players, broadcast, { source: sources.tshirt }) },
-  trivia: { min: 1, make: (opts) => new Trivia(players, broadcast, { source: triviaSources[opts.pack] || triviaSources.fifthgrade }) },
+  trivia: { min: 1, make: (opts) => new Trivia(players, broadcast, { source: triviaSources[opts.pack] || triviaSources.general || triviaSources.fifthgrade }) },
   moviereveal: { min: 1, make: (opts) => new MovieReveal(players, broadcast, { source: sources.moviereveal }) },
   codenames: { min: 2, make: (opts) => new Codenames(players, broadcast, { source: sources.codenames, teamMode: opts.teamMode }) },
   password: { min: 2, make: (opts) => new Password(players, broadcast, { source: sources.password }) },
   scattergories: { min: 1, make: (opts) => new Scattergories(players, broadcast, { source: sources.scattergories }) },
   hangman: { min: 2, make: (opts) => new Hangman(players, broadcast, { source: sources.hangman }) },
-  neanderthals: { min: 2, make: (opts) => new Neanderthals(players, broadcast, { source: sources.neanderthals }) },
+  neanderthals: { min: 2, make: (opts) => new Neanderthals(players, broadcast, { source: sources.neanderthals, mode: opts.mode }) },
+  cubes: { min: 1, make: (opts) => new Cubes(players, broadcast, { level: opts.level }) },
+  scales: { min: 1, make: () => new Scales(players, broadcast) },
+  memory: { min: 1, make: () => new Memory(players, broadcast) },
+  quickmath: { min: 1, make: () => new QuickMath(players, broadcast) },
+  popinorder: { min: 1, make: () => new PopInOrder(players, broadcast) },
+  oddoneout: { min: 1, make: () => new OddOneOut(players, broadcast) },
+  colorclash: { min: 1, make: () => new ColorClash(players, broadcast) },
+  blurry: { min: 1, make: () => new Blurry(players, broadcast) },
+  clock: { min: 1, make: () => new ClockReader(players, broadcast) },
+  coins: { min: 1, make: () => new CoinCount(players, broadcast) },
+  mirror: { min: 1, make: () => new MirrorOrNot(players, broadcast) },
+  simon: { min: 1, make: () => new Simon(players, broadcast) },
+  flip7: { min: 2, make: (opts) => new Flip7(players, broadcast, { variant: opts.variant, target: opts.target }) },
 };
+
+houseSettings.load(__dirname);
+claude.init(__dirname);
+claude.setBudget(houseSettings.settings.aiBudget);
+const announcer = new Announcer();
+const { settings } = houseSettings;
 
 let game = null; // null means the menu (or a game's intro) is showing
 let lastStart = null;
@@ -122,6 +169,7 @@ const INTRO_MS = 25000;
 let intro = null; // { type, opts, endsAt, timer }
 
 function startGame(type, opts = {}, { skipIntro = false } = {}) {
+  announcer.newGame(); // 'mix' host: a new character for each game
   const def = GAMES[type];
   if (!def) return 'Unknown game';
   if (players.size < def.min) return `Need at least ${def.min} player${def.min > 1 ? 's' : ''} for this game`;
@@ -168,6 +216,7 @@ function pruneAway() {
 function introView() {
   return {
     game: intro.type, phase: 'intro', endsAt: intro.endsAt, windowMs: INTRO_MS,
+    rules: (intro.opts && typeof intro.opts.rules === 'string' && intro.opts.rules) || intro.type, // a variant can have its own rules
     players: [...players.values()].map(p => ({ id: p.id, name: p.name, color: p.color, connected: p.connected, score: 0 })),
   };
 }
@@ -222,14 +271,40 @@ function broadcast() {
     const view = game ? game.view(role, s.data.playerId || null) : intro ? introView() : hubView();
     s.emit('state', {
       ...view, role, you: s.data.playerId || null, hostId, joinUrl: JOIN_URL,
-      wifiSsid: WIFI_SSID || null, content: labels, now: Date.now(),
+      wifiSsid: WIFI_SSID || null, content: labels, now: Date.now(), voice: announcer.status(),
+      sound: { music: settings.music, sfx: settings.sfx, voice: settings.voice }, aiJudge: settings.aiJudge && claude.hasKey(),
+      ai: claude.hasKey() ? { ...claude.usage(), budget: settings.aiBudget, byFeature: undefined } : null,
+      tvVoices,
     });
   }
 }
 
-function uniqueName(raw) {
-  const base = String(raw || '').trim().slice(0, 14) || 'Player';
-  const taken = new Set([...players.values()].map(p => p.name.toLowerCase()));
+async function hostSay(ev) {
+  const clip = (v, n) => (v == null ? undefined : String(v).slice(0, n));
+  const safe = {
+    key: clip(ev.key, 120), kind: clip(ev.kind, 20), game: clip(ev.game, 40), pri: Number(ev.pri) || 2,
+    name: clip(ev.name, 60), answer: clip(ev.answer, 80), fact: clip(ev.fact, 600),
+  };
+  try {
+    const line = await announcer.lineFor(safe, [...players.values()].map(p => p.name));
+    if (line) for (const s of io.sockets.sockets.values()) if (s.data.role === 'display') s.emit('hostSay', line);
+  } catch (e) { console.error(e); }
+}
+
+// Show (or clear) a Claude problem on the host's phone as soon as it happens, whether it came
+// from the host voice or the answer judge.
+// The spending meter on the host's phone updates the same way.
+let tvVoices = []; // English voices the TV's browser offers ({ name, lang, natural })
+let shownAiError = null;
+let shownAiRequests = 0;
+setInterval(() => {
+  const n = claude.usage().requests;
+  if (claude.lastError !== shownAiError || n !== shownAiRequests) { shownAiError = claude.lastError; shownAiRequests = n; broadcast(); }
+}, 1000);
+
+function uniqueName(raw, selfId = null) {
+  const base = String(raw || '').trim().replace(/\s+/g, ' ').slice(0, 14) || 'Player';
+  const taken = new Set([...players.values()].filter(p => p.id !== selfId).map(p => p.name.toLowerCase()));
   if (!taken.has(base.toLowerCase())) return base;
   for (let n = 2; ; n++) {
     const candidate = `${base.slice(0, 12)} ${n}`;
@@ -289,11 +364,44 @@ io.on('connection', socket => {
     const r = socket.data.role;
     if (r !== 'console' && r !== 'player') return ack('Not allowed');
     const isHost = r === 'player' && !!socket.data.playerId && socket.data.playerId === currentHostId();
-    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu']);
+    const HOST_ACTIONS = new Set(['startGame', 'startNow', 'toMenu', 'reset', 'kick', 'hubMenu', 'voiceMode', 'voiceTest', 'sound', 'aiJudge', 'aiBudget', 'hostStyle', 'voiceName', 'readAloud', 'hostChat']);
     let err = null;
     try {
       if (HOST_ACTIONS.has(type) && r !== 'console' && !isHost) {
         err = 'Only the host can do that';
+      } else if (type === 'voiceMode') {
+        err = announcer.setMode(payload && payload.mode);
+        if (!err && announcer.mode !== 'off') hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'The host just switched you on. Say hi to the room and get them excited for game night.' });
+      } else if (type === 'voiceTest') {
+        if (announcer.mode === 'off') err = 'The host voice is off';
+        else hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'Sound check before game night. Say hi to the room.' });
+      } else if (type === 'sound') {
+        houseSettings.update(payload || {});
+      } else if (type === 'hostStyle') {
+        houseSettings.update({ hostStyle: payload && payload.style });
+        announcer.newGame();
+        if (announcer.mode !== 'off') hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'You were just picked as tonight\'s host. Introduce yourself to the room in character.' });
+      } else if (type === 'voiceName') {
+        houseSettings.update({ voiceName: (payload && payload.name) || null });
+        if (announcer.mode !== 'off') hostSay({ key: `test:${Date.now()}`, kind: 'test', pri: 3, fact: 'The host just got a new voice. Say hi to the room in character.' });
+      } else if (type === 'hostChat') {
+        houseSettings.update({ hostChat: payload && payload.chat });
+      } else if (type === 'readAloud') {
+        houseSettings.update({ readAloud: !!(payload && payload.on) });
+      } else if (type === 'aiBudget') {
+        houseSettings.update({ aiBudget: Number(payload && payload.budget) });
+        claude.setBudget(settings.aiBudget);
+      } else if (type === 'aiJudge') {
+        const on = !!(payload && payload.on);
+        if (on) { claude.clearError(); if (!claude.load()) err = claude.lastError || claude.NO_KEY; }
+        if (!err) houseSettings.update({ aiJudge: on });
+      } else if (type === 'rename') {
+        // Players fix their own name from the lobby; mid-game it would confuse score lists.
+        const p = r === 'player' && players.get(socket.data.playerId);
+        if (!p) err = 'Players only';
+        else if (game || intro) err = 'You can change your name between games';
+        else if (!String((payload && payload.name) || '').trim()) err = 'Type a name first';
+        else p.name = uniqueName(payload.name, p.id);
       } else if (type === 'hubMenu') {
         if (!game && !intro) hubMenu = (payload && payload.game) || null;
       } else if (type === 'startGame') {
@@ -328,6 +436,24 @@ io.on('connection', socket => {
     broadcast();
   });
 
+  // The TV reports big moments (a wild answer, a Bankrupt, the winner); the host voice answers
+  // with a line that every TV speaks and captions.
+  // The TV says which voices its browser has, so the host's phone can offer them.
+  socket.on('tvVoices', list => {
+    if (socket.data.role !== 'display' || !Array.isArray(list)) return;
+    const clean = list.slice(0, 80).filter(v => v && typeof v.name === 'string').map(v => ({
+      name: v.name.slice(0, 120), lang: String(v.lang || '').slice(0, 20), natural: !!v.natural,
+    }));
+    if (JSON.stringify(clean) === JSON.stringify(tvVoices)) return;
+    tvVoices = clean;
+    broadcast();
+  });
+
+  socket.on('hostEvent', ev => {
+    if (socket.data.role !== 'display' || !ev || typeof ev !== 'object') return;
+    hostSay(ev);
+  });
+
   // Live drawing points (Pictionary). Bypasses the action/broadcast round trip: relayed straight
   // to the display for minimal latency, and only triggers a full state broadcast() at stroke
   // boundaries (end/clear), so a reconnecting TV can resync without every single point costing
@@ -339,10 +465,10 @@ io.on('connection', socket => {
     for (const s of io.sockets.sockets.values()) {
       if (s.data.role === 'display') s.emit('stroke', msg);
     }
-    if (typeof game.recordStroke === 'function' && (msg.kind === 'start' || msg.kind === 'point' || msg.kind === 'clear')) {
+    if (typeof game.recordStroke === 'function' && ['start', 'point', 'clear', 'undo'].includes(msg.kind)) {
       game.recordStroke(msg.kind, msg.point, msg.color);
     }
-    if (msg.kind === 'end' || msg.kind === 'clear') broadcast();
+    if (msg.kind === 'end' || msg.kind === 'clear' || msg.kind === 'undo') broadcast();
   });
 
   socket.on('disconnect', () => {
@@ -368,16 +494,22 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`Pictionary:    ${sources.pictionary.label}`);
   console.log(`T-Shirt Wars:  ${sources.tshirt.label}`);
   console.log(`Movie Reveal:  ${sources.moviereveal.label}`);
-  console.log(`Trivia packs:  ${['fifthgrade', 'disney'].filter(k => triviaSources[k]).join(', ') || 'none loaded'}`);
+  console.log(`Trivia packs:  ${['general', 'fifthgrade', 'disney'].filter(k => triviaSources[k]).join(', ') || 'none loaded'}`);
   console.log(`Codenames:     ${sources.codenames.label}`);
   console.log(`Password:      ${sources.password.label}`);
   console.log(`Scattergories: ${sources.scattergories.label}`);
   console.log(`Hangman:       ${sources.hangman.label}`);
   console.log(`Neanderthals:  ${sources.neanderthals.label}`);
+  console.log(`Claude key:    ${claude.hasKey() ? `found on ${claude.keyWhere} (${claude.keyHint})` : `none (save ${claude.KEY_FILE} on your Desktop to turn on the AI host and AI answers)`}`);
+  if (claude.hasKey()) console.log(`AI budget:     ${settings.aiBudget ? `$${settings.aiBudget.toFixed(2)} per session` : 'no limit'} (this month so far: $${claude.usage().month.toFixed(2)})`);
+  console.log(`Host voice:    ${claude.hasKey() ? 'AI lines from Claude (classic lines as backup)' : 'classic lines'}`);
+  console.log(`Answer check:  ${claude.hasKey() ? (settings.aiJudge ? 'built-in matcher + Claude for close calls' : 'built-in matcher (AI answers are off)') : 'built-in matcher'}`);
   console.log(`Disney night:  ${['jeopardy', 'feud', 'wheel', 'pictionary'].filter(g => disneySources[g]).join(', ') || 'not loaded'}`);
   console.log(`TV display:    http://localhost:${PORT}/host`);
   console.log(`Host console:  http://localhost:${PORT}/console`);
   console.log(`  from phone:  ${JOIN_URL}/console?key=${HOST_KEY}`);
   console.log(`Players join:  ${JOIN_URL}   (QR code is on the TV lobby)`);
+  const others = lanAddresses().filter(a => a.address !== LAN_IP);
+  if (others.length) console.log(`  not working?  try ${others.map(a => `http://${a.address}:${PORT} (${a.name})`).join(', ')}`);
   console.log(line);
 });

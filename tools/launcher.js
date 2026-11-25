@@ -83,8 +83,8 @@ function openBrowser(url) {
   let cmd = 'xdg-open', args = [url];
   if (process.platform === 'darwin') cmd = 'open';
   if (process.platform === 'win32') {
-    // Edge when it's there (it is on nearly every Windows PC): its "Natural" voices are the
-    // only lifelike ones Windows has, which matters if the TV reads anything out loud.
+    // Edge when it's there (it is on nearly every Windows PC), as Poole Party.bat does: its
+    // "Natural" voices are the only lifelike ones Windows has for the TV host's voice.
     const edge = [process.env['ProgramFiles(x86)'], process.env.ProgramFiles, process.env.LOCALAPPDATA]
       .filter(Boolean)
       .map(dir => path.join(dir, 'Microsoft', 'Edge', 'Application', 'msedge.exe'))

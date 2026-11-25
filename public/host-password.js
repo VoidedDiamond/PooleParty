@@ -36,8 +36,9 @@
     },
     sounds(a, b) {
       if (!a) return;
-      if (b.phase === 'guessing' && a.phase !== 'guessing') sfx.buzz();
-      if (b.phase === 'reveal' && a.phase !== 'reveal') sfx[b.awarded > 0 ? 'right' : 'wrong']();
+      if (b.phase === 'guessing' && a.phase !== 'guessing') sfx.tick();
+      if (b.phase === 'clue' && a.phase !== 'clue') sfx.pop();
+      if (b.phase === 'reveal' && a.phase !== 'reveal') sfx[b.awarded > 0 ? 'right' : 'lose']();
     },
   };
 })();

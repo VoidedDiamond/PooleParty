@@ -2,6 +2,7 @@
 (() => {
   let canvasObj = null;
   let lastRoundSeq = -1;
+  let lastStrokeRev = -1;
 
   onStroke(msg => {
     if (!canvasObj || !msg) return;
@@ -13,6 +14,7 @@
 
   function ensureCanvas(app) {
     if (canvasObj && app.querySelector('#pcanvas')) return;
+    lastStrokeRev = -1;
     app.innerHTML = `<div class="stage">
       <div class="pmain">
         <div class="pcanvaswrap"><canvas id="pcanvas"></canvas></div>
@@ -47,7 +49,8 @@
     sounds(a, b) {
       if (!a) return;
       if (b.phase === 'choosing' && a.phase !== 'choosing') sfx.pop();
-      if (a.phase !== 'reveal' && b.phase === 'reveal') sfx.whoosh();
+      if (b.phase === 'drawing' && a.phase !== 'drawing') sfx.start();
+      if (a.phase !== 'reveal' && b.phase === 'reveal') sfx[b.correctCount ? 'whoosh' : 'lose']();
       const ca = (a.guesses || []).filter(g => g.correct).length;
       const cb = (b.guesses || []).filter(g => g.correct).length;
       if (cb > ca) sfx.right();
@@ -59,15 +62,17 @@
 
       // drawing
       ensureCanvas(app);
-      if (s.roundSeq !== lastRoundSeq) {
+      // A new round, or an undo/clear on the drawer's phone: repaint from the server's stroke list.
+      if (s.roundSeq !== lastRoundSeq || s.strokeRev !== lastStrokeRev) {
         lastRoundSeq = s.roundSeq;
+        lastStrokeRev = s.strokeRev;
         canvasObj.renderStatic(s.strokes || []);
       }
       $('#pdrawer').textContent = `${s.drawerName} is drawing`;
       $('#pword').innerHTML = `${wordBlanksHTML(s.wordShape)}${bar(s.endsAt, s.windowMs)}`;
       const feed = $('#pguesses');
       feed.innerHTML = (s.guesses || []).map(g => `<div class="prow ${g.correct ? 'ok' : ''}">
-        <b>${esc(g.name)}</b>${g.correct ? ' got it!' : `: ${esc(g.text)}`}</div>`).join('');
+        <b>${esc(g.name)}</b> ${g.correct ? 'got it!' : esc(g.text)}${g.checking ? ' <span class="spin sm"></span>' : ''}</div>`).join('') || '<div class="prow empty">Guesses show up here</div>';
       $('#pscores').innerHTML = scoreboardHTML(s, { turnId: s.drawerId, plain: true });
     },
   };

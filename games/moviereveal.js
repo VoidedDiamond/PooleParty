@@ -1,5 +1,6 @@
 'use strict';
 const { judge } = require('./match');
+const ai = require('./judge');
 const { pickFresh } = require('./content');
 
 const ROUND_MS = 40000;
@@ -48,6 +49,7 @@ class MovieReveal {
     this.roundNum += 1;
     const m = this.pickMovie();
     this.used.add(m.title);
+    if (this.batcher) this.batcher.reset();
     this.movie = m;
     this.clueIndex = 0;
     this.phase = 'clue';
@@ -84,13 +86,12 @@ class MovieReveal {
         if (!text.trim()) return 'Empty guess';
         const player = this.players.get(pid);
         const result = judge(text, [this.movie.title]);
-        if (result.index === 0) {
-          const pts = Math.max(100, 400 - this.clueIndex * 100);
-          if (player) player.score += pts;
-          this.reveal(pid);
-        } else {
-          this.guesses.unshift({ name: player ? player.name : 'Someone', text });
+        if (result.index === 0) this.win(pid);
+        else {
+          const entry = { name: player ? player.name : 'Someone', text };
+          this.guesses.unshift(entry);
           this.guesses = this.guesses.slice(0, 20);
+          this.aiCheck(pid, entry);
         }
         return null;
       }
@@ -108,6 +109,30 @@ class MovieReveal {
       }
       default: return 'Unknown action';
     }
+  }
+
+  win(pid) {
+    const player = this.players.get(pid);
+    const pts = Math.max(100, 400 - this.clueIndex * 100);
+    if (player) player.score += pts;
+    this.reveal(pid);
+  }
+
+  // Alternate titles and nicknames ("Snow White" for "Snow White and the Seven Dwarfs") get a
+  // second look from Claude while the clues keep coming, batched like Pictionary guesses.
+  aiCheck(pid, entry) {
+    if (entry.text.trim().length < 3) return;
+    if (!this.batcher) this.batcher = new ai.GuessBatcher({ maxRequests: 5 });
+    const movie = this.movie;
+    const queued = this.batcher.add({
+      text: entry.text, answers: [movie.title], opts: { mode: 'exact', context: 'Name that Disney movie' },
+      done: idx => {
+        entry.checking = false;
+        if (idx === 0 && this.phase === 'clue' && this.movie === movie) this.win(pid);
+        this.notify();
+      },
+    });
+    if (queued) entry.checking = true;
   }
 
   reveal(winnerId) {

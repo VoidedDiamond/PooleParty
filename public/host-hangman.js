@@ -23,9 +23,7 @@
   }
 
   function blanksHTML(s) {
-    return `<div class="hm-tvblanks">${(s.blanks || '').split('').map(c => c === ' '
-      ? '<span class="hm-gap"></span>'
-      : `<span class="hm-cell">${c === '_' ? '' : esc(c)}</span>`).join('')}</div>`;
+    return hangmanBlanksHTML(s.blanks);
   }
 
   function chooseHTML(s) {
@@ -46,7 +44,7 @@
         ${blanksHTML(s)}
         <div class="hm-missed">${missed ? `Missed ${missed}` : 'No misses yet'}</div>
         ${bar(s.endsAt, s.windowMs)}
-        <div class="note center">The longer it takes, the more ${esc(s.giverName)} earns.</div>
+        <div class="note center">${s.lastMiss ? `<span class="no">${esc(s.lastMiss.name)} missed with ${esc(s.lastMiss.what)}: −${s.lastMiss.pts}</span>` : `The longer it takes, the more ${esc(s.giverName)} earns. Wrong guesses cost points.`}</div>
       </div>
     </div>${scoreboardHTML(s, { turnId: s.giverId, plain: true })}</div>`;
   }
@@ -71,8 +69,11 @@
     sounds(a, b) {
       if (!a) return;
       if (b.wrongCount > a.wrongCount) sfx.wrong();
-      if ((b.guessedLetters || []).length > (a.guessedLetters || []).length) sfx.right();
-      if (b.phase === 'reveal' && a.phase !== 'reveal') sfx[(b.awarded || {}).won ? 'fanfare' : 'buzz']();
+      else if ((b.guessedLetters || []).length > (a.guessedLetters || []).length) sfx.right();
+      if (b.phase === 'guessing' && a.phase !== 'guessing') sfx.start();
+      if (b.phase === 'reveal' && a.phase !== 'reveal') {
+        if ((b.awarded || {}).won) { sfx.kaching(); sfx.applause(1.6); } else sfx.lose();
+      }
     },
   };
 })();

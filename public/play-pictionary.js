@@ -4,18 +4,8 @@
   mod.inputScreens = new Set(['guess', 'draw']);
 
   let canvasObj = null;
-  let currentColor = '#141414';
-
-  function drawerToolbarHTML() {
-    const colors = ['#141414', '#e53e3e', '#3182ce', '#38a169', '#d69e2e'];
-    return `<div class="ptoolbar">
-      ${colors.map(c => `<button class="pswatch ${c === currentColor ? 'sel' : ''}" data-color="${c}" style="background:${c}"></button>`).join('')}
-      <button class="ghost" id="pclear">Clear</button>
-    </div>`;
-  }
-
   const feedHTML = s => (s.guesses || []).slice(0, 8).map(g => `<div class="prow ${g.correct ? 'ok' : ''}">
-    <b>${esc(g.name)}</b> ${g.correct ? 'got it!' : esc(g.text)}</div>`).join('');
+    <b>${esc(g.name)}</b> ${g.correct ? 'got it!' : esc(g.text)}${g.checking ? ' <span class="spin sm"></span>' : ''}</div>`).join('');
   const correctText = s => `${s.correctCount || 0} player${(s.correctCount || 0) === 1 ? '' : 's'} guessed it`;
 
   mod.screen = (s, me) => {
@@ -33,7 +23,7 @@
     if (s.phase === 'drawing' && isDrawer) {
       return { key: 'draw', html: `<p class="say">Draw: ${esc(s.word || '')}</p>${bar(s.endsAt, s.windowMs)}
         <div class="pcanvaswrap phone-canvas"><canvas id="pcanvas"></canvas></div>
-        ${drawerToolbarHTML()}
+        ${penToolbarHTML()}
         <p class="note" id="pcorrect">${correctText(s)}</p>` };
     }
 
@@ -45,8 +35,10 @@
     if (s.phase === 'drawing') {
       return { key: 'guess', html: `<p class="say">${esc(s.drawerName)} is drawing</p>
         ${wordBlanksHTML(s.wordShape)}${bar(s.endsAt, s.windowMs)}
-        <input id="guessInput" type="text" placeholder="Type your guess" autocomplete="off">
-        <button class="primary" id="guessGo">Guess</button>
+        <form class="guessform" id="guessForm" autocomplete="off">
+          <input id="guessInput" type="text" placeholder="Type your guess" autocomplete="off" enterkeyhint="send" value="${esc(draft.answer)}">
+          <button class="primary" id="guessGo" type="submit">Guess</button>
+        </form>
         <div class="pguessfeed" id="pfeed">${feedHTML(s)}</div>` };
     }
 
@@ -75,30 +67,22 @@
     if (key === 'draw') {
       const canvasEl = $('#pcanvas');
       canvasObj = makeCanvas(canvasEl, {
-        interactive: true, size: 8, color: currentColor,
+        interactive: true, size: 8, color: penColor,
         onPoint: (kind, point, color) => sendStroke(kind, point, color),
       });
-      document.querySelectorAll('.pswatch').forEach(b => {
-        b.onclick = () => {
-          currentColor = b.dataset.color;
-          if (canvasObj) canvasObj.setColor(currentColor);
-          document.querySelectorAll('.pswatch').forEach(x => x.classList.remove('sel'));
-          b.classList.add('sel');
-        };
-      });
-      if ($('#pclear')) $('#pclear').onclick = () => { if (canvasObj) canvasObj.clear(); };
+      wirePenToolbar(() => canvasObj);
     }
     if (key === 'guess') {
       const input = wireInput('guessInput', 'answer');
-      const go = () => {
-        const text = (draft.answer || '').trim();
+      $('#guessForm').onsubmit = e => {
+        e.preventDefault();
+        const text = input.value.trim();
         if (!text) return;
         act('guess', { text });
         draft.answer = '';
-        if (input) input.value = '';
+        input.value = '';
+        input.focus();
       };
-      onEnter(input, go);
-      if ($('#guessGo')) $('#guessGo').onclick = go;
     }
   };
 

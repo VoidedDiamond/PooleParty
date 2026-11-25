@@ -8,6 +8,8 @@ const REVEAL_MS = 6000;
 const MAX_WRONG = 6; // classic six-part hangman figure: head, torso, 2 arms, 2 legs
 const LETTER_PTS = 25;
 const SOLVE_BONUS = 150;
+const WRONG_LETTER_PENALTY = 10; // a guesser's miss costs them, so random letter spam doesn't pay
+const WRONG_WORD_PENALTY = 25;
 
 class Hangman {
   // opts: { source }  source.data.categories: { [themeName]: string[] }
@@ -63,6 +65,7 @@ class Hangman {
     this.creditFor = new Map(); // letter -> pid who first guessed it
     this.wrongCount = 0;
     this.startedAt = Date.now();
+    this.lastMiss = null;
     this.phase = 'guessing';
     this.setTimer(GUESS_MS);
     const round = this.round;
@@ -85,17 +88,26 @@ class Hangman {
     } else {
       this.wrong.add(L);
       this.wrongCount += 1;
+      this.penalize(pid, WRONG_LETTER_PENALTY, L);
       if (this.wrongCount >= MAX_WRONG) this.finishRound(false);
     }
     return null;
   }
 
+  penalize(pid, pts, what) {
+    const p = this.players.get(pid);
+    if (p) p.score -= pts;
+    this.lastMiss = { pid, name: p ? p.name : 'Someone', what, pts, at: Date.now() };
+  }
+
   guessWord(pid, text) {
     if (this.phase !== 'guessing' || pid === this.giverId) return 'Not your turn';
-    const guess = String(text || '').trim().toUpperCase();
+    const letters = t => String(t || '').toUpperCase().replace(/[^A-Z]/g, '');
+    const guess = letters(text);
     if (!guess) return 'Type a guess first';
-    if (guess === this.word) { this.finishRound(true, pid); return null; }
+    if (guess === letters(this.word)) { this.finishRound(true, pid); return null; }
     this.wrongCount += 1;
+    this.penalize(pid, WRONG_WORD_PENALTY, String(text || '').trim().toUpperCase().slice(0, 30));
     if (this.wrongCount >= MAX_WRONG) this.finishRound(false);
     return null;
   }
@@ -179,6 +191,7 @@ class Hangman {
       wrongLetters: this.phase === 'guessing' || this.phase === 'reveal' ? [...(this.wrong || [])] : [],
       wrongCount: this.wrongCount || 0,
       maxWrong: MAX_WRONG,
+      lastMiss: this.phase === 'guessing' ? this.lastMiss || null : null,
       awarded: this.awarded || null,
       players: [...this.players.values()].map(p => ({
         id: p.id, name: p.name, color: p.color, score: p.score, connected: p.connected,

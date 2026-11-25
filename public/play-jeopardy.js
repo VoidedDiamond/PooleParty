@@ -12,6 +12,9 @@
     const f = s.final;
     const fe = f && f.entries.find(e => e.id === me.id);
 
+    // The clue itself, for whoever is holding a phone instead of looking at the TV.
+    const clueLine = c && c.clue ? `<p class="kicker">${esc(c.category)} · ${money(c.value)}</p><p class="qtext">${esc(c.clue)}</p>` : '';
+
     switch (s.phase) {
       case 'board': {
         if (isCtl) return { key: 'pick', html: `<p class="say">Your pick</p>${bar(s.boardEndsAt, s.boardWindowMs)}${boardHTML(s, { pick: true })}` };
@@ -31,20 +34,21 @@
             <button id="sendwager" class="primary">Lock in wager</button>` };
         }
         if (c.stage === 'answering') {
+          if (c.checking && c.checking.pid === me.id) return { key: 'checking', html: `<p class="say">Checking your answer</p>${clueLine}${checkingHTML(`"${esc(c.checking.guess)}"`)}` };
           if (c.buzzedId === me.id) {
-            if (c.choices) return { key: 'choose', html: `<p class="say">Choose your answer</p>${bar(c.endsAt, c.windowMs)}${choicesHTML(c.choices)}` };
-            return { key: 'answer', html: `<p class="say">${c.dd ? 'Daily Double' : 'You are up'}</p>${bar(c.endsAt, c.windowMs)}
+            if (c.choices) return { key: 'choose', html: `${clueLine}${bar(c.endsAt, c.windowMs)}${choicesHTML(c.choices)}` };
+            return { key: 'answer', html: `<p class="say">${c.dd ? 'Daily Double' : 'You buzzed in!'}</p>${clueLine}${bar(c.endsAt, c.windowMs)}
               <input id="answer" type="text" maxlength="80" autocomplete="off" autocapitalize="off" placeholder="Type your answer" value="${esc(draft.answer)}">
               <button id="sendanswer" class="primary">Submit answer</button>` };
           }
           const who = findPlayer(s, c.buzzedId);
-          return { key: 'other', html: `<button class="buzz" disabled>${esc(who ? who.name : 'Someone')} is answering</button>` };
+          return { key: 'other', html: `${clueLine}<button class="buzz" disabled>${esc(who ? who.name : 'Someone')} is answering</button>` };
         }
         if (c.stage === 'revealed') return revealedScreen(s, me, c);
         if (c.dd) return { key: 'ddwatch', html: '<p class="say">Daily Double</p><p class="note">Watch the TV.</p>' };
-        if (c.lockedOut.includes(me.id)) return { key: 'out', html: '<button class="buzz out" disabled>Locked out</button>' };
-        if (c.stage === 'open') return { key: 'open', html: '<button class="buzz ready" id="buzz">BUZZ</button>' };
-        return { key: 'read', html: '<button class="buzz" id="buzz">Wait</button>' };
+        if (c.lockedOut.includes(me.id)) return { key: 'out', html: `${clueLine}<button class="buzz out" disabled>Locked out</button>` };
+        if (c.stage === 'open') return { key: 'open', html: `${clueLine}<button class="buzz ready" id="buzz">BUZZ</button>` };
+        return { key: 'read', html: `${clueLine}<button class="buzz" id="buzz">Wait for it…</button>` };
       }
       case 'final_wager':
         if (!fe) return { key: 'fwatch', html: `<p class="say">Final Jeopardy</p><p class="note">Category: ${esc(f.category)}. You need a positive score to play. Watch the TV.</p>` };
@@ -85,9 +89,10 @@
     let extra = '';
     if (c.challengeable.includes(me.id) && !c.challenge && mine) {
       extra = `<p class="note">You answered "${esc(mine.guess || 'nothing')}".</p>
-        <button class="primary" id="challenge">Challenge: I was right</button>`;
+        <button class="primary" id="challenge">Challenge: I was right</button>
+        <p class="note">If the others reject it, you lose half the clue's value.</p>`;
     }
-    if (ch && ch.result) extra += `<p class="note">Challenge ${ch.result}.</p>`;
+    if (ch && ch.result) extra += `<p class="note">${ch.result === 'accepted' ? 'Challenge accepted.' : `Challenge rejected${ch.pid === me.id ? `: you lose ${money(ch.penalty)}` : ''}.`}</p>`;
     return { key: 'rev', html: `<p class="note">The answer</p><p class="say">${esc(c.answer)}</p>${extra}` };
   }
 

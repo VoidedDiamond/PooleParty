@@ -3,50 +3,36 @@ const app = $('#app');
 let prev = null;
 
 // ---- sound (unlocks on the first click or key press on this page) --------
-let audio = null;
-function unlockAudio() {
-  if (!audio) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) audio = new AC(); }
-  if (audio && audio.state === 'suspended') audio.resume();
+// Music and effects live in audio.js. Game modules call sfx.<name>().
+const sfx = Sound.sfx;
+['click', 'keydown', 'pointerdown'].forEach(ev => document.addEventListener(ev, () => Sound.unlock()));
+
+// Browsers keep a page silent (music, sound effects and the host voice) until someone clicks it
+// or presses a key once. Say so on the TV until that happens.
+function soundHint() {
+  const active = navigator.userActivation ? navigator.userActivation.hasBeenActive : false;
+  let el = $('#soundhint');
+  if (active) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'soundhint';
+    el.innerHTML = `${icon('volume-2')} Click or press any key to turn on sound`;
+    document.body.appendChild(el);
+  }
 }
-['click', 'keydown', 'pointerdown'].forEach(ev => document.addEventListener(ev, unlockAudio));
-function tone(freq, ms, type = 'square', vol = 0.07, delay = 0) {
-  if (!audio || audio.state !== 'running') return;
-  const t0 = audio.currentTime + delay / 1000;
-  const o = audio.createOscillator();
-  const g = audio.createGain();
-  o.type = type; o.frequency.value = freq;
-  g.gain.setValueAtTime(vol, t0);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + ms / 1000);
-  o.connect(g).connect(audio.destination);
-  o.start(t0); o.stop(t0 + ms / 1000);
+['click', 'keydown', 'pointerdown'].forEach(ev => document.addEventListener(ev, () => setTimeout(soundHint, 0)));
+setTimeout(soundHint, 1500);
+
+// Which loop plays: the menu theme in the lobby, each game's own theme, a victory loop on the
+// final scores.
+// Games that share a theme.
+const MUSIC_ALIAS = { memory: 'brain', quickmath: 'brain', popinorder: 'brain', oddoneout: 'brain', colorclash: 'brain', blurry: 'brain', clock: 'brain', coins: 'brain', mirror: 'brain', simon: 'brain' };
+function musicFor(s) {
+  if (s.game === 'hub') return 'lobby';
+  if (s.phase === 'end') return 'victory';
+  return MUSIC_ALIAS[s.game] || s.game;
 }
-// A rising or falling pitch sweep, used for whoosh-y transitions (round start, reveal build-up).
-function sweep(f0, f1, ms, type = 'sine', vol = 0.08, delay = 0) {
-  if (!audio || audio.state !== 'running') return;
-  const t0 = audio.currentTime + delay / 1000;
-  const o = audio.createOscillator();
-  const g = audio.createGain();
-  o.type = type;
-  o.frequency.setValueAtTime(f0, t0);
-  o.frequency.exponentialRampToValueAtTime(Math.max(1, f1), t0 + ms / 1000);
-  g.gain.setValueAtTime(vol, t0);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + ms / 1000);
-  o.connect(g).connect(audio.destination);
-  o.start(t0); o.stop(t0 + ms / 1000);
-}
-const sfx = {
-  buzz: () => tone(880, 220, 'square'),
-  right: () => { tone(660, 140, 'sine', 0.12); tone(990, 260, 'sine', 0.12, 140); },
-  wrong: () => tone(150, 500, 'sawtooth', 0.09),
-  dd: () => [523, 659, 784, 1046].forEach((f, i) => tone(f, 160, 'triangle', 0.1, i * 120)),
-  // water-flavored additions: a splashy whoosh for new rounds, a droplet pop for reveals,
-  // a soft tick for the last few seconds on the clock, and a fanfare for the win screen.
-  tick: () => tone(1500, 60, 'square', 0.045),
-  pop: () => { tone(520, 90, 'sine', 0.09); tone(780, 70, 'sine', 0.05, 40); },
-  whoosh: () => sweep(200, 900, 300, 'sine', 0.06),
-  splash: () => { sweep(700, 120, 220, 'sine', 0.09); tone(90, 180, 'triangle', 0.06, 120); },
-  fanfare: () => [523, 659, 784, 1046, 1318].forEach((f, i) => tone(f, 260, 'triangle', 0.11, i * 130)),
-};
+
 // ---- lobby ----------------------------------------------------------------
 // Left: the logo, the join QR code and who's in. Right: the game grid, mirroring the host's phone.
 function playersHTML(s) {
@@ -112,7 +98,7 @@ function hubHTML(s) {
 // the host taps Start or the intro timer runs out.
 function introScreenHTML(s) {
   const host = findPlayer(s, s.hostId);
-  return `<div class="stage intro-stage">${introHTML(s.game)}
+  return `<div class="stage intro-stage">${introHTML(s.game, s.rules)}
     <div class="intro-foot">${bar(s.endsAt, s.windowMs)}
       <div class="intro-hint">${icon('smartphone')} ${host ? `${esc(host.name)} can start it now from their phone` : 'Starting in a moment'}</div></div>
   </div>`;
@@ -120,10 +106,13 @@ function introScreenHTML(s) {
 
 function render(s) {
   document.documentElement.dataset.game = s.game;
+  Sound.setVolumes(s.sound);
+  Announcer.configure(s.voice);
+  Sound.music(musicFor(s));
   if (s.phase === 'intro') {
     // prev is left alone on purpose: the game's first real state then renders as a fresh start.
     const key = `${s.game}:${s.endsAt}`;
-    if (app.dataset.intro !== key) { app.dataset.intro = key; app.innerHTML = introScreenHTML(s); sfx.pop(); }
+    if (app.dataset.intro !== key) { app.dataset.intro = key; app.innerHTML = introScreenHTML(s); sfx.pop(); Announcer.welcome(s); }
     return;
   }
   app.dataset.intro = '';
@@ -134,6 +123,12 @@ function render(s) {
     else if (prev.game !== 'hub') sfx.pop(); // back to the menu
   }
   if (prev && prev.phase !== 'end' && s.phase === 'end') sfx.fanfare();
+  if (prev && s.game === 'hub' && prev.game === 'hub') {
+    const live = x => x.players.filter(p => p.connected).length;
+    if (live(s) > live(prev)) sfx.join();
+    else if (live(s) < live(prev)) sfx.leave();
+    if (s.hubMenu !== prev.hubMenu) sfx[s.hubMenu ? 'select' : 'swoosh']();
+  }
   if (s.game === 'hub') {
     if (same && $('#roster')) {
       $('#roster').innerHTML = playersHTML(s);
@@ -145,19 +140,25 @@ function render(s) {
     if (g.tv.update) g.tv.update(app, s, same ? prev : null);
     else app.innerHTML = g.tv.html(s);
     if (g.tv.sounds) g.tv.sounds(same ? prev : null, s);
+    Announcer.observe(same ? prev : null, s);
   }
   prev = s;
 }
 
-// A last-few-seconds tick, independent of state broadcasts (which only arrive on events)
-// so the clock actually ticks down in real time on whatever countdown is currently showing.
-let tickedFor = null;
+// The last five seconds of any countdown tick out loud, one tick per second, independent of
+// state broadcasts (which only arrive on events).
+let lastTick = null;
 setInterval(() => {
-  if (!prev || !prev.endsAt) return;
-  const key = `${prev.game}:${prev.phase}:${prev.endsAt}`;
-  if (tickedFor === key) return;
-  const remain = prev.endsAt - serverNow();
-  if (remain > 0 && remain <= 5000) { tickedFor = key; sfx.tick(); }
-}, 400);
+  const s = prev;
+  if (!s) return;
+  const endsAt = s.endsAt || (s.current && s.current.endsAt) || (s.fm && s.fm.endsAt) || (s.final && s.final.endsAt);
+  if (!endsAt || s.phase === 'intro') return;
+  const left = Math.ceil((endsAt - serverNow()) / 1000);
+  if (left < 1 || left > 5) return;
+  const key = `${endsAt}:${left}`;
+  if (lastTick === key) return;
+  lastTick = key;
+  if (left <= 2) sfx.tock(); else sfx.tick();
+}, 100);
 
 connect({ role: 'display' }, render);

@@ -61,10 +61,23 @@ function shapeOf(a) {
   return `${caps ? 'C' : 'l'}${Math.min(words.length, 3)}`;
 }
 
-function buildPool(entries) { // entries: [{ a, cat }]
+// Keywords of a clue, for finding related clues elsewhere in the bank.
+const KEY_STOP = new Set(('this that these those with from they them their there were have been also into after before about '
+  + 'like what which when where while known name named called first last only than then each many most more some such '
+  + 'used your just over under made make become became being does done other another here very much once upon onto '
+  + 'it\'s its title word words letter letters').split(' '));
+function keywords(text) {
+  return [...new Set(String(text).toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/)
+    .filter(w => w.length >= 4 && !KEY_STOP.has(w))
+    .map(w => w.replace(/ies$/, 'y').replace(/(ch|sh|x)es$/, '$1').replace(/([^s])s$/, '$1')))];
+}
+
+function buildPool(entries) { // entries: [{ a, cat, q }]
   const byCat = new Map();
   const byShape = new Map();
-  for (const { a, cat } of entries) {
+  const list = [];
+  const byWord = new Map();
+  for (const { a, cat, q } of entries) {
     const d = display(a);
     const shape = shapeOf(d);
     if (!byShape.has(shape)) byShape.set(shape, []);
@@ -72,26 +85,62 @@ function buildPool(entries) { // entries: [{ a, cat }]
     const k = String(cat).toLowerCase();
     if (!byCat.has(k)) byCat.set(k, []);
     byCat.get(k).push(d);
+    const i = list.length;
+    list.push({ d, shape });
+    for (const w of keywords(`${q || ''} ${cat}`)) {
+      if (!byWord.has(w)) byWord.set(w, []);
+      byWord.get(w).push(i);
+    }
   }
-  return { byCat, byShape };
+  return { byCat, byShape, list, byWord };
 }
 
-function makeChoices(pool, answer, category) {
+// Answers to clues elsewhere in the bank that share rare words with this clue and its category:
+// a colonies clue pulls in other colonies, a planets clue other planets. Best matches first.
+function relatedAnswers(pool, clue, category) {
+  if (!pool.list || !clue) return [];
+  const n = pool.list.length;
+  const scores = new Map();
+  for (const w of keywords(`${clue} ${category}`)) {
+    const ids = pool.byWord.get(w);
+    if (!ids || ids.length > 40 + n * 0.004) continue; // too common to mean anything
+    const idf = Math.log(n / ids.length);
+    for (const i of ids) scores.set(i, (scores.get(i) || 0) + idf);
+  }
+  // A single shared word is often a coincidence ("1799"); ask for about two.
+  return [...scores.entries()].filter(([, sc]) => sc >= 11).sort((x, y) => y[1] - x[1]).slice(0, 60).map(([i]) => pool.list[i]);
+}
+
+// Four options for a multiple-choice clue. opts:
+//   clue     the clue text, to find related wrong answers in the bank
+//   wrong    wrong answers written by Claude for this clue (used first when they check out)
+//   exclude  answers elsewhere on this board, which Claude's options must not reuse
+function makeChoices(pool, answer, category, opts = {}) {
   const correct = display(answer);
   const shape = shapeOf(correct);
   const picked = [];
-  const ok = c => c.toLowerCase() !== correct.toLowerCase()
+  const exclude = new Set([...(opts.exclude || [])].map(x => display(x).toLowerCase()));
+  const ok = c => !!c && c.length <= 80 && c.toLowerCase() !== correct.toLowerCase()
     && !picked.some(p => p.toLowerCase() === c.toLowerCase())
     && score(c, correct) < 0.55 && score(correct, c) < 0.55;
 
-  if (shape === 'year') {
+  for (const w of opts.wrong || []) {
+    if (picked.length === 3) break;
+    const c = display(String(w).trim());
+    if (ok(c) && !exclude.has(c.toLowerCase())) picked.push(c);
+  }
+  if (picked.length === 3) { /* Claude's options checked out */ } else if (shape === 'year') {
     const y = Number(correct);
     for (const d of shuffle([-1, 1, -2, 2, -3, 3, -5, 5, -8, 8, -12, 12])) {
       if (picked.length === 3) break;
-      picked.push(String(y + d));
+      if (ok(String(y + d))) picked.push(String(y + d));
     }
   } else {
+    // Offline: answers to closely related clues elsewhere in the bank first (a colonies clue
+    // pulls in other colonies), then this category's answers, then anything of the same shape.
+    const related = relatedAnswers(pool, opts.clue, category).filter(r => r.shape === shape).slice(0, 4).map(r => r.d);
     const cands = [
+      ...shuffle(related).slice(0, 2),
       ...shuffle(pool.byCat.get(String(category).toLowerCase()) || []).slice(0, 12),
       ...sample(pool.byShape.get(shape) || [], 40),
     ];
@@ -124,14 +173,14 @@ function loadJeopardySource(override) {
   const data = readJSON(file);
   if (data.kind === 'jeopardy-bank') {
     const entries = [];
-    for (const b of data.categories) for (const c of b.clues) entries.push({ a: c.a, cat: b.c });
-    for (const f of data.finals) entries.push({ a: f.a, cat: f.c });
+    for (const b of data.categories) for (const c of b.clues) entries.push({ a: c.a, cat: b.c, q: c.q });
+    for (const f of data.finals) entries.push({ a: f.a, cat: f.c, q: f.q });
     return { kind: 'bank', data, pool: buildPool(entries), label: `${data.categories.length.toLocaleString()} boards in the clue bank` };
   }
   validatePack(data, file);
   const entries = [];
-  for (const cat of data.categories) for (const c of cat.clues) entries.push({ a: c.answer, cat: cat.name });
-  if (data.final) entries.push({ a: data.final.answer, cat: data.final.category });
+  for (const cat of data.categories) for (const c of cat.clues) entries.push({ a: c.answer, cat: cat.name, q: c.clue });
+  if (data.final) entries.push({ a: data.final.answer, cat: data.final.category, q: data.final.clue });
   return { kind: 'pack', data, pool: buildPool(entries), label: `Pack: ${data.title || path.basename(file)}` };
 }
 
@@ -265,11 +314,16 @@ function loadHangmanSource(override) {
 }
 
 // ---- Neanderthals ------------------------------------------------------------------
+// Cards: { cards: [{ one: "Fork", three: "Pitchfork", ban: ["eat", ...] }] }. A plain
+// { words: [...] } list (the old format) still loads: each word becomes a 1-point-only card.
 function loadNeanderthalsSource(override) {
-  const file = override ? path.resolve(override) : path.join(ROOT, 'content/neanderthals/words.json');
+  const file = override ? path.resolve(override) : path.join(ROOT, 'content/neanderthals/cards.json');
   const data = readJSON(file);
-  if (!Array.isArray(data.words) || !data.words.length) throw new Error(`${file}: "words" must be a non-empty array`);
-  return { data, label: `${data.words.length.toLocaleString()} words` };
+  const cards = Array.isArray(data.cards) ? data.cards.filter(c => c && c.one)
+    : Array.isArray(data.words) ? data.words.map(w => ({ one: w, three: null, ban: [] })) : [];
+  if (!cards.length) throw new Error(`${file}: "cards" must be a non-empty array`);
+  for (const c of cards) { c.three = c.three || null; c.ban = Array.isArray(c.ban) ? c.ban : []; }
+  return { data, cards, label: `${cards.length.toLocaleString()} cards` };
 }
 
 // ---- Scattergories --------------------------------------------------------------

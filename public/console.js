@@ -22,6 +22,7 @@ function hubPanel(s) {
       ${btn('Wavelength', 'data-act="startGame" data-type="wavelength"', 'gold big')}
       ${btn('Pictionary', 'data-act="startGame" data-type="pictionary"', 'gold big')}
       ${btn('T-Shirt Wars', 'data-act="startGame" data-type="tshirt"', 'gold big')}
+      ${btn('Trivia Night (hard)', 'data-act="startGame" data-type="trivia" data-pack="general"', 'gold big')}
       ${btn('5th Grade Trivia', 'data-act="startGame" data-type="trivia" data-pack="fifthgrade"', 'gold big')}
       ${btn('Disney Trivia', 'data-act="startGame" data-type="trivia" data-pack="disney"', 'gold big')}
       ${btn('Name That Disney Movie', 'data-act="startGame" data-type="moviereveal"', 'gold big')}
@@ -29,6 +30,21 @@ function hubPanel(s) {
       ${btn('Password', 'data-act="startGame" data-type="password"', 'gold big')}
       ${btn('Scattergories', 'data-act="startGame" data-type="scattergories"', 'gold big')}
       ${btn('Hangman', 'data-act="startGame" data-type="hangman"', 'gold big')}
+      ${btn('Count the Cubes', 'data-act="startGame" data-type="cubes" data-level="normal"', 'gold big')}
+      ${btn('Count the Cubes (hard)', 'data-act="startGame" data-type="cubes" data-level="hard"', 'gold big')}
+      ${btn('Tip the Scales', 'data-act="startGame" data-type="scales"', 'gold big')}
+      ${btn('Memory Flash', 'data-act="startGame" data-type="memory"', 'gold big')}
+      ${btn('Quick Math', 'data-act="startGame" data-type="quickmath"', 'gold big')}
+      ${btn('Pop in Order', 'data-act="startGame" data-type="popinorder"', 'gold big')}
+      ${btn('Odd One Out', 'data-act="startGame" data-type="oddoneout"', 'gold big')}
+      ${btn('Color Clash', 'data-act="startGame" data-type="colorclash"', 'gold big')}
+      ${btn('Blurry Picture', 'data-act="startGame" data-type="blurry"', 'gold big')}
+      ${btn('Simon Says', 'data-act="startGame" data-type="simon"', 'gold big')}
+      ${btn('Clock Reader', 'data-act="startGame" data-type="clock"', 'gold big')}
+      ${btn('Coin Count', 'data-act="startGame" data-type="coins"', 'gold big')}
+      ${btn('Mirror or Not', 'data-act="startGame" data-type="mirror"', 'gold big')}
+      ${btn('Flip 7', 'data-act="startGame" data-type="flip7" data-variant="classic"', 'gold big')}
+      ${btn('Flip 7: With a Vengeance', 'data-act="startGame" data-type="flip7" data-variant="vengeance" data-rules="flip7v"', 'gold big')}
       ${btn('Neanderthals', 'data-act="startGame" data-type="neanderthals"', 'gold big')}
     </div>
     <div class="meta">Jeopardy: ${esc(s.content.jeopardy)}. Family Feud: ${esc(s.content.feud)} (needs 2 or more players). Wheel: ${esc(s.content.wheel)}. Wavelength: ${esc(s.content.wavelength)} (needs 2 or more players). Pictionary: ${esc(s.content.pictionary)} (needs 2 or more players). T-Shirt Wars: ${esc(s.content.tshirt)} (needs 2 or more players). Movie Reveal: ${esc(s.content.moviereveal)}. Codenames: ${esc(s.content.codenames)} (needs 2 or more players). Password: ${esc(s.content.password)} (needs 2 or more players). Scattergories: ${esc(s.content.scattergories)}. Hangman: ${esc(s.content.hangman)} (needs 2 or more players). Neanderthals: ${esc(s.content.neanderthals)} (needs 2 or more players).</div>
@@ -118,10 +134,33 @@ function wavelengthPanel(s) {
     <div class="btns">${btn('Skip (S)', 'data-act="skip"', 'gold')}</div></div>`;
 }
 
+// ---- Count the Cubes ---------------------------------------------------------
+function cubesPanel(s) {
+  return `<div class="panel"><h2>Round ${s.round} of ${s.rounds}. Phase: ${esc(s.phase)}</h2>
+    <div class="ans">${s.count} cubes</div>
+    <div class="meta">${(s.answeredIds || []).length} answered.</div>
+    <div class="btns">${btn('Skip ahead (S)', 'data-act="skip"', 'gold')}</div></div>`;
+}
+
+// ---- Tip the Scales ----------------------------------------------------------
+function scalesPanel(s) {
+  return `<div class="panel"><h2>Round ${s.round} of ${s.rounds}. Phase: ${esc(s.phase)}</h2>
+    <div class="ans">The ${esc(s.ask)}: ${esc(s.answer)}</div>
+    <div class="meta">Heaviest to lightest: ${esc((s.order || []).join(', '))}. ${(s.answeredIds || []).length} answered.</div>
+    <div class="btns">${btn('Skip ahead (S)', 'data-act="skip"', 'gold')}</div></div>`;
+}
+
+// ---- Memory Flash, Quick Math, Pop in Order ---------------------------------------
+function brainPanel(s) {
+  return `<div class="panel"><h2>Round ${s.round} of ${s.rounds}. Phase: ${esc(s.phase)}</h2>
+    ${s.game === 'memory' && s.answer ? `<div class="ans">${s.kind === 'where' ? `The ${esc(s.ask.name)} is in spot ${s.answer.cell + 1}` : `Answer: ${esc(s.answer.name)}`}</div>` : ''}
+    <div class="btns">${btn('Skip ahead (S)', 'data-act="skip"', 'gold')}</div></div>`;
+}
+
 function playersPanel(s) {
-  const plainScore = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal'].includes(s.game);
+  const plainScore = ['wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7', 'oddoneout', 'colorclash', 'blurry', 'clock', 'coins', 'mirror', 'simon'].includes(s.game);
   const adjustable = s.game === 'jeopardy' || s.game === 'wheel' || s.game === 'wavelength'
-    || s.game === 'pictionary' || s.game === 'tshirt' || s.game === 'trivia' || s.game === 'moviereveal';
+    || s.game === 'pictionary' || s.game === 'tshirt' || s.game === 'trivia' || s.game === 'moviereveal' || ['cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7', 'oddoneout', 'colorclash', 'blurry', 'clock', 'coins', 'mirror', 'simon'].includes(s.game);
   const rows = s.players.map(p => `<tr>
     <td style="border-left:6px solid ${p.color}">${esc(p.name)}${p.connected ? '' : ' <span class="meta">(offline)</span>'}${p.id === s.controllerId ? ' <span class="meta">(has control)</span>' : ''}</td>
     <td class="num ${p.score < 0 ? 'neg' : ''}">${p.score === undefined ? '' : (plainScore ? p.score : money(p.score))}</td>
@@ -146,6 +185,12 @@ function render() {
   else if (s.game === 'feud') main = feudPanel(s);
   else if (s.game === 'wheel') main = wheelPanel(s);
   else if (s.game === 'wavelength') main = wavelengthPanel(s);
+  else if (s.game === 'cubes') main = cubesPanel(s);
+  else if (s.game === 'scales') main = scalesPanel(s);
+  else if (['memory', 'quickmath', 'popinorder', 'oddoneout', 'colorclash', 'blurry', 'clock', 'coins', 'mirror', 'simon'].includes(s.game)) main = brainPanel(s);
+  else if (s.game === 'flip7') main = `<div class="panel"><h2>${esc(s.title)}. Round ${s.round}. Phase: ${esc(s.phase)}</h2>
+    <div class="meta">${esc((s.log || []).map(l => l.text).join(' '))}</div>
+    <div class="btns">${btn(s.phase === 'roundEnd' ? 'Next round (S)' : 'Hurry the current player (S)', 'data-act="skip"', 'gold')}</div></div>`;
   const footer = s.game === 'hub' ? '' : `<div class="btns">${btn('Restart this game', 'data-act="reset"', 'quiet')}${btn('Back to game menu', 'data-act="toMenu"', 'quiet')}</div>`;
   app.innerHTML = `<div class="wrap">
     <h1>Host console <small>${esc(s.title)}${s.mode ? ` (${s.mode === 'choice' ? 'multiple choice' : 'typed answers'})` : ''}</small></h1>
@@ -189,5 +234,5 @@ document.addEventListener('keydown', e => {
       if (c.stage === 'reading') run('openNow');
       else if (c.stage === 'revealed') run('next');
     }
-  } else if (['feud', 'wheel', 'wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals'].includes(state.game) && k === 's') run('skip');
+  } else if (['feud', 'wheel', 'wavelength', 'pictionary', 'tshirt', 'trivia', 'moviereveal', 'codenames', 'password', 'scattergories', 'hangman', 'neanderthals', 'cubes', 'scales', 'memory', 'quickmath', 'popinorder', 'flip7', 'oddoneout', 'colorclash', 'blurry', 'clock', 'coins', 'mirror', 'simon'].includes(state.game) && k === 's') run('skip');
 });

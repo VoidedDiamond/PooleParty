@@ -1,7 +1,7 @@
 'use strict';
 const { sampleFill } = require('./content');
 
-const ROUNDS = 8;
+const TARGET_ROUNDS = 8;
 const START_POINTS = 10;
 const STEP = 2;
 const CLUE_MS = 30000;
@@ -13,9 +13,15 @@ class Password {
   constructor(players, notify, opts) {
     this.players = players;
     this.notify = notify;
-    this.words = sampleFill(opts.source.data.words, ROUNDS);
+    // Turn order is fixed at the start, and the game is a whole number of laps around the group,
+    // so with any group size (odd ones too) everyone gives clues and guesses the same number of
+    // times. Each lap pairs people differently: lap 1 hints to the next player, lap 2 to the one
+    // after, and so on, so you don't always get the same partner.
+    this.order = [...players.keys()];
+    const n = this.order.length;
+    this.rounds = n * Math.max(1, Math.round(TARGET_ROUNDS / n));
+    this.words = sampleFill(opts.source.data.words, this.rounds);
     this.round = -1;
-    this.rot = 0;
     this.timer = null;
     for (const p of players.values()) p.score = 0;
     this.startRound();
@@ -38,20 +44,22 @@ class Password {
   }
   setTimer(ms) { this.endsAt = Date.now() + ms; this.total = ms; }
 
-  order() {
-    const all = [...this.players.values()];
-    const live = all.filter(p => p.connected);
-    return (live.length >= 2 ? live : all).map(p => p.id);
+  pairFor(round) {
+    const n = this.order.length;
+    const lap = Math.floor(round / n);
+    const offset = 1 + (lap % (n - 1));
+    return [this.order[round % n], this.order[(round + offset) % n]];
   }
 
   startRound() {
-    this.round += 1;
-    if (this.round >= ROUNDS) { this.phase = 'end'; this.endsAt = null; return; }
-    const list = this.order();
-    if (list.length < 2) { this.phase = 'end'; this.endsAt = null; return; }
-    this.hinterId = list[this.rot % list.length];
-    this.guesserId = list[(this.rot + 1) % list.length];
-    this.rot += 1;
+    // A pair with someone missing (phone left the game) is skipped rather than stalling the room.
+    for (;;) {
+      this.round += 1;
+      if (this.round >= this.rounds || this.order.length < 2) { this.phase = 'end'; this.endsAt = null; return; }
+      [this.hinterId, this.guesserId] = this.pairFor(this.round);
+      const h = this.players.get(this.hinterId), g = this.players.get(this.guesserId);
+      if (h && g && h.connected && g.connected) break;
+    }
     this.word = this.words[this.round];
     this.points = START_POINTS;
     this.clueText = '';
@@ -141,7 +149,7 @@ class Password {
     const showWord = priv || pid === this.hinterId || this.phase === 'reveal' || this.phase === 'end';
     return {
       game: 'password', title: 'Password', phase: this.phase,
-      round: this.round + 1, rounds: ROUNDS,
+      round: this.round + 1, rounds: this.rounds,
       hinterId: this.hinterId, guesserId: this.guesserId,
       word: showWord ? this.word : null,
       clue: this.clueText, clueCount: this.clueCount,

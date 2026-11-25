@@ -6,7 +6,7 @@
     return c.rulings.map(r => {
       const guess = r.guess ? `"${esc(r.guess)}"` : 'no answer';
       const cls = r.correct ? 'ok' : 'no';
-      const label = r.correct ? (r.overruled ? 'Correct (overruled)' : 'Correct') : 'Incorrect';
+      const label = r.correct ? (r.overruled ? 'Correct (overruled)' : r.ai ? 'Correct (the judges accept it)' : 'Correct') : 'Incorrect';
       return `<div class="ruling ${cls}">${who(s, r.pid)}: ${guess}. ${label}</div>`;
     }).join('');
   }
@@ -22,12 +22,15 @@
     let status = '';
     let extra = '';
     if (c.stage === 'open') { status = 'Buzzers are open'; extra = bar(c.endsAt, c.windowMs); }
-    else if (c.stage === 'answering') {
+    else if (c.stage === 'answering' && c.checking) {
+      status = `<span class="who">${who(s, c.checking.pid)}</span>: "${esc(c.checking.guess)}"`;
+      extra = checkingHTML('Checking with the judges');
+    } else if (c.stage === 'answering') {
       status = `<span class="who">${who(s, c.buzzedId)}</span> is ${c.answerMode === 'choice' ? 'choosing an answer' : 'typing an answer'}`;
       extra = bar(c.endsAt, c.windowMs);
     } else if (c.stage === 'revealed') {
       if (c.challenge) {
-        if (c.challenge.result) status = `Challenge ${c.challenge.result}`;
+        if (c.challenge.result) status = c.challenge.result === 'accepted' ? 'Challenge accepted' : `Challenge rejected. ${who(s, c.challenge.pid)} loses ${money(c.challenge.penalty)}`;
         else { status = `${who(s, c.challenge.pid)} challenges the ruling. Other players vote on their phones.`; extra = bar(c.endsAt, c.windowMs); }
       } else if (c.challengeable.length) {
         status = 'Ruled wrong but you were right? Challenge on your phone.';
@@ -92,11 +95,21 @@
     sounds(a, b) {
       if (!a) return;
       const ca = a.current, cb = b.current;
-      if (cb && (!ca || ca.ci !== cb.ci || ca.ri !== cb.ri) && cb.dd) sfx.dd();
-      if (ca && cb && ca.stage !== 'answering' && cb.stage === 'answering' && !cb.dd) sfx.buzz();
+      if (cb && (!ca || ca.ci !== cb.ci || ca.ri !== cb.ri)) sfx[cb.dd ? 'dd' : 'flip']();
+      if (ca && cb && ca.stage !== 'answering' && cb.stage === 'answering' && !cb.dd) sfx.buzzin();
       if (ca && cb && cb.rulings.length > ca.rulings.length) {
         sfx[cb.rulings[cb.rulings.length - 1].correct ? 'right' : 'wrong']();
       } else if (ca && cb && cb.challenge && cb.challenge.result === 'accepted' && !(ca.challenge && ca.challenge.result)) sfx.right();
+      else if (ca && cb && cb.stage === 'revealed' && ca.stage !== 'revealed' && !cb.rulings.length) sfx.timesup();
+      if (b.phase === 'final_wager' && a.phase !== 'final_wager') sfx.sting();
+      const fa = a.final, fb = b.final;
+      if (fa && fb && b.phase === 'final_judge') {
+        const shown = f => (f.entries || []).filter(e => e.revealed).length;
+        const ruled = f => (f.entries || []).filter(e => e.result != null);
+        if (shown(fb) > shown(fa)) sfx.drumroll(1.1);
+        const rb = ruled(fb);
+        if (rb.length > ruled(fa).length) { const last = rb.find(e => !(ruled(fa).some(x => x.id === e.id))); sfx[last && last.result ? 'right' : 'wrong'](); }
+      }
     },
   };
 })();
